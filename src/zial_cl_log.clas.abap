@@ -10,7 +10,8 @@ CLASS zial_cl_log DEFINITION
            t_input_parameters TYPE rsra_t_alert_definition.
     TYPES: de_char150 TYPE c LENGTH 150 .
 
-    TYPES: t_log_stack TYPE TABLE OF REF TO zial_cl_log_ewm WITH DEFAULT KEY .
+    TYPES: o_log_instance TYPE REF TO zial_cl_log_sap,
+           t_log_stack    TYPE TABLE OF o_log_instance WITH DEFAULT KEY.
 
     CONSTANTS: BEGIN OF mc_msg_content_type,
                  obj TYPE numc1 VALUE 1,
@@ -58,7 +59,7 @@ CLASS zial_cl_log DEFINITION
                 mo_gui_alv_grid          TYPE REF TO cl_gui_alv_grid,
                 mv_sel_msg_param_id      TYPE v_message_param_id.
 
-    CLASS-DATA: mo_instance  TYPE REF TO zial_cl_log_ewm,
+    CLASS-DATA: mo_instance  TYPE o_log_instance,
                 mt_log_stack TYPE t_log_stack .   " LIFO: Last log initiated is first to be saved
 
     "! Get existing or create and return new log instance
@@ -77,8 +78,6 @@ CLASS zial_cl_log DEFINITION
     "! @parameter ro_instance | Log instance
     CLASS-METHODS init
       IMPORTING
-        !iv_lgnum          TYPE /scwm/lgnum OPTIONAL
-        !io_sap_log        TYPE REF TO /scwm/cl_log OPTIONAL
         !iv_object         TYPE balobj_d DEFAULT '/SCWM/WME'
         !iv_subobject      TYPE balsubobj
         !iv_extnumber      TYPE balnrext OPTIONAL
@@ -278,9 +277,7 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD init.
 
-    mo_instance = NEW #( iv_lgnum         = iv_lgnum
-                         io_sap_log       = io_sap_log
-                         iv_object        = iv_object
+    mo_instance = NEW #( iv_object        = iv_object
                          iv_subobject     = iv_subobject
                          iv_extnumber     = iv_extnumber
                          it_extnumber     = it_extnumber
