@@ -78,7 +78,7 @@ CLASS zial_cl_log DEFINITION
     "! @parameter ro_instance | Log instance
     CLASS-METHODS init
       IMPORTING
-        !iv_object         TYPE balobj_d DEFAULT '/SCWM/WME'
+        !iv_object         TYPE balobj_d DEFAULT mc_dflt_log_object
         !iv_subobject      TYPE balsubobj
         !iv_extnumber      TYPE balnrext OPTIONAL
         !it_extnumber      TYPE stringtab OPTIONAL

@@ -12,7 +12,7 @@ CLASS lcl_log IMPLEMENTATION.
 
   METHOD test.
 
-    zial_cl_log=>init( iv_object    = '/SCWM/WME'
+    zial_cl_log=>init( iv_object    = 'ZIAL_LOG'
                        iv_subobject = 'MFS'
                        iv_extnumber = |AbapUnitTest: LCL_LOG| ).
 
