@@ -143,13 +143,23 @@ CLASS zial_cl_log DEFINITION
     "! @parameter msgv4 | Message variable 4
     CLASS-METHODS display_appl_msg
       IMPORTING
-        !msgtx TYPE bapi_msg
-        !msgty TYPE msgty DEFAULT zial_cl_log=>mc_log_type-success
-        !msgdt TYPE msgty OPTIONAL
-        !msgv1 TYPE msgv1 OPTIONAL
-        !msgv2 TYPE msgv2 OPTIONAL
-        !msgv3 TYPE msgv3 OPTIONAL
-        !msgv4 TYPE msgv4 OPTIONAL .
+        msgtx TYPE bapi_msg
+        msgty TYPE msgty DEFAULT zial_cl_log=>mc_log_type-success
+        msgdt TYPE msgty OPTIONAL
+        msgv1 TYPE msgv1 OPTIONAL
+        msgv2 TYPE msgv2 OPTIONAL
+        msgv3 TYPE msgv3 OPTIONAL
+        msgv4 TYPE msgv4 OPTIONAL .
+    CLASS-METHODS to_textid
+      IMPORTING
+        !iv_msgid         TYPE symsgid OPTIONAL
+        !iv_msgno         TYPE symsgno OPTIONAL
+        !iv_msgv1         TYPE symsgv OPTIONAL
+        !iv_msgv2         TYPE symsgv OPTIONAL
+        !iv_msgv3         TYPE symsgv OPTIONAL
+        !iv_msgv4         TYPE symsgv OPTIONAL
+      RETURNING
+        VALUE(rs_t100key) TYPE scx_t100key.
 
   PRIVATE SECTION.
     CLASS-METHODS to_msgde_add_by_components
@@ -203,7 +213,7 @@ CLASS zial_cl_log IMPLEMENTATION.
              v4 TYPE symsgv,
            END OF s_msgvar.
 
-    CHECK iv_msgty   NA 'SEWIA'
+    CHECK iv_msgty NA 'SEWIA'
       AND (    iv_symsg EQ abap_true
             OR iv_msgid IS NOT INITIAL
             OR iv_msgtx IS NOT INITIAL ).
@@ -427,4 +437,30 @@ CLASS zial_cl_log IMPLEMENTATION.
     ENDLOOP.
 
   ENDMETHOD.
+
+
+  METHOD to_textid.
+
+    IF iv_msgid IS INITIAL.
+
+      rs_t100key = VALUE #( msgid = sy-msgid
+                            msgno = sy-msgno
+                            attr1 = sy-msgv1
+                            attr2 = sy-msgv2
+                            attr3 = sy-msgv3
+                            attr4 = sy-msgv4 ).
+
+    ELSE.
+
+      rs_t100key = VALUE #( msgid = sy-msgid
+                            msgno = sy-msgno
+                            attr1 = sy-msgv1
+                            attr2 = sy-msgv2
+                            attr3 = sy-msgv3
+                            attr4 = sy-msgv4 ).
+
+    ENDIF.
+
+  ENDMETHOD.
+
 ENDCLASS.
