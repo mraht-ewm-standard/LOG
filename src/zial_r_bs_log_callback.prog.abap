@@ -20,7 +20,7 @@ FORM on_click_msg_detail TABLES i_params STRUCTURE spar.
   CHECK lv_log_number IS NOT INITIAL.
 
   " Load specific message details from database
-  DATA(lt_msg_details) = VALUE /scwm/tt_msg_details( ).
+  DATA(lt_msg_details) = VALUE zial_tt_msg_details( ).
   CALL FUNCTION '/SCWM/DLV_IMPORT_LOG'
     EXPORTING
       iv_lognumber   = lv_log_number
@@ -71,9 +71,6 @@ FORM on_click_msg_detail TABLES i_params STRUCTURE spar.
   IF <ls_msg_details>-t_input_parameter IS NOT INITIAL.
     ls_structure_name = '/SCWM/RSRA_S_PARAMETER'.
     ASSIGN <ls_msg_details>-t_input_parameter TO <lt_outtab>.
-  ELSEIF <ls_msg_details>-t_doc_selection IS NOT INITIAL.
-    ls_structure_name = '/SCWM/S_MSG_SELECTION'.
-    ASSIGN <ls_msg_details>-t_doc_selection TO <lt_outtab>.
   ENDIF.
 
   CHECK <lt_outtab> IS ASSIGNED.

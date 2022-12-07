@@ -144,12 +144,6 @@ CLASS zial_cl_log_sap DEFINITION
         !iv_finalize TYPE abap_bool DEFAULT abap_true.
 
   PROTECTED SECTION.
-    TYPES: BEGIN OF s_msg_details,
-             v_id              TYPE balmnr,
-             t_input_parameter TYPE rsra_t_alert_definition,
-           END OF s_msg_details,
-           tt_msg_details TYPE STANDARD TABLE OF s_msg_details WITH DEFAULT KEY.
-
     DATA: mv_validity_in_days TYPE i VALUE 180,
           mv_process_bgn      TYPE timestampl,
           mv_process_end      TYPE timestampl.
@@ -176,7 +170,7 @@ CLASS zial_cl_log_sap DEFINITION
           mv_log_counter  TYPE i.
 
     DATA: mv_msg_param_id     TYPE zial_cl_log=>v_message_param_id,
-          mt_msg_detail       TYPE tt_msg_details,
+          mt_msg_detail       TYPE zial_tt_msg_details,
           mt_msg_detail_input TYPE zial_cl_log=>t_input_parameters.
 
     CLASS-METHODS error_handling

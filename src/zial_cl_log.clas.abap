@@ -26,9 +26,8 @@ CLASS zial_cl_log DEFINITION
                END OF mc_log_process .
 
     CONSTANTS: mc_msg_ident          TYPE c LENGTH 9 VALUE 'MSG_IDENT' ##NO_TEXT,
-               mc_dflt_log_object    TYPE balobj_d VALUE 'ZIAL_LOG' ##NO_TEXT, " Adjust to your needs
-               mc_log_subobject_log  TYPE balobj_d VALUE 'ZIAL_LOG' ##NO_TEXT,
-               mc_log_message_class  TYPE balobj_d VALUE 'ZIAL_LOG' ##NO_TEXT,
+               mc_dflt_log_object    TYPE balobj_d   VALUE 'ZIAL_LOG' ##NO_TEXT, " Adjust to your needs
+               mc_log_subobject_log  TYPE balsubobj  VALUE 'ZIAL_LOG' ##NO_TEXT,
                mc_log_context_struct TYPE baltabname VALUE 'ZIAL_S_LOG_CONTEXT' ##NO_TEXT.
 
     CONSTANTS: BEGIN OF mc_msgde_callback,
@@ -183,7 +182,7 @@ CLASS zial_cl_log IMPLEMENTATION.
     IF mo_instance IS INITIAL.
       mo_instance = NEW #( iv_object    = mc_dflt_log_object
                            iv_subobject = mc_log_subobject_log
-                           iv_extnumber = TEXT-001 ).
+                           iv_extnumber = CONV #( TEXT-001 ) ).
       APPEND mo_instance TO mt_log_stack.
     ENDIF.
 
