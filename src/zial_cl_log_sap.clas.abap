@@ -144,6 +144,12 @@ CLASS zial_cl_log_sap DEFINITION
         !iv_finalize TYPE abap_bool DEFAULT abap_true.
 
   PROTECTED SECTION.
+    TYPES: BEGIN OF s_msg_details,
+             v_id              TYPE balmnr,
+             t_input_parameter TYPE rsra_t_alert_definition,
+           END OF s_msg_details,
+           tt_msg_details TYPE STANDARD TABLE OF s_msg_details WITH DEFAULT KEY.
+
     DATA: mv_validity_in_days TYPE i VALUE 180,
           mv_process_bgn      TYPE timestampl,
           mv_process_end      TYPE timestampl.
@@ -170,7 +176,7 @@ CLASS zial_cl_log_sap DEFINITION
           mv_log_counter  TYPE i.
 
     DATA: mv_msg_param_id     TYPE zial_cl_log=>v_message_param_id,
-          mt_msg_detail       TYPE /scwm/tt_msg_details,
+          mt_msg_detail       TYPE tt_msg_details,
           mt_msg_detail_input TYPE zial_cl_log=>t_input_parameters.
 
     CLASS-METHODS error_handling
@@ -403,7 +409,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     CASE sy-subrc.
       WHEN 0.
-        me->mv_log_counter += 1.
+        ADD 1 TO me->mv_log_counter.
 
         DATA(ls_bapiret2) = CORRESPONDING bapiret2( ls_msg MAPPING id         = msgid
                                                                    type       = msgty
@@ -1008,10 +1014,8 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     IF    me->mt_msg_detail    IS NOT INITIAL
       AND <ls_new_lognumber> IS ASSIGNED.
 
-      CALL FUNCTION '/SCWM/DLV_EXPORT_LOG'
-        EXPORTING
-          iv_lognumber   = <ls_new_lognumber>-lognumber
-          it_msg_details = me->mt_msg_detail.
+      " EWM: /SCWM/DLV_EXPORT_LOG
+      EXPORT mt_msg_detail FROM me->mt_msg_detail TO DATABASE bal_indx(al) ID <ls_new_lognumber>-lognumber.
 
       CLEAR: me->mt_msg_detail.
 
