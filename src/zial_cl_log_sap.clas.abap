@@ -1010,16 +1010,15 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   METHOD save_msgde.
 
     CHECK it_new_lognumbers IS NOT INITIAL.
+
     ASSIGN it_new_lognumbers[ lines( it_new_lognumbers ) ] TO FIELD-SYMBOL(<ls_new_lognumber>).
-    IF    me->mt_msg_detail    IS NOT INITIAL
+    CHECK me->mt_msg_detail  IS NOT INITIAL
       AND <ls_new_lognumber> IS ASSIGNED.
 
-      " EWM: /SCWM/DLV_EXPORT_LOG
-      EXPORT mt_msg_detail FROM me->mt_msg_detail TO DATABASE bal_indx(al) ID <ls_new_lognumber>-lognumber.
+    " EWM: /SCWM/DLV_EXPORT_LOG
+    EXPORT mt_msg_detail FROM me->mt_msg_detail TO DATABASE bal_indx(al) ID <ls_new_lognumber>-lognumber.
 
-      CLEAR: me->mt_msg_detail.
-
-    ENDIF.
+    CLEAR: me->mt_msg_detail.
 
   ENDMETHOD.
 
