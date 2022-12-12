@@ -4,7 +4,6 @@ CLASS zial_cl_log DEFINITION
   CREATE PRIVATE .
 
   PUBLIC SECTION.
-
     TYPES: v_message_param_id TYPE n LENGTH 10 .
     TYPES: s_input_parameters TYPE rsra_s_parameter,
            t_input_parameters TYPE rsra_t_alert_definition.
