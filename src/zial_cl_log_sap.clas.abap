@@ -830,7 +830,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                                                        tstmp2 = mv_process_bgn ) * 1000.
 
           me->create_message( iv_msgty        = zial_cl_log=>mc_log_type-success
-                              iv_msgtx        = CONV #( zial_cl_text=>get_by_enc_text( |{ TEXT-001 } { lv_duration } ms| ) )
+                              iv_msgtx        = |'Process runtime: { lv_duration } ms|
                               iv_is_dummy_msg = abap_true ).
 
         CATCH cx_root.
