@@ -15,7 +15,7 @@ CLASS zial_cl_log_sap DEFINITION
     "! @parameter iv_callstack_lvl | Level of minimum message type for which the callstack is to be logged in message details
     METHODS constructor
       IMPORTING
-        !iv_object        TYPE balobj_d DEFAULT 'APPL_LOG' " mc_dflt_log_object
+        !iv_object        TYPE balobj_d DEFAULT zial_cl_log=>mc_dflt_log_object
         !iv_subobject     TYPE balsubobj
         !iv_extnumber     TYPE balnrext OPTIONAL
         !it_extnumber     TYPE stringtab OPTIONAL
@@ -30,10 +30,10 @@ CLASS zial_cl_log_sap DEFINITION
         !it_extnumber TYPE stringtab.
     "! Get all logged messages
     "!
-    "! @parameter rt_protocol | BAPI messages
-    METHODS get_protocol
+    "! @parameter rt_messages | BAPI messages
+    METHODS get_messages
       RETURNING
-        VALUE(rt_protocol) TYPE bapirettab .
+        VALUE(rt_messages) TYPE bapirettab .
     "! Log a message with optionally message details
     "!
     "! @parameter msgde | Message details
@@ -166,7 +166,7 @@ CLASS zial_cl_log_sap DEFINITION
 
     DATA: mv_log_handle   TYPE balloghndl,
           ms_log_header   TYPE bal_s_log,
-          mt_log_protocol TYPE bapirettab,
+          mt_log_messages TYPE bapirettab,
           mv_log_counter  TYPE i.
 
     DATA: mv_msg_param_id     TYPE zial_cl_log=>v_message_param_id,
@@ -425,7 +425,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
           IMPORTING
             message    = ls_bapiret2-message.
 
-        APPEND ls_bapiret2 TO mt_log_protocol.
+        APPEND ls_bapiret2 TO mt_log_messages.
 
     ENDCASE.
 
@@ -737,9 +737,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_protocol.
+  METHOD get_messages.
 
-    rt_protocol = mt_log_protocol.
+    rt_messages = mt_log_messages.
 
   ENDMETHOD.
 

@@ -130,7 +130,7 @@ CLASS zial_cl_log DEFINITION
         !it_input_data       TYPE rsra_t_alert_definition
       RETURNING
         VALUE(rv_components) TYPE zial_cl_log=>de_char150 .
-    "! Display message in application
+    "! Display message in report
     "!
     "! @parameter msgtx | Message text
     "! @parameter msgty | Message type
@@ -139,15 +139,24 @@ CLASS zial_cl_log DEFINITION
     "! @parameter msgv2 | Message variable 2
     "! @parameter msgv3 | Message variable 3
     "! @parameter msgv4 | Message variable 4
-    CLASS-METHODS display_appl_msg
+    CLASS-METHODS display_as_message
       IMPORTING
-        msgtx TYPE bapi_msg
-        msgty TYPE msgty DEFAULT zial_cl_log=>mc_log_type-success
-        msgdt TYPE msgty OPTIONAL
-        msgv1 TYPE msgv1 OPTIONAL
-        msgv2 TYPE msgv2 OPTIONAL
-        msgv3 TYPE msgv3 OPTIONAL
-        msgv4 TYPE msgv4 OPTIONAL .
+        !msgtx TYPE bapi_msg
+        !msgty TYPE msgty DEFAULT mc_log_type-success
+        !msgdt TYPE msgty OPTIONAL
+        !msgv1 TYPE msgv1 OPTIONAL
+        !msgv2 TYPE msgv2 OPTIONAL
+        !msgv3 TYPE msgv3 OPTIONAL
+        !msgv4 TYPE msgv4 OPTIONAL .
+    "! Convert system message to t100key message (textid)
+    "!
+    "! @parameter iv_msgid |
+    "! @parameter iv_msgno |
+    "! @parameter iv_msgv1 |
+    "! @parameter iv_msgv2 |
+    "! @parameter iv_msgv3 |
+    "! @parameter iv_msgv4 |
+    "! @parameter rs_t100key |
     CLASS-METHODS to_textid
       IMPORTING
         !iv_msgid         TYPE symsgid OPTIONAL
@@ -158,6 +167,12 @@ CLASS zial_cl_log DEFINITION
         !iv_msgv4         TYPE symsgv OPTIONAL
       RETURNING
         VALUE(rs_t100key) TYPE scx_t100key.
+    "! Display messages in popup
+    "!
+    "! @parameter it_bapiret | List of bapiret2 messages
+    CLASS-METHODS display_as_popup
+      IMPORTING
+        it_bapiret TYPE bapirettab.
 
   PRIVATE SECTION.
     CLASS-METHODS to_msgde_add_by_components
@@ -299,7 +314,7 @@ CLASS zial_cl_log IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD display_appl_msg.
+  METHOD display_as_message.
 
     DATA(lv_msgtx) = msgtx.
 
@@ -313,6 +328,16 @@ CLASS zial_cl_log IMPLEMENTATION.
              '&3' WITH msgv3 INTO lv_msgtx,
              '&4' WITH msgv4 INTO lv_msgtx.
     MESSAGE lv_msgtx TYPE msgty DISPLAY LIKE lv_msgdt.
+
+  ENDMETHOD.
+
+
+  METHOD display_as_popup.
+
+    DATA(lt_bapiret) = it_bapiret.
+    CALL FUNCTION 'RSCRMBW_DISPLAY_BAPIRET2'
+      TABLES
+        it_return = lt_bapiret.
 
   ENDMETHOD.
 

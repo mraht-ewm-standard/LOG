@@ -19,13 +19,20 @@ FORM on_click_msg_detail TABLES i_params STRUCTURE spar.
   lv_log_number = VALUE #( i_params[ param = lc_log_number ]-value OPTIONAL ).
   CHECK lv_log_number IS NOT INITIAL.
 
+  SELECT SINGLE FROM tfdir
+    FIELDS @abap_true
+    WHERE funcname EQ '/SCWM/DLV_IMPORT_LOG'
+    INTO @DATA(lv_func_exists).
+
+  CHECK lv_func_exists EQ abap_true.
+
   " Load specific message details from database
   DATA(lt_msg_details) = VALUE zial_tt_msg_details( ).
   CALL FUNCTION '/SCWM/DLV_IMPORT_LOG'
     EXPORTING
       iv_lognumber   = lv_log_number
     IMPORTING
-      et_msg_details = lt_msg_details.
+      et_msg_details = lt_msg_details. "#EC EXISTS
 
   CHECK lt_msg_details IS NOT INITIAL.
 

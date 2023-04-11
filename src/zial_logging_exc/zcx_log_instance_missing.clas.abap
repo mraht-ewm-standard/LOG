@@ -26,8 +26,9 @@ CLASS zcx_log_instance_missing IMPLEMENTATION.
       EXPORTING
         previous = previous.
     CLEAR me->textid.
-    if_t100_message~t100key = VALUE #( msgid = zial_cl_log=>mc_log_message_class
-                                       msgno = '016' ).
+    message e016(zial_log) into data(lv_msg).
+    if_t100_message~t100key = zial_cl_log=>to_textid( iv_msgid = sy-msgid
+                                                      iv_msgno = sy-msgno ).
 
   ENDMETHOD.
 
