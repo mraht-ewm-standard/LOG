@@ -148,31 +148,21 @@ CLASS zial_cl_log DEFINITION
         !msgv2 TYPE msgv2 OPTIONAL
         !msgv3 TYPE msgv3 OPTIONAL
         !msgv4 TYPE msgv4 OPTIONAL .
-    "! Convert system message to t100key message (textid)
-    "!
-    "! @parameter iv_msgid |
-    "! @parameter iv_msgno |
-    "! @parameter iv_msgv1 |
-    "! @parameter iv_msgv2 |
-    "! @parameter iv_msgv3 |
-    "! @parameter iv_msgv4 |
-    "! @parameter rs_t100key |
-    CLASS-METHODS to_textid
-      IMPORTING
-        !iv_msgid         TYPE symsgid OPTIONAL
-        !iv_msgno         TYPE symsgno OPTIONAL
-        !iv_msgv1         TYPE symsgv OPTIONAL
-        !iv_msgv2         TYPE symsgv OPTIONAL
-        !iv_msgv3         TYPE symsgv OPTIONAL
-        !iv_msgv4         TYPE symsgv OPTIONAL
-      RETURNING
-        VALUE(rs_t100key) TYPE scx_t100key.
     "! Display messages in popup
     "!
     "! @parameter it_bapiret | List of bapiret2 messages
     CLASS-METHODS display_as_popup
       IMPORTING
         it_bapiret TYPE bapirettab.
+    "! Convert bapiret structure to message string
+    "!
+    "! @parameter is_bapiret | Bapiret message
+    "! @parameter rv_result | Message as string
+    CLASS-METHODS to_string
+      IMPORTING
+        is_bapiret       TYPE bapiret2
+      RETURNING
+        VALUE(rv_result) TYPE msgtxt_long.
 
   PRIVATE SECTION.
     CLASS-METHODS to_msgde_add_by_components
@@ -462,27 +452,23 @@ CLASS zial_cl_log IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD to_textid.
+  METHOD to_string.
 
-    IF iv_msgid IS INITIAL.
+    DATA(ls_bapiret) = is_bapiret.
 
-      rs_t100key = VALUE #( msgid = sy-msgid
-                            msgno = sy-msgno
-                            attr1 = sy-msgv1
-                            attr2 = sy-msgv2
-                            attr3 = sy-msgv3
-                            attr4 = sy-msgv4 ).
-
-    ELSE.
-
-      rs_t100key = VALUE #( msgid = sy-msgid
-                            msgno = sy-msgno
-                            attr1 = sy-msgv1
-                            attr2 = sy-msgv2
-                            attr3 = sy-msgv3
-                            attr4 = sy-msgv4 ).
-
+    IF  ls_bapiret-id     IS INITIAL
+     OR ls_bapiret-number IS INITIAL.
+      ls_bapiret-id     = 'SY'.
+      ls_bapiret-number = '499'.
     ENDIF.
+
+    IF ls_bapiret-type IS INITIAL.
+      ls_bapiret-type = mc_log_type-success.
+    ENDIF.
+
+    MESSAGE ID ls_bapiret-id TYPE ls_bapiret-type NUMBER ls_bapiret-number
+      WITH ls_bapiret-message_v1 ls_bapiret-message_v2 ls_bapiret-message_v3 ls_bapiret-message_v4
+      INTO rv_result.
 
   ENDMETHOD.
 
