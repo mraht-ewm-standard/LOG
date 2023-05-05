@@ -6,30 +6,24 @@ CLASS zcx_log_instance_missing DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    METHODS constructor
+    CLASS-METHODS is_log_class_enabled
+      RETURNING
+        VALUE(rv_log) TYPE cx_bool.
+    CLASS-METHODS enable_log_class
       IMPORTING
-        textid     LIKE if_t100_message=>t100key OPTIONAL
-        previous   LIKE previous OPTIONAL
-        log        TYPE abap_bool OPTIONAL
-        message    TYPE bapiret2 OPTIONAL
-        subrc      TYPE sysubrc DEFAULT sy-subrc
-        input_data TYPE rsra_t_alert_definition OPTIONAL .
+        log_enabled TYPE abap_bool.
 
   PROTECTED SECTION.
-  PRIVATE SECTION.
+    CLASS-DATA log_class_enabled TYPE cx_bool VALUE zcx_root=>undef.
+
+    METHODS on_construction REDEFINITION.
+
 ENDCLASS.
 
 
 CLASS zcx_log_instance_missing IMPLEMENTATION.
 
-  METHOD constructor ##ADT_SUPPRESS_GENERATION.
-
-    super->constructor( textid     = textid
-                        previous   = previous
-                        log        = abap_false
-                        message    = message
-                        subrc      = subrc
-                        input_data = input_data ).
+  METHOD on_construction.
 
     MESSAGE e016(zial_log) INTO DATA(lv_msg).
     me->message = zial_cl_log=>to_bapiret( iv_msgid = sy-msgid
@@ -37,6 +31,16 @@ CLASS zcx_log_instance_missing IMPLEMENTATION.
 
     object_type = mc_object_type.
 
+  ENDMETHOD.
+
+
+  METHOD enable_log_class.
+    log_class_enabled = zcx_root=>det_bool( log_enabled ).
+  ENDMETHOD.
+
+
+  METHOD is_log_class_enabled.
+    rv_log = log_class_enabled.
   ENDMETHOD.
 
 ENDCLASS.
