@@ -162,7 +162,7 @@ CLASS zial_cl_log DEFINITION
       IMPORTING
         is_bapiret       TYPE bapiret2
       RETURNING
-        VALUE(rv_result) TYPE msgtxt_long.
+        VALUE(rv_result) TYPE string.
 
   PRIVATE SECTION.
     CLASS-METHODS to_msgde_add_by_components
