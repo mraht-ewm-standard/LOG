@@ -3,22 +3,22 @@
 *&---------------------------------------------------------------------*
 SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
   SELECT-OPTIONS: s_lognum FOR balhdr-lognumber NO INTERVALS.
-  PARAMETERS: p_obj    TYPE balhdr-object,
-              p_subobj TYPE balhdr-subobject,
-              p_extnum TYPE balhdr-extnumber.
+  PARAMETERS: p_obj    TYPE balhdr-object    DEFAULT '*',
+              p_subobj TYPE balhdr-subobject DEFAULT '*',
+              p_extnum TYPE balhdr-extnumber DEFAULT '*'.
 SELECTION-SCREEN END OF BLOCK b1.
 
 SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE TEXT-002.
   SELECTION-SCREEN: BEGIN OF LINE.
     SELECTION-SCREEN COMMENT 18(14) l_datfr FOR FIELD p_datfr.
-    PARAMETERS: p_datfr TYPE balhdr-aldate,
-                p_timfr TYPE balhdr-altime.
+    PARAMETERS: p_datfr TYPE balhdr-aldate DEFAULT sy-datlo,
+                p_timfr TYPE balhdr-altime DEFAULT '000000'.
   SELECTION-SCREEN: END OF LINE.
 
   SELECTION-SCREEN: BEGIN OF LINE.
     SELECTION-SCREEN COMMENT 18(14) l_datto FOR FIELD p_datto.
-    PARAMETERS: p_datto TYPE balhdr-aldate,
-                p_timto TYPE balhdr-altime.
+    PARAMETERS: p_datto TYPE balhdr-aldate DEFAULT sy-datlo,
+                p_timto TYPE balhdr-altime DEFAULT '235959'.
   SELECTION-SCREEN: END OF LINE.
 SELECTION-SCREEN END OF BLOCK b2.
 

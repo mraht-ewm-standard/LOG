@@ -15,5 +15,5 @@ INITIALIZATION.
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR s_msgid-low.
   lcl_application=>on_value_req_msgid( ).
 
-START-OF-SELECTION.
-  lcl_application=>at_start_of_selection( ).
+AT SELECTION-SCREEN.
+  lcl_application=>at_selection_screen( ).
