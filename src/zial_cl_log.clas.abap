@@ -216,20 +216,17 @@ CLASS zial_cl_log IMPLEMENTATION.
              v4 TYPE symsgv,
            END OF s_msgvar.
 
-    CHECK iv_msgty NA 'SEWIA'
-      AND (    iv_symsg EQ abap_true
-            OR iv_msgid IS NOT INITIAL
-            OR iv_msgtx IS NOT INITIAL ).
+    IF    iv_msgty IS NOT INITIAL
+      AND iv_msgid IS NOT INITIAL
+      AND iv_msgno IS NOT INITIAL.
 
-    IF iv_symsg EQ abap_true.
-
-      rs_bapiret = VALUE #( type       = sy-msgty
-                            id         = sy-msgid
-                            number     = sy-msgno
-                            message_v1 = sy-msgv1
-                            message_v2 = sy-msgv2
-                            message_v3 = sy-msgv3
-                            message_v4 = sy-msgv4 ).
+      rs_bapiret = VALUE #( type       = iv_msgty
+                            id         = iv_msgid
+                            number     = iv_msgno
+                            message_v1 = iv_msgv1
+                            message_v2 = iv_msgv2
+                            message_v3 = iv_msgv3
+                            message_v4 = iv_msgv4 ).
 
     ELSEIF iv_msgtx IS NOT INITIAL.
 
@@ -263,13 +260,13 @@ CLASS zial_cl_log IMPLEMENTATION.
 
     ELSE.
 
-      rs_bapiret = VALUE #( type       = iv_msgty
-                            id         = iv_msgid
-                            number     = iv_msgno
-                            message_v1 = iv_msgv1
-                            message_v2 = iv_msgv2
-                            message_v3 = iv_msgv3
-                            message_v4 = iv_msgv4 ).
+      rs_bapiret = VALUE #( type       = sy-msgty
+                            id         = sy-msgid
+                            number     = sy-msgno
+                            message_v1 = sy-msgv1
+                            message_v2 = sy-msgv2
+                            message_v3 = sy-msgv3
+                            message_v4 = sy-msgv4 ).
 
     ENDIF.
 
