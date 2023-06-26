@@ -636,7 +636,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   METHOD error_handling.
 
     MESSAGE e000(zial_log) WITH iv_process INTO DATA(lv_msg).
-    APPEND zial_cl_log=>to_bapiret( iv_symsg = abap_true ) TO rt_bapiret.
+    APPEND zial_cl_log=>to_bapiret( ) TO rt_bapiret.
 
 *** Log general log data
     DATA(lv_msg_txt_gen) = CONV bapi_msg( |; OBJECT: { is_log_msg-hdr-object }; | &&
@@ -691,7 +691,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     ENDCASE.
 
-    APPEND zial_cl_log=>to_bapiret( iv_symsg = abap_true ) TO rt_bapiret.
+    APPEND zial_cl_log=>to_bapiret( ) TO rt_bapiret.
 
 *** Log process-specific log data
     CASE iv_process.
@@ -702,24 +702,24 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
         IF is_log_msg-msg-msgtx CN ' _0'.
 
           MESSAGE e015(zial_log) WITH is_log_msg-msg-msgty INTO lv_msg.
-          APPEND zial_cl_log=>to_bapiret( iv_symsg = abap_true ) TO rt_bapiret.
+          APPEND zial_cl_log=>to_bapiret( ) TO rt_bapiret.
 
         ELSEIF is_log_msg-msg-msgno CN ' _0'.
 
           MESSAGE e003(zial_log) WITH is_log_msg-msg-msgno
                                       is_log_msg-msg-msgid INTO lv_msg.
-          APPEND zial_cl_log=>to_bapiret( iv_symsg = abap_true ) TO rt_bapiret.
+          APPEND zial_cl_log=>to_bapiret( ) TO rt_bapiret.
 
           MESSAGE e004(zial_log) WITH is_log_msg-msg-msgv1
                                       is_log_msg-msg-msgv2
                                       is_log_msg-msg-msgv3
                                       is_log_msg-msg-msgv4 INTO lv_msg.
-          APPEND zial_cl_log=>to_bapiret( iv_symsg = abap_true ) TO rt_bapiret.
+          APPEND zial_cl_log=>to_bapiret( ) TO rt_bapiret.
 
         ELSE.
 
           MESSAGE e002(zial_log) INTO lv_msg.
-          APPEND zial_cl_log=>to_bapiret( iv_symsg = abap_true ) TO rt_bapiret.
+          APPEND zial_cl_log=>to_bapiret( ) TO rt_bapiret.
 
         ENDIF.
 
@@ -727,7 +727,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
         DATA(lo_exc_descr) = NEW cl_instance_description( io_exception ).
 
         MESSAGE e005(zial_log) WITH lo_exc_descr->class_name INTO lv_msg.
-        APPEND zial_cl_log=>to_bapiret( iv_symsg = abap_true ) TO rt_bapiret.
+        APPEND zial_cl_log=>to_bapiret( ) TO rt_bapiret.
 
       WHEN zial_cl_log=>mc_log_process-save.
         " Nothing to log
