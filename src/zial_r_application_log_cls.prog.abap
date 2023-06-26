@@ -395,7 +395,7 @@ CLASS lcl_application IMPLEMENTATION.
     CONSTANTS: lc_export_format TYPE string VALUE 'xlsx'.
 
     TYPES: BEGIN OF s_data_tab,
-             msgtx TYPE msgtxt_long,
+             msgtx TYPE string,
              msgid TYPE msgid,
              msgno TYPE msgno,
              msgty TYPE msgty,
