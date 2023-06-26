@@ -91,7 +91,6 @@ CLASS zial_cl_log DEFINITION
         !iv_finalize TYPE abap_bool DEFAULT abap_true .
     CLASS-METHODS to_bapiret
       IMPORTING
-        !iv_symsg         TYPE abap_bool DEFAULT abap_false
         !iv_msgid         TYPE symsgid OPTIONAL
         !iv_msgty         TYPE symsgty OPTIONAL
         !iv_msgtx         TYPE bapi_msg OPTIONAL
