@@ -24,9 +24,14 @@ CLASS zial_cl_log DEFINITION
                  exception TYPE char4 VALUE 'EXCP' ##NO_TEXT,
                END OF mc_log_process .
 
+    CONSTANTS: BEGIN OF mc_default,
+                 log_object    TYPE balobj_d  VALUE 'ZIAL_LOG' ##NO_TEXT, " Adjust to your needs
+                 log_subobject TYPE balsubobj VALUE 'ZIAL_LOG' ##NO_TEXT,
+                 msgid         TYPE msgid     VALUE '0Q',
+                 msgno         TYPE msgno     VALUE '000',
+               END OF mc_default.
+
     CONSTANTS: mc_msg_ident          TYPE c LENGTH 9 VALUE 'MSG_IDENT' ##NO_TEXT,
-               mc_dflt_log_object    TYPE balobj_d   VALUE 'ZIAL_LOG' ##NO_TEXT, " Adjust to your needs
-               mc_log_subobject_log  TYPE balsubobj  VALUE 'ZIAL_LOG' ##NO_TEXT,
                mc_log_context_struct TYPE baltabname VALUE 'ZIAL_S_LOG_CONTEXT' ##NO_TEXT.
 
     CONSTANTS: BEGIN OF mc_msgde_callback,
@@ -76,8 +81,8 @@ CLASS zial_cl_log DEFINITION
     "! @parameter ro_instance | Log instance
     CLASS-METHODS init
       IMPORTING
-        !iv_object         TYPE balobj_d DEFAULT mc_dflt_log_object
-        !iv_subobject      TYPE balsubobj
+        !iv_object         TYPE balobj_d  DEFAULT mc_default-log_object
+        !iv_subobject      TYPE balsubobj DEFAULT mc_default-log_subobject
         !iv_extnumber      TYPE balnrext OPTIONAL
         !it_extnumber      TYPE stringtab OPTIONAL
         !iv_callstack_lvl  TYPE numc1 DEFAULT zial_cl_log=>mc_callstack_lvl-info
@@ -91,14 +96,14 @@ CLASS zial_cl_log DEFINITION
         !iv_finalize TYPE abap_bool DEFAULT abap_true .
     CLASS-METHODS to_bapiret
       IMPORTING
-        !iv_msgid         TYPE symsgid OPTIONAL
-        !iv_msgty         TYPE symsgty OPTIONAL
+        !iv_msgid         TYPE symsgid  DEFAULT sy-msgid
+        !iv_msgty         TYPE symsgty  DEFAULT sy-msgty
         !iv_msgtx         TYPE bapi_msg OPTIONAL
-        !iv_msgno         TYPE symsgno OPTIONAL
-        !iv_msgv1         TYPE symsgv OPTIONAL
-        !iv_msgv2         TYPE symsgv OPTIONAL
-        !iv_msgv3         TYPE symsgv OPTIONAL
-        !iv_msgv4         TYPE symsgv OPTIONAL
+        !iv_msgno         TYPE symsgno  DEFAULT sy-msgno
+        !iv_msgv1         TYPE symsgv   DEFAULT sy-msgv1
+        !iv_msgv2         TYPE symsgv   DEFAULT sy-msgv2
+        !iv_msgv3         TYPE symsgv   DEFAULT sy-msgv3
+        !iv_msgv4         TYPE symsgv   DEFAULT sy-msgv4
       RETURNING
         VALUE(rs_bapiret) TYPE bapiret2 .
     "! Convert data dynamically into message details
@@ -178,13 +183,12 @@ ENDCLASS.
 
 CLASS zial_cl_log IMPLEMENTATION.
 
-
   METHOD get.
 
     mo_instance = VALUE #( mt_log_stack[ lines( mt_log_stack ) ] OPTIONAL ).
     IF mo_instance IS INITIAL.
-      mo_instance = NEW #( iv_object    = mc_dflt_log_object
-                           iv_subobject = mc_log_subobject_log
+      mo_instance = NEW #( iv_object    = mc_default-log_object
+                           iv_subobject = mc_default-log_subobject
                            iv_extnumber = CONV #( TEXT-001 ) ).
       APPEND mo_instance TO mt_log_stack.
     ENDIF.
@@ -215,23 +219,21 @@ CLASS zial_cl_log IMPLEMENTATION.
              v4 TYPE symsgv,
            END OF s_msgvar.
 
-    IF    iv_msgty IS NOT INITIAL
-      AND iv_msgid IS NOT INITIAL
-      AND iv_msgno IS NOT INITIAL.
+    IF iv_msgtx IS SUPPLIED.
 
-      rs_bapiret = VALUE #( type       = iv_msgty
-                            id         = iv_msgid
-                            number     = iv_msgno
-                            message_v1 = iv_msgv1
-                            message_v2 = iv_msgv2
-                            message_v3 = iv_msgv3
-                            message_v4 = iv_msgv4 ).
+      DATA(lv_msgid) = iv_msgid.
+      IF lv_msgid IS INITIAL.
+        lv_msgid = mc_default-msgid.
+      ENDIF.
 
-    ELSEIF iv_msgtx IS NOT INITIAL.
+      DATA(lv_msgno) = iv_msgno.
+      IF lv_msgno IS INITIAL.
+        lv_msgno = mc_default-msgno.
+      ENDIF.
 
       rs_bapiret = VALUE #( type    = iv_msgty
-                            id      = '0Q'
-                            number  = '000'
+                            id      = lv_msgid
+                            number  = lv_msgno
                             message = iv_msgtx ).
 
       DO 8 TIMES.
@@ -257,15 +259,21 @@ CLASS zial_cl_log IMPLEMENTATION.
                                                        message_v3 = v3
                                                        message_v4 = v4 ).
 
+    ELSEIF iv_msgty IS NOT INITIAL
+       AND iv_msgid IS NOT INITIAL
+       AND iv_msgno IS NOT INITIAL.
+
+      rs_bapiret = VALUE #( type       = iv_msgty
+                            id         = iv_msgid
+                            number     = iv_msgno
+                            message_v1 = iv_msgv1
+                            message_v2 = iv_msgv2
+                            message_v3 = iv_msgv3
+                            message_v4 = iv_msgv4 ).
+
     ELSE.
 
-      rs_bapiret = VALUE #( type       = sy-msgty
-                            id         = sy-msgid
-                            number     = sy-msgno
-                            message_v1 = sy-msgv1
-                            message_v2 = sy-msgv2
-                            message_v3 = sy-msgv3
-                            message_v4 = sy-msgv4 ).
+      RETURN.
 
     ENDIF.
 
@@ -452,10 +460,10 @@ CLASS zial_cl_log IMPLEMENTATION.
 
     DATA(ls_bapiret) = is_bapiret.
 
-    IF  ls_bapiret-id     IS INITIAL
-     OR ls_bapiret-number IS INITIAL.
-      ls_bapiret-id     = 'SY'.
-      ls_bapiret-number = '499'.
+    IF   ls_bapiret-id     IS INITIAL
+      OR ls_bapiret-number IS INITIAL.
+      ls_bapiret-id     = mc_default-msgid.
+      ls_bapiret-number = mc_default-msgno.
     ENDIF.
 
     IF ls_bapiret-type IS INITIAL.

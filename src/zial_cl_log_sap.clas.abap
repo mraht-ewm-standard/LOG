@@ -15,11 +15,11 @@ CLASS zial_cl_log_sap DEFINITION
     "! @parameter iv_callstack_lvl | Level of minimum message type for which the callstack is to be logged in message details
     METHODS constructor
       IMPORTING
-        !iv_object        TYPE balobj_d DEFAULT zial_cl_log=>mc_dflt_log_object
-        !iv_subobject     TYPE balsubobj
-        !iv_extnumber     TYPE balnrext OPTIONAL
+        !iv_object        TYPE balobj_d  DEFAULT zial_cl_log=>mc_default-log_object
+        !iv_subobject     TYPE balsubobj DEFAULT zial_cl_log=>mc_default-log_subobject
+        !iv_extnumber     TYPE balnrext  OPTIONAL
         !it_extnumber     TYPE stringtab OPTIONAL
-        !iv_callstack_lvl TYPE numc1 DEFAULT zial_cl_log=>mc_callstack_lvl-info.
+        !iv_callstack_lvl TYPE numc1     DEFAULT zial_cl_log=>mc_callstack_lvl-info.
     "! Initialise log
     "!
     "! @parameter iv_extnumber | External number / description for a log
@@ -610,8 +610,8 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 *** Close existing log and create a new one for error handling
     save( ).
 
-    DATA(lo_log_sap) = NEW zial_cl_log_sap( iv_object    = zial_cl_log=>mc_dflt_log_object
-                                            iv_subobject = zial_cl_log=>mc_log_subobject_log
+    DATA(lo_log_sap) = NEW zial_cl_log_sap( iv_object    = zial_cl_log=>mc_default-log_object
+                                            iv_subobject = zial_cl_log=>mc_default-log_subobject
                                             iv_extnumber = TEXT-000 ).
 
     DATA(lt_bapiret) = error_handling( iv_process   = iv_process
