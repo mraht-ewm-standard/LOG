@@ -134,24 +134,27 @@ CLASS zial_cl_log DEFINITION
         !it_input_data       TYPE rsra_t_alert_definition
       RETURNING
         VALUE(rv_components) TYPE zial_cl_log=>de_char150 .
-    "! Display message in report
-    "!
-    "! @parameter msgtx | Message text
-    "! @parameter msgty | Message type
-    "! @parameter msgdt | Message display type
-    "! @parameter msgv1 | Message variable 1
-    "! @parameter msgv2 | Message variable 2
-    "! @parameter msgv3 | Message variable 3
-    "! @parameter msgv4 | Message variable 4
+    "! Display message on screen
+    "! @parameter iv_msgid | Message class
+    "! @parameter iv_msgty | Message type
+    "! @parameter iv_msgdt | Type of message to be displayed like
+    "! @parameter iv_msgtx | Message text
+    "! @parameter iv_msgno | Message number
+    "! @parameter iv_msgv1 | Message variable 1
+    "! @parameter iv_msgv2 | Message variable 2
+    "! @parameter iv_msgv3 | Message variable 3
+    "! @parameter iv_msgv4 | Message variable 4
     CLASS-METHODS display_as_message
       IMPORTING
-        !msgtx TYPE bapi_msg
-        !msgty TYPE msgty DEFAULT mc_log_type-success
-        !msgdt TYPE msgty OPTIONAL
-        !msgv1 TYPE msgv1 OPTIONAL
-        !msgv2 TYPE msgv2 OPTIONAL
-        !msgv3 TYPE msgv3 OPTIONAL
-        !msgv4 TYPE msgv4 OPTIONAL .
+        !iv_msgid TYPE symsgid  DEFAULT sy-msgid
+        !iv_msgty TYPE symsgty  DEFAULT sy-msgty
+        !iv_msgdt TYPE symsgty  DEFAULT sy-msgty
+        !iv_msgtx TYPE bapi_msg OPTIONAL
+        !iv_msgno TYPE symsgno  DEFAULT sy-msgno
+        !iv_msgv1 TYPE symsgv   DEFAULT sy-msgv1
+        !iv_msgv2 TYPE symsgv   DEFAULT sy-msgv2
+        !iv_msgv3 TYPE symsgv   DEFAULT sy-msgv3
+        !iv_msgv4 TYPE symsgv   DEFAULT sy-msgv4.
     "! Display messages in popup
     "!
     "! @parameter it_bapiret | List of bapiret2 messages
@@ -186,18 +189,26 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
 
   METHOD display_as_message.
 
-    DATA(lv_msgtx) = msgtx.
-
-    DATA(lv_msgdt) = msgdt.
-    IF msgdt CO ' _0'.
-      lv_msgdt = msgty.
+    DATA(lv_msgdt) = iv_msgdt.
+    IF iv_msgdt IS INITIAL.
+      lv_msgdt = iv_msgty.
     ENDIF.
 
-    REPLACE: '&1' WITH msgv1 INTO lv_msgtx,
-             '&2' WITH msgv2 INTO lv_msgtx,
-             '&3' WITH msgv3 INTO lv_msgtx,
-             '&4' WITH msgv4 INTO lv_msgtx.
-    MESSAGE lv_msgtx TYPE msgty DISPLAY LIKE lv_msgdt.
+    IF iv_msgtx IS SUPPLIED.
+
+      DATA(lv_msgtx) = iv_msgtx.
+      REPLACE: '&1' WITH iv_msgv1 INTO lv_msgtx,
+               '&2' WITH iv_msgv2 INTO lv_msgtx,
+               '&3' WITH iv_msgv3 INTO lv_msgtx,
+               '&4' WITH iv_msgv4 INTO lv_msgtx.
+      MESSAGE lv_msgtx TYPE iv_msgty DISPLAY LIKE lv_msgdt.
+
+    ELSE.
+
+      MESSAGE ID iv_msgid TYPE iv_msgty NUMBER iv_msgno
+        WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 DISPLAY LIKE iv_msgdt.
+
+    ENDIF.
 
   ENDMETHOD.
 
