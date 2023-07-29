@@ -134,27 +134,6 @@ CLASS zial_cl_log DEFINITION
         !it_input_data       TYPE rsra_t_alert_definition
       RETURNING
         VALUE(rv_components) TYPE zial_cl_log=>de_char150 .
-    "! Display message on screen
-    "! @parameter iv_msgid | Message class
-    "! @parameter iv_msgty | Message type
-    "! @parameter iv_msgdt | Type of message to be displayed like
-    "! @parameter iv_msgtx | Message text
-    "! @parameter iv_msgno | Message number
-    "! @parameter iv_msgv1 | Message variable 1
-    "! @parameter iv_msgv2 | Message variable 2
-    "! @parameter iv_msgv3 | Message variable 3
-    "! @parameter iv_msgv4 | Message variable 4
-    CLASS-METHODS display_as_message
-      IMPORTING
-        !iv_msgid TYPE symsgid  DEFAULT sy-msgid
-        !iv_msgty TYPE symsgty  DEFAULT sy-msgty
-        !iv_msgdt TYPE symsgty  DEFAULT sy-msgty
-        !iv_msgtx TYPE bapi_msg OPTIONAL
-        !iv_msgno TYPE symsgno  DEFAULT sy-msgno
-        !iv_msgv1 TYPE symsgv   DEFAULT sy-msgv1
-        !iv_msgv2 TYPE symsgv   DEFAULT sy-msgv2
-        !iv_msgv3 TYPE symsgv   DEFAULT sy-msgv3
-        !iv_msgv4 TYPE symsgv   DEFAULT sy-msgv4.
     "! Display messages in popup
     "!
     "! @parameter it_bapiret | List of bapiret2 messages
@@ -167,7 +146,14 @@ CLASS zial_cl_log DEFINITION
     "! @parameter rv_result | Message as string
     CLASS-METHODS to_string
       IMPORTING
-        is_bapiret       TYPE bapiret2
+        iv_msgid         TYPE symsgid  DEFAULT sy-msgid
+        iv_msgty         TYPE symsgty  DEFAULT sy-msgty
+        iv_msgno         TYPE symsgno  DEFAULT sy-msgno
+        iv_msgv1         TYPE symsgv   DEFAULT sy-msgv1
+        iv_msgv2         TYPE symsgv   DEFAULT sy-msgv2
+        iv_msgv3         TYPE symsgv   DEFAULT sy-msgv3
+        iv_msgv4         TYPE symsgv   DEFAULT sy-msgv4
+        is_bapiret       TYPE bapiret2 OPTIONAL
       RETURNING
         VALUE(rv_result) TYPE string.
 
@@ -184,34 +170,7 @@ ENDCLASS.
 
 
 
-CLASS ZIAL_CL_LOG IMPLEMENTATION.
-
-
-  METHOD display_as_message.
-
-    DATA(lv_msgdt) = iv_msgdt.
-    IF iv_msgdt IS INITIAL.
-      lv_msgdt = iv_msgty.
-    ENDIF.
-
-    IF iv_msgtx IS SUPPLIED.
-
-      DATA(lv_msgtx) = iv_msgtx.
-      REPLACE: '&1' WITH iv_msgv1 INTO lv_msgtx,
-               '&2' WITH iv_msgv2 INTO lv_msgtx,
-               '&3' WITH iv_msgv3 INTO lv_msgtx,
-               '&4' WITH iv_msgv4 INTO lv_msgtx.
-      MESSAGE lv_msgtx TYPE iv_msgty DISPLAY LIKE lv_msgdt.
-
-    ELSE.
-
-      MESSAGE ID iv_msgid TYPE iv_msgty NUMBER iv_msgno
-        WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 DISPLAY LIKE iv_msgdt.
-
-    ENDIF.
-
-  ENDMETHOD.
-
+CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD display_as_popup.
 
@@ -470,21 +429,42 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
 
   METHOD to_string.
 
-    DATA(ls_bapiret) = is_bapiret.
+    IF is_bapiret IS SUPPLIED.
 
-    IF   ls_bapiret-id     IS INITIAL
-      OR ls_bapiret-number IS INITIAL.
-      ls_bapiret-id     = mc_default-msgid.
-      ls_bapiret-number = mc_default-msgno.
+      DATA(lv_msgid) = is_bapiret-id.
+      DATA(lv_msgno) = is_bapiret-number.
+      DATA(lv_msgty) = is_bapiret-type.
+      DATA(lv_msgv1) = is_bapiret-message_v1.
+      DATA(lv_msgv2) = is_bapiret-message_v2.
+      DATA(lv_msgv3) = is_bapiret-message_v3.
+      DATA(lv_msgv4) = is_bapiret-message_v4.
+
+    ELSE.
+
+      lv_msgid = iv_msgid.
+      lv_msgno = iv_msgno.
+      lv_msgty = iv_msgty.
+      lv_msgv1 = iv_msgv1.
+      lv_msgv2 = iv_msgv2.
+      lv_msgv3 = iv_msgv3.
+      lv_msgv4 = iv_msgv4.
+
     ENDIF.
 
-    IF ls_bapiret-type IS INITIAL.
-      ls_bapiret-type = mc_log_type-success.
+    IF   lv_msgid IS INITIAL
+      OR lv_msgno IS INITIAL.
+      lv_msgid = mc_default-msgid.
+      lv_msgno = mc_default-msgno.
     ENDIF.
 
-    MESSAGE ID ls_bapiret-id TYPE ls_bapiret-type NUMBER ls_bapiret-number
-      WITH ls_bapiret-message_v1 ls_bapiret-message_v2 ls_bapiret-message_v3 ls_bapiret-message_v4
+    IF lv_msgty IS INITIAL.
+      lv_msgty = mc_log_type-success.
+    ENDIF.
+
+    MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
+      WITH  lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4
       INTO rv_result.
 
   ENDMETHOD.
+
 ENDCLASS.

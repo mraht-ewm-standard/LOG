@@ -14,8 +14,6 @@ CLASS zcx_log DEFINITION
         VALUE(rv_log_enabled) TYPE cx_bool.
 
   PROTECTED SECTION.
-    CONSTANTS: mc_object_type TYPE char50 VALUE 'LOG'.
-
     CLASS-DATA log_parent_enabled TYPE cx_bool VALUE zcx_root=>undef.
 
 ENDCLASS.
