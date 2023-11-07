@@ -12,9 +12,9 @@ CLASS lcl_log IMPLEMENTATION.
 
   METHOD test.
 
-    zial_cl_log=>init( iv_object    = 'ZIAL_LOG'
-                       iv_subobject = 'MFS'
-                       iv_extnumber = |AbapUnitTest: LCL_LOG| ).
+    zial_cl_log=>create( iv_object    = 'ZIAL_LOG'
+                         iv_subobject = 'MFS'
+                         iv_extnumber = |AbapUnitTest: LCL_LOG| ).
 
     zial_cl_log=>get( )->success( msgtx = |A success message| ).
 

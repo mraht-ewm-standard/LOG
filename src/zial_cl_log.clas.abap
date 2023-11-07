@@ -71,7 +71,7 @@ CLASS zial_cl_log DEFINITION
     CLASS-METHODS get
       RETURNING
         VALUE(ro_instance) LIKE mo_instance .
-    "! Initialise log instance
+    "! Create new log instance
     "!
     "! @parameter iv_object | Log object
     "! @parameter iv_subobject | Log subobject
@@ -79,7 +79,7 @@ CLASS zial_cl_log DEFINITION
     "! @parameter it_extnumber | External number elements
     "! @parameter iv_callstack_lvl | Level of minimum message type for which the callstack is to be logged in message details
     "! @parameter ro_instance | Log instance
-    CLASS-METHODS init
+    CLASS-METHODS create
       IMPORTING
         !iv_object         TYPE balobj_d  DEFAULT mc_default-log_object
         !iv_subobject      TYPE balsubobj DEFAULT mc_default-log_subobject
@@ -215,7 +215,7 @@ CLASS zial_cl_log IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD init.
+  METHOD create.
 
     mo_instance = NEW #( iv_object        = iv_object
                          iv_subobject     = iv_subobject
