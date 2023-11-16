@@ -1011,7 +1011,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
       AND <ls_new_lognumber> IS ASSIGNED.
 
     " EWM: /SCWM/DLV_EXPORT_LOG
-    EXPORT mt_msg_detail FROM me->mt_msg_detail TO DATABASE bal_indx(al) ID <ls_new_lognumber>-lognumber.
+    EXPORT msg_details FROM me->mt_msg_details TO DATABASE bal_indx(al) ID <ls_new_lognumber>-lognumber.
 
     CLEAR: me->mt_msg_detail.
 
