@@ -27,12 +27,7 @@ FORM on_click_msg_detail TABLES i_params STRUCTURE spar.
   CHECK lv_func_exists EQ abap_true.
 
   " Load specific message details from database
-  DATA(lt_msg_details) = VALUE zial_tt_msg_details( ).
-  CALL FUNCTION '/SCWM/DLV_IMPORT_LOG'
-    EXPORTING
-      iv_lognumber   = lv_log_number
-    IMPORTING
-      et_msg_details = lt_msg_details. "#EC EXISTS
+  DATA(lt_msg_details) = VALUE zial_tt_msg_details( ).  IMPORT msg_details TO lt_msg_details FROM DATABASE bal_indx(al) ID lv_log_number.
 
   CHECK lt_msg_details IS NOT INITIAL.
 
