@@ -169,9 +169,9 @@ CLASS zial_cl_log_sap DEFINITION
           mt_log_messages TYPE bapirettab,
           mv_log_counter  TYPE i.
 
-    DATA: mv_msg_param_id     TYPE zial_cl_log=>v_message_param_id,
-          mt_msg_detail       TYPE zial_tt_msg_details,
-          mt_msg_detail_input TYPE zial_cl_log=>t_input_parameters.
+    DATA: mv_msg_param_id      TYPE zial_cl_log=>v_message_param_id,
+          mt_msg_details       TYPE zial_tt_msg_details,
+          mt_msg_details_input TYPE zial_cl_log=>t_input_parameters.
 
     CLASS-METHODS error_handling
       IMPORTING
@@ -268,11 +268,11 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     DELETE lt_callstack WHERE mainprogram CS mc_class_name.
 
     DATA(lv_line) = repeat( val = '-' occ = 80 ).
-    APPEND VALUE #( low = lv_line ) TO mt_msg_detail_input.
+    APPEND VALUE #( low = lv_line ) TO mt_msg_details_input.
     APPEND LINES OF VALUE rsra_t_alert_definition( FOR <s_callstack> IN lt_callstack
                                                      ( low  = |{ <s_callstack>-mainprogram }=>| &&
                                                               |{ <s_callstack>-event }, | &&
-                                                              |{ TEXT-002 } { <s_callstack>-line }| ) ) TO mt_msg_detail_input.
+                                                              |{ TEXT-002 } { <s_callstack>-line }| ) ) TO mt_msg_details_input.
 
   ENDMETHOD.
 
@@ -295,7 +295,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD add_message_detail.
 
-    CHECK mt_msg_detail_input IS NOT INITIAL.
+    CHECK mt_msg_details_input IS NOT INITIAL.
 
     " Add message identifier, example SBAL_CALLBACK
     ms_msg_params-callback = VALUE #( userexitp = zial_cl_log=>mc_msgde_callback-report
@@ -307,9 +307,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                     parvalue = mv_msg_param_id ) TO ms_msg_params-t_par.
 
     APPEND VALUE #( v_id              = mv_msg_param_id
-                    t_input_parameter = mt_msg_detail_input ) TO mt_msg_detail.
+                    t_input_parameter = mt_msg_details_input ) TO mt_msg_details.
 
-    CLEAR: mt_msg_detail_input.
+    CLEAR: mt_msg_details_input.
 
   ENDMETHOD.
 
@@ -509,7 +509,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     IF iv_is_dummy_msg EQ abap_false.
 
-      mt_msg_detail_input = it_msgde.
+      mt_msg_details_input = it_msgde.
 
       set_priority( ).
 
@@ -1007,13 +1007,13 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     CHECK it_new_lognumbers IS NOT INITIAL.
 
     ASSIGN it_new_lognumbers[ lines( it_new_lognumbers ) ] TO FIELD-SYMBOL(<ls_new_lognumber>).
-    CHECK me->mt_msg_detail  IS NOT INITIAL
+    CHECK me->mt_msg_details  IS NOT INITIAL
       AND <ls_new_lognumber> IS ASSIGNED.
 
     " EWM: /SCWM/DLV_EXPORT_LOG
     EXPORT msg_details FROM me->mt_msg_details TO DATABASE bal_indx(al) ID <ls_new_lognumber>-lognumber.
 
-    CLEAR: me->mt_msg_detail.
+    CLEAR: me->mt_msg_details.
 
   ENDMETHOD.
 
