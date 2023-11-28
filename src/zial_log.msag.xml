@@ -115,6 +115,12 @@
      <MSGNR>017</MSGNR>
      <TEXT>Log-Process &apos;&amp;1&apos; couldn&apos;t be executed successfully.</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZIAL_LOG</ARBGB>
+     <MSGNR>018</MSGNR>
+     <TEXT>Process runtime: &amp;1 ms</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

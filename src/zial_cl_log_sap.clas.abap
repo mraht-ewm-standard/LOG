@@ -610,9 +610,10 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 *** Close existing log and create a new one for error handling
     save( ).
 
-    DATA(lo_log_sap) = NEW zial_cl_log_sap( iv_object    = zial_cl_log=>mc_default-log_object
-                                            iv_subobject = zial_cl_log=>mc_default-log_subobject
-                                            iv_extnumber = TEXT-000 ).
+    DATA(lo_log_sap) = NEW zial_cl_log_sap(
+      iv_object    = zial_cl_log=>mc_default-log_object
+      iv_subobject = zial_cl_log=>mc_default-log_subobject
+      iv_extnumber = TEXT-000 ).
 
     DATA(lt_bapiret) = error_handling( iv_process   = iv_process
                                        iv_subrc     = iv_subrc
@@ -830,8 +831,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
           DATA(lv_duration) = cl_abap_tstmp=>subtract( tstmp1 = mv_process_end
                                                        tstmp2 = mv_process_bgn ) * 1000.
 
+          MESSAGE s018(zial_log) WITH lv_duration INTO DATA(lv_msgtx).
           me->create_message( iv_msgty        = zial_cl_log=>mc_log_type-success
-                              iv_msgtx        = |Process runtime: { lv_duration } ms|
+                              iv_msgtx        = CONV #( lv_msgtx )
                               iv_is_dummy_msg = abap_true ).
 
         CATCH cx_root.
@@ -857,12 +859,12 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                                                   parvalue = lo_exc_descr->class_name ) ) ).
 
     me->create_message( iv_msgty = zial_cl_log=>mc_log_type-error
-                    iv_msgtx = mv_msg_text
-                    iv_msgno = mv_msg_number
-                    iv_msgv1 = mv_msg_var1
-                    iv_msgv2 = mv_msg_var2
-                    iv_msgv3 = mv_msg_var3
-                    iv_msgv4 = mv_msg_var4 ).
+                        iv_msgtx = mv_msg_text
+                        iv_msgno = mv_msg_number
+                        iv_msgv1 = mv_msg_var1
+                        iv_msgv2 = mv_msg_var2
+                        iv_msgv3 = mv_msg_var3
+                        iv_msgv4 = mv_msg_var4 ).
 
   ENDMETHOD.
 
