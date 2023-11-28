@@ -1,9 +1,9 @@
 *&---------------------------------------------------------------------*
-*& Report ZIAL_R_APPICATION_LOG
+*& Report zial_r_application_log
 *&---------------------------------------------------------------------*
 *&
 *&---------------------------------------------------------------------*
-REPORT zial_r_appication_log.
+REPORT zial_r_application_log.
 
 INCLUDE zial_r_application_log_top.
 INCLUDE zial_r_application_log_sel.

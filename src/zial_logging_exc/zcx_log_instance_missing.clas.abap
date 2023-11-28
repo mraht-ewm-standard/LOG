@@ -6,15 +6,10 @@ CLASS zcx_log_instance_missing DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    CLASS-METHODS is_log_class_enabled
-      RETURNING
-        VALUE(rv_log) TYPE cx_bool.
-    CLASS-METHODS enable_log_class
-      IMPORTING
-        log_enabled TYPE abap_bool.
+    INTERFACES: zif_cx_class.
 
   PROTECTED SECTION.
-    CLASS-DATA log_class_enabled TYPE cx_bool VALUE zcx_root=>undef.
+    CLASS-DATA log_class_enabled TYPE cx_bool VALUE mc_log_enabled-undef.
 
     METHODS log_input REDEFINITION.
 
@@ -30,17 +25,18 @@ CLASS zcx_log_instance_missing IMPLEMENTATION.
     MESSAGE e016(zial_log) INTO DATA(lv_msg).
     me->message = zial_cl_log=>to_bapiret( iv_msgid = sy-msgid
                                            iv_msgno = sy-msgno ).
+    zial_cl_log=>get( )->log_message( ).
 
   ENDMETHOD.
 
 
-  METHOD enable_log_class.
-    log_class_enabled = zcx_root=>det_bool( log_enabled ).
+  METHOD zif_cx_class~enable_log.
+    log_class_enabled = det_bool( iv_enable ).
   ENDMETHOD.
 
 
-  METHOD is_log_class_enabled.
-    rv_log = log_class_enabled.
+  METHOD zif_cx_class~is_log_enabled.
+    rv_is_enabled = log_class_enabled.
   ENDMETHOD.
 
 ENDCLASS.

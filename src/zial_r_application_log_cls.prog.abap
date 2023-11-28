@@ -83,7 +83,7 @@ CLASS lcl_application IMPLEMENTATION.
 
     TRY.
         CASE sy-ucomm.
-          WHEN 'ONLI'.
+          WHEN 'EXECUTE'.
             show_appl_log( ).
 
           WHEN 'EXP_EXCEL'.
@@ -91,7 +91,7 @@ CLASS lcl_application IMPLEMENTATION.
 
         ENDCASE.
 
-      CATCH zcx_root INTO DATA(lx_error).
+      CATCH zcx_static_check INTO DATA(lx_error).
         MESSAGE lx_error->get_text( ) TYPE 'E'.
 
     ENDTRY.
@@ -260,7 +260,7 @@ CLASS lcl_application IMPLEMENTATION.
           EXPORTING
             iv_sel_to_show = abap_false
           IMPORTING
-            et_messages = DATA(lt_messages) ).
+            et_messages    = DATA(lt_messages) ).
 
         filter_messages(
           CHANGING
@@ -312,13 +312,14 @@ CLASS lcl_application IMPLEMENTATION.
         transaction_code = p_tcode
         user_id          = p_user
         put_into_memory  = lv_put_into_memory
+        mode             = '+'
       TABLES
         header_data      = et_header_data
         messages         = et_messages.
 
     IF et_messages IS INITIAL.
       RAISE EXCEPTION TYPE zcx_error
-        MESSAGE w001(00) WITH TEXT-901.
+        MESSAGE w000(zial_log) WITH TEXT-901  ##FM_SUBRC_OK .
     ENDIF.
 
   ENDMETHOD.
@@ -403,9 +404,9 @@ CLASS lcl_application IMPLEMENTATION.
         DATA: lo_salv_table TYPE REF TO cl_salv_table.
         cl_salv_table=>factory(
           IMPORTING
-            r_salv_table   = lo_salv_table
+            r_salv_table = lo_salv_table
           CHANGING
-            t_table        = lt_data_tab ).
+            t_table      = lt_data_tab ).
 
       CATCH cx_salv_msg INTO DATA(lo_error).
         RAISE EXCEPTION TYPE zcx_error
@@ -427,36 +428,36 @@ CLASS lcl_application IMPLEMENTATION.
 
     cl_gui_frontend_services=>gui_download(
       EXPORTING
-        filename                  = lv_fullpath
-        filetype                  = 'BIN'
-        bin_filesize              = lv_size
+        filename                = lv_fullpath
+        filetype                = 'BIN'
+        bin_filesize            = lv_size
       CHANGING
-        data_tab                  = lt_raw_data
+        data_tab                = lt_raw_data
       EXCEPTIONS
-        file_write_error          = 1
-        no_batch                  = 2
-        gui_refuse_filetransfer   = 3
-        invalid_type              = 4
-        no_authority              = 5
-        unknown_error             = 6
-        header_not_allowed        = 7
-        separator_not_allowed     = 8
-        filesize_not_allowed      = 9
-        header_too_long           = 10
-        dp_error_create           = 11
-        dp_error_send             = 12
-        dp_error_write            = 13
-        unknown_dp_error          = 14
-        access_denied             = 15
-        dp_out_of_memory          = 16
-        disk_full                 = 17
-        dp_timeout                = 18
-        file_not_found            = 19
-        dataprovider_exception    = 20
-        control_flush_error       = 21
-        not_supported_by_gui      = 22
-        error_no_gui              = 23
-        OTHERS                    = 24 ).
+        file_write_error        = 1
+        no_batch                = 2
+        gui_refuse_filetransfer = 3
+        invalid_type            = 4
+        no_authority            = 5
+        unknown_error           = 6
+        header_not_allowed      = 7
+        separator_not_allowed   = 8
+        filesize_not_allowed    = 9
+        header_too_long         = 10
+        dp_error_create         = 11
+        dp_error_send           = 12
+        dp_error_write          = 13
+        unknown_dp_error        = 14
+        access_denied           = 15
+        dp_out_of_memory        = 16
+        disk_full               = 17
+        dp_timeout              = 18
+        file_not_found          = 19
+        dataprovider_exception  = 20
+        control_flush_error     = 21
+        not_supported_by_gui    = 22
+        error_no_gui            = 23
+        OTHERS                  = 24 ).
 
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_error
@@ -464,7 +465,7 @@ CLASS lcl_application IMPLEMENTATION.
         WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ENDIF.
 
-    MESSAGE s001(00) WITH TEXT-100.
+    MESSAGE s000(zial_log) WITH TEXT-100.
 
   ENDMETHOD.
 

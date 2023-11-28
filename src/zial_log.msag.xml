@@ -11,7 +11,7 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>000</MSGNR>
-     <TEXT>Log-Process &apos;&amp;1&apos; couldn&apos;t be executed successfully.</TEXT>
+     <TEXT>&amp;1 &amp;2 &amp;3 &amp;4</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -108,6 +108,12 @@
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>016</MSGNR>
      <TEXT>No log instance initialized: Please call static method INIT first.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZIAL_LOG</ARBGB>
+     <MSGNR>017</MSGNR>
+     <TEXT>Log-Process &apos;&amp;1&apos; couldn&apos;t be executed successfully.</TEXT>
     </T100>
    </T100>
   </asx:values>

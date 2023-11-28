@@ -23,29 +23,13 @@
       <ACTCODE>000001</ACTCODE>
       <PFKCODE>000001</PFKCODE>
       <BUTCODE>0001</BUTCODE>
-      <INT_NOTE>Main Status</INT_NOTE>
+      <INT_NOTE>Main status</INT_NOTE>
      </RSMPE_STAT>
     </STA>
     <FUN>
      <RSMPE_FUNT>
-      <CODE>CANCEL</CODE>
-      <TEXTNO>001</TEXTNO>
-      <TEXT_TYPE>S</TEXT_TYPE>
-      <TEXT_NAME>ICON_CANCEL</TEXT_NAME>
-      <ICON_ID>@0W@</ICON_ID>
-      <FUN_TEXT>Cancel</FUN_TEXT>
-     </RSMPE_FUNT>
-     <RSMPE_FUNT>
-      <CODE>EXEC</CODE>
-      <TEXTNO>001</TEXTNO>
-      <TEXT_TYPE>S</TEXT_TYPE>
-      <ICON_ID>@15@</ICON_ID>
-      <FUN_TEXT>Execute</FUN_TEXT>
-     </RSMPE_FUNT>
-     <RSMPE_FUNT>
       <CODE>EXECUTE</CODE>
       <TEXTNO>001</TEXTNO>
-      <TYPE>S</TYPE>
       <TEXT_TYPE>S</TEXT_TYPE>
       <TEXT_NAME>ICON_EXECUTE_OBJECT</TEXT_NAME>
       <ICON_ID>@15@</ICON_ID>
@@ -54,16 +38,9 @@
      <RSMPE_FUNT>
       <CODE>EXIT</CODE>
       <TEXTNO>001</TEXTNO>
+      <TYPE>E</TYPE>
       <TEXT_TYPE>S</TEXT_TYPE>
       <FUN_TEXT>Exit</FUN_TEXT>
-     </RSMPE_FUNT>
-     <RSMPE_FUNT>
-      <CODE>EXIT</CODE>
-      <TEXTNO>002</TEXTNO>
-      <TEXT_TYPE>S</TEXT_TYPE>
-      <TEXT_NAME>ICON_CANCEL</TEXT_NAME>
-      <ICON_ID>@0W@</ICON_ID>
-      <FUN_TEXT>Cancel</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>EXP_EXCEL</CODE>
@@ -71,49 +48,45 @@
       <TEXT_TYPE>S</TEXT_TYPE>
       <TEXT_NAME>ICON_XLS</TEXT_NAME>
       <ICON_ID>@J2@</ICON_ID>
-      <FUN_TEXT>Export to Excel</FUN_TEXT>
-     </RSMPE_FUNT>
-     <RSMPE_FUNT>
-      <CODE>ONLI</CODE>
-      <TEXTNO>001</TEXTNO>
-      <TEXT_TYPE>S</TEXT_TYPE>
-      <TEXT_NAME>ICON_EXECUTE_OBJECT</TEXT_NAME>
-      <ICON_ID>@15@</ICON_ID>
-      <FUN_TEXT>Execute</FUN_TEXT>
+      <FUN_TEXT>Export to excel</FUN_TEXT>
      </RSMPE_FUNT>
     </FUN>
+    <MEN>
+     <RSMPE_MEN>
+      <CODE>000001</CODE>
+      <NO>01</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>EXIT</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+    </MEN>
     <MTX>
      <RSMPE_MNLT>
       <CODE>000001</CODE>
       <TEXT_TYPE>S</TEXT_TYPE>
-      <TEXT>EXP_EXCEL</TEXT>
+      <TEXT>Goto</TEXT>
      </RSMPE_MNLT>
     </MTX>
+    <ACT>
+     <RSMPE_ACT>
+      <CODE>000001</CODE>
+      <NO>01</NO>
+      <MENUCODE>000001</MENUCODE>
+     </RSMPE_ACT>
+    </ACT>
     <BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>01</NO>
-      <PFNO>32</PFNO>
+      <PFNO>20</PFNO>
      </RSMPE_BUT>
     </BUT>
     <PFK>
      <RSMPE_PFK>
       <CODE>000001</CODE>
-      <PFNO>00</PFNO>
-      <FUNCODE>ONLI</FUNCODE>
-      <FUNNO>001</FUNNO>
-     </RSMPE_PFK>
-     <RSMPE_PFK>
-      <CODE>000001</CODE>
       <PFNO>08</PFNO>
-      <FUNCODE>ONLI</FUNCODE>
-      <FUNNO>001</FUNNO>
-     </RSMPE_PFK>
-     <RSMPE_PFK>
-      <CODE>000001</CODE>
-      <PFNO>12</PFNO>
-      <FUNCODE>CANCEL</FUNCODE>
+      <FUNCODE>EXECUTE</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>
@@ -124,20 +97,12 @@
      </RSMPE_PFK>
      <RSMPE_PFK>
       <CODE>000001</CODE>
-      <PFNO>32</PFNO>
+      <PFNO>20</PFNO>
       <FUNCODE>EXP_EXCEL</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
     </PFK>
     <SET>
-     <RSMPE_STAF>
-      <STATUS>MAIN</STATUS>
-      <FUNCTION>CANCEL</FUNCTION>
-     </RSMPE_STAF>
-     <RSMPE_STAF>
-      <STATUS>MAIN</STATUS>
-      <FUNCTION>EXEC</FUNCTION>
-     </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>MAIN</STATUS>
       <FUNCTION>EXECUTE</FUNCTION>
@@ -150,30 +115,26 @@
       <STATUS>MAIN</STATUS>
       <FUNCTION>EXP_EXCEL</FUNCTION>
      </RSMPE_STAF>
-     <RSMPE_STAF>
-      <STATUS>MAIN</STATUS>
-      <FUNCTION>ONLI</FUNCTION>
-     </RSMPE_STAF>
     </SET>
     <DOC>
      <RSMPE_ATRT>
       <OBJ_TYPE>A</OBJ_TYPE>
       <OBJ_CODE>000001</OBJ_CODE>
       <MODAL>D</MODAL>
-      <INT_NOTE>Main Status</INT_NOTE>
+      <INT_NOTE>Main status</INT_NOTE>
      </RSMPE_ATRT>
      <RSMPE_ATRT>
       <OBJ_TYPE>P</OBJ_TYPE>
       <OBJ_CODE>000001</OBJ_CODE>
       <MODAL>D</MODAL>
-      <INT_NOTE>Main Status</INT_NOTE>
+      <INT_NOTE>Main status</INT_NOTE>
      </RSMPE_ATRT>
      <RSMPE_ATRT>
       <OBJ_TYPE>B</OBJ_TYPE>
       <OBJ_CODE>000001</OBJ_CODE>
       <SUB_CODE>0001</SUB_CODE>
       <MODAL>D</MODAL>
-      <INT_NOTE>Main Status</INT_NOTE>
+      <INT_NOTE>Main status</INT_NOTE>
      </RSMPE_ATRT>
     </DOC>
    </CUA>
@@ -223,8 +184,8 @@
     <item>
      <ID>I</ID>
      <KEY>008</KEY>
-     <ENTRY>No Log found</ENTRY>
-     <LENGTH>22</LENGTH>
+     <ENTRY>Choose file</ENTRY>
+     <LENGTH>21</LENGTH>
     </item>
     <item>
      <ID>I</ID>
@@ -243,6 +204,24 @@
      <KEY>011</KEY>
      <ENTRY>Line</ENTRY>
      <LENGTH>14</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>100</KEY>
+     <ENTRY>Log messages downloaded successfully</ENTRY>
+     <LENGTH>72</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>900</KEY>
+     <ENTRY>Action cancelled by user</ENTRY>
+     <LENGTH>48</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>901</KEY>
+     <ENTRY>No log messages found</ENTRY>
+     <LENGTH>42</LENGTH>
     </item>
     <item>
      <ID>R</ID>
@@ -282,316 +261,107 @@
     <item>
      <ID>S</ID>
      <KEY>P_DATFR</KEY>
+     <ENTRY>From Date/Time</ENTRY>
      <LENGTH>22</LENGTH>
     </item>
     <item>
      <ID>S</ID>
      <KEY>P_DATTO</KEY>
+     <ENTRY>To Date/Time</ENTRY>
      <LENGTH>20</LENGTH>
     </item>
     <item>
      <ID>S</ID>
      <KEY>P_EXTNUM</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>19</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>P_OBJ</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>14</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>P_PROG</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>15</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>P_SUBOBJ</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>17</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>P_TCODE</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>24</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>P_TIMFR</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>12</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>P_TIMTO</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>12</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>P_USER</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>12</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>S_LOGNUM</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>18</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>S_MSGID</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>18</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>S_MSGNO</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>22</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>S_MSGTY</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>20</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
     <item>
      <ID>S</ID>
      <KEY>S_MSGV</KEY>
      <ENTRY>.</ENTRY>
-     <LENGTH>24</LENGTH>
+     <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>
     </item>
    </TPOOL>
-   <I18N_TPOOL>
-    <item>
-     <LANGUAGE>D</LANGUAGE>
-     <TEXTPOOL>
-      <item>
-       <ID>I</ID>
-       <KEY>001</KEY>
-       <ENTRY>Logobjekt-Einschränkungen</ENTRY>
-       <LENGTH>46</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>002</KEY>
-       <ENTRY>Zeiteinschränkungen</ENTRY>
-       <LENGTH>27</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>003</KEY>
-       <ENTRY>Log getriggert von</ENTRY>
-       <LENGTH>26</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>004</KEY>
-       <ENTRY>Logklasse</ENTRY>
-       <LENGTH>19</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>005</KEY>
-       <ENTRY>Nachrichten-Einschränkungen</ENTRY>
-       <LENGTH>29</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>006</KEY>
-       <ENTRY>Von Datum/Zeit</ENTRY>
-       <LENGTH>24</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>007</KEY>
-       <ENTRY>Bis Datum/Zeit</ENTRY>
-       <LENGTH>22</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>008</KEY>
-       <ENTRY>Kein Log gefunden</ENTRY>
-       <LENGTH>22</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>009</KEY>
-       <ENTRY>Programm</ENTRY>
-       <LENGTH>17</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>010</KEY>
-       <ENTRY>Include</ENTRY>
-       <LENGTH>17</LENGTH>
-      </item>
-      <item>
-       <ID>I</ID>
-       <KEY>011</KEY>
-       <ENTRY>Zeile</ENTRY>
-       <LENGTH>14</LENGTH>
-      </item>
-      <item>
-       <ID>R</ID>
-       <ENTRY>Anwendungslog</ENTRY>
-       <LENGTH>70</LENGTH>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_APPL</KEY>
-       <ENTRY>Anwendungslog-Suche</ENTRY>
-       <LENGTH>38</LENGTH>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_CLASS1</KEY>
-       <ENTRY>Nur sehr wichtige Logs (E)</ENTRY>
-       <LENGTH>38</LENGTH>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_CLASS2</KEY>
-       <ENTRY>Nur wichtige Logs (W)</ENTRY>
-       <LENGTH>38</LENGTH>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_CLASS3</KEY>
-       <ENTRY>Auch weniger wichtige Logs (S)</ENTRY>
-       <LENGTH>38</LENGTH>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_CLASS4</KEY>
-       <ENTRY>Alle Logs (I)</ENTRY>
-       <LENGTH>38</LENGTH>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_DATFR</KEY>
-       <ENTRY>Von Datum/Zeit</ENTRY>
-       <LENGTH>38</LENGTH>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_DATTO</KEY>
-       <ENTRY>Bis Datum/Zeit</ENTRY>
-       <LENGTH>38</LENGTH>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_EXTNUM</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>19</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_OBJ</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>14</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_PROG</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>15</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_SUBOBJ</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>17</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_TCODE</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>24</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_TIMFR</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>12</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_TIMTO</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>12</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>P_USER</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>12</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>S_LOGNUM</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>18</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>S_MSGID</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>18</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>S_MSGNO</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>22</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>S_MSGTY</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>20</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-      <item>
-       <ID>S</ID>
-       <KEY>S_MSGV</KEY>
-       <ENTRY>.</ENTRY>
-       <LENGTH>24</LENGTH>
-       <SPLIT>D</SPLIT>
-      </item>
-     </TEXTPOOL>
-    </item>
-   </I18N_TPOOL>
   </asx:values>
  </asx:abap>
 </abapGit>

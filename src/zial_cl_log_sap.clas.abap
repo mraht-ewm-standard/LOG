@@ -635,7 +635,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD error_handling.
 
-    MESSAGE e000(zial_log) WITH iv_process INTO DATA(lv_msg).
+    MESSAGE e017(zial_log) WITH iv_process INTO DATA(lv_msg).
     APPEND zial_cl_log=>to_bapiret( ) TO rt_bapiret.
 
 *** Log general log data
