@@ -45,7 +45,7 @@ CLASS zial_cl_log_sap DEFINITION
     "! @parameter io_exception | Exception object
     METHODS log_exception
       IMPORTING
-        !io_exception TYPE REF TO cx_root .
+        !io_exception TYPE REF TO cx_root.
     "! Log symsg messages
     "!
     "! @parameter is_symsg | SAP system message structure
@@ -848,23 +848,30 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_exception.
 
-    " Determine OTR-Text by exception class
-    mv_msg_text = io_exception->get_text( ).
+    CHECK io_exception IS BOUND.
+
+    DATA(lt_messages) = VALUE bapirettab( ).
+    CASE TYPE OF io_exception.
+      WHEN TYPE zcx_static_check INTO DATA(lx_static_check).
+        INSERT LINES OF lx_static_check->get_messages( ) INTO TABLE lt_messages.
+
+      WHEN TYPE zcx_no_check INTO DATA(lx_no_check).
+        INSERT LINES OF lx_no_check->get_messages( ) INTO TABLE lt_messages.
+
+      WHEN OTHERS.
+        INSERT zial_cl_log=>to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ) INTO TABLE lt_messages.
+
+    ENDCASE.
+
+    CHECK lt_messages IS NOT INITIAL.
 
     " Determine exception class name
     DATA(lo_exc_descr) = NEW cl_instance_description( io_exception ).
-
     ms_msg_params = VALUE #( altext = 'SBAL_EXCEPTION_01'
-                              t_par  = VALUE #( ( parname  = 'EXCEPTION'
-                                                  parvalue = lo_exc_descr->class_name ) ) ).
+                             t_par  = VALUE #( ( parname  = 'EXCEPTION'
+                                                 parvalue = lo_exc_descr->class_name ) ) ).
 
-    me->create_message( iv_msgty = zial_cl_log=>mc_log_type-error
-                        iv_msgtx = mv_msg_text
-                        iv_msgno = mv_msg_number
-                        iv_msgv1 = mv_msg_var1
-                        iv_msgv2 = mv_msg_var2
-                        iv_msgv3 = mv_msg_var3
-                        iv_msgv4 = mv_msg_var4 ).
+    log_bapiret( lt_messages ).
 
   ENDMETHOD.
 

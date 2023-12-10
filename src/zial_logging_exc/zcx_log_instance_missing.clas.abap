@@ -11,16 +11,16 @@ CLASS zcx_log_instance_missing DEFINITION
   PROTECTED SECTION.
     CLASS-DATA log_class_enabled TYPE cx_bool VALUE mc_log_enabled-undef.
 
-    METHODS log_input REDEFINITION.
+    METHODS log_messages REDEFINITION.
 
 ENDCLASS.
 
 
 CLASS zcx_log_instance_missing IMPLEMENTATION.
 
-  METHOD log_input.
+  METHOD log_messages.
 
-    super->log_input( ).
+    super->log_messages( ).
 
     MESSAGE e016(zial_log) INTO DATA(lv_msg).
     me->message = zial_cl_log=>to_bapiret( iv_msgid = sy-msgid
