@@ -9,7 +9,7 @@ CLASS zial_cl_log DEFINITION
            t_input_parameters TYPE rsra_t_alert_definition.
     TYPES: de_char150 TYPE c LENGTH 150 .
 
-    TYPES: o_log_instance TYPE REF TO zial_cl_log_ewm,
+    TYPES: o_log_instance TYPE REF TO zial_cl_log_sap,
            t_log_stack    TYPE TABLE OF o_log_instance WITH DEFAULT KEY.
 
     CONSTANTS: BEGIN OF mc_msg_content_type,
