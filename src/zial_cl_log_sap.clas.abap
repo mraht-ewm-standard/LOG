@@ -645,8 +645,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD error_handling.
 
-    " TODO: variable is assigned but never used; add pragma ##NEEDED (ABAP cleaner)
-    MESSAGE e017(zial_log) WITH iv_process INTO DATA(lv_msg).
+    MESSAGE e017(zial_log) WITH iv_process INTO DATA(lv_msg) ##NEEDED.
     APPEND zial_cl_log=>to_bapiret( ) TO rt_bapiret.
 
     " Log general log data
