@@ -212,9 +212,7 @@ CLASS lcl_application IMPLEMENTATION.
 
   METHOD show_appl_log.
 
-    sel_appl_log( IMPORTING et_header_data = DATA(lt_header_data)
-                  " TODO: variable is assigned but never used (ABAP cleaner)
-                            et_messages    = DATA(lt_messages) ).
+    sel_appl_log( IMPORTING et_header_data = DATA(lt_header_data) ).
 
     DATA(ls_profile) = build_display_profile( ).
     DATA(lt_log_handle) = VALUE bal_t_logh( FOR <s_header_data> IN lt_header_data
@@ -280,8 +278,6 @@ CLASS lcl_application IMPLEMENTATION.
       DATA(lv_put_into_memory) = abap_true.
     ENDIF.
 
-    " TODO: variable is assigned but never used (ABAP cleaner)
-    DATA(lt_header_data) = VALUE zial_tt_balhdr( ).
     CALL FUNCTION 'APPL_LOG_READ_DB'
       EXPORTING object           = p_obj
                 subobject        = p_subobj
