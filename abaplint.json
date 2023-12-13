@@ -211,12 +211,16 @@
       "implement_methods": false,
       "in_statement_indentation": false,
       "indentation": {
-        "alignTryCatch": false,
-        "globalClassSkipFirst": false,
+        "exclude": [
+          "^*.fugr.*$"
+        ],
+        "severity": "Error",
         "ignoreExceptions": true,
+        "alignTryCatch": false,
+        "selectionScreenBlockIndentation": false,
+        "globalClassSkipFirst": false,
         "ignoreGlobalClassDefinition": false,
-        "ignoreGlobalInterface": false,
-        "selectionScreenBlockIndentation": false
+        "ignoreGlobalInterface": false
       },
       "inline_data_old_versions": true,
       "intf_referencing_clas": false,
