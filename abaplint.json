@@ -226,6 +226,9 @@
       "intf_referencing_clas": false,
       "keep_single_parameter_on_one_line": true,
       "keyword_case": {
+        "exclude": [
+          "fugr"
+        ],
         "ignoreExceptions": true,
         "ignoreFunctionModuleName": false,
         "ignoreGlobalClassBoundaries": false,
