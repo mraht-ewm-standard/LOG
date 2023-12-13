@@ -29,7 +29,7 @@
         "defaultKey": false,
         "define": true,
         "describeLines": true,
-        "exportToDatabase": true,
+        "exportToDatabase": false,
         "exportToMemory": false,
         "statics": true,
         "testSeams": true
@@ -397,7 +397,7 @@
         "exclude": [
           "/json/"
         ],
-        "pattern": "^(V|S|T)_.+$"
+        "pattern": "^(R|V|S|T)_.+$"
       },
       "uncaught_exception": true,
       "unknown_types": false,
