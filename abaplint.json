@@ -212,7 +212,8 @@
       "in_statement_indentation": false,
       "indentation": {
         "exclude": [
-          "fugr"
+          "fugr",
+          "sel.prog"
         ],
         "severity": "Error",
         "ignoreExceptions": true,
