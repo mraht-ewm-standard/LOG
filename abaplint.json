@@ -397,7 +397,7 @@
         "exclude": [
           "/json/"
         ],
-        "pattern": "^TY_.+$"
+        "pattern": "^(V|S|T)_.+$"
       },
       "uncaught_exception": true,
       "unknown_types": false,
