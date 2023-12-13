@@ -1,5 +1,5 @@
 *"* use this source file for your ABAP unit test classes
-CLASS lcl_log DEFINITION FOR TESTING RISK LEVEL HARMLESS.
+CLASS ltc_log DEFINITION FOR TESTING RISK LEVEL HARMLESS.
 
   PUBLIC SECTION.
     METHODS test FOR TESTING.
@@ -8,7 +8,7 @@ ENDCLASS.
 
 
 
-CLASS lcl_log IMPLEMENTATION.
+CLASS ltc_log IMPLEMENTATION.
 
   METHOD test.
 
@@ -16,7 +16,8 @@ CLASS lcl_log IMPLEMENTATION.
                          iv_subobject = 'MFS'
                          iv_extnumber = |AbapUnitTest: LCL_LOG| ).
 
-    zial_cl_log=>get( )->success( msgtx = |A success message| ).
+    zial_cl_log=>get( )->success( iv_msgtx = |A success message|
+                                  it_msgde = VALUE #( ( fnam = 'HUIDENT' low = '123456' ) ) ).
 
     zial_cl_log=>save( ).
 
