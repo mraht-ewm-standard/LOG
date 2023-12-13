@@ -1,12 +1,11 @@
-"! <p class="shorttext synchronized" lang="en">Log instance is missing</p>
+"! <p class="shorttext synchronized">Log instance is missing</p>
 CLASS zcx_log_instance_missing DEFINITION
   PUBLIC
-  INHERITING FROM zcx_log
-  FINAL
-  CREATE PUBLIC .
+  INHERITING FROM zcx_log FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-    INTERFACES: zif_cx_class.
+    INTERFACES zif_cx_class.
 
   PROTECTED SECTION.
     CLASS-DATA log_class_enabled TYPE cx_bool VALUE mc_log_enabled-undef.
@@ -22,9 +21,9 @@ CLASS zcx_log_instance_missing IMPLEMENTATION.
 
     super->log_messages( ).
 
-    MESSAGE e016(zial_log) INTO DATA(lv_msg).
-    me->message = zial_cl_log=>to_bapiret( iv_msgid = sy-msgid
-                                           iv_msgno = sy-msgno ).
+    MESSAGE e016(zial_log) INTO DATA(lv_msg) ##NEEDED.
+    message = zial_cl_log=>to_bapiret( iv_msgid = sy-msgid
+                                       iv_msgno = sy-msgno ).
     zial_cl_log=>get( )->log_message( ).
 
   ENDMETHOD.

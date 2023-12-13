@@ -121,6 +121,12 @@
      <MSGNR>018</MSGNR>
      <TEXT>Process runtime: &amp;1 ms</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZIAL_LOG</ARBGB>
+     <MSGNR>019</MSGNR>
+     <TEXT>The data cluster for logging message details couldn&apos;t be found!</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

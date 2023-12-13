@@ -4,52 +4,45 @@
 CLASS lcl_application DEFINITION FINAL.
 
   PUBLIC SECTION.
-    CLASS-METHODS:
-      on_init,
-      on_value_req_msgid,
-      at_selection_screen.
+    CLASS-METHODS on_init.
+    CLASS-METHODS on_value_req_msgid.
+    CLASS-METHODS at_selection_screen.
 
   PRIVATE SECTION.
-    CONSTANTS: mc_log_context TYPE string VALUE 'ZIAL_S_LOG_CONTEXT'.
+    CONSTANTS mc_log_context TYPE string VALUE 'ZIAL_S_LOG_CONTEXT'.
 
     CLASS-METHODS is_valid_msg
-      IMPORTING
-        is_data          TYPE any
-      RETURNING
-        VALUE(rv_result) TYPE abap_bool.
+      IMPORTING is_data          TYPE any
+      RETURNING VALUE(rv_result) TYPE abap_bool.
+
     CLASS-METHODS has_valid_obligatory_attr
-      IMPORTING
-        is_data          TYPE any
-      RETURNING
-        VALUE(rv_result) TYPE abap_bool.
+      IMPORTING is_data          TYPE any
+      RETURNING VALUE(rv_result) TYPE abap_bool.
+
     CLASS-METHODS has_valid_optional_attr
-      IMPORTING
-        is_data          TYPE any
-      RETURNING
-        VALUE(rv_result) TYPE abap_bool.
+      IMPORTING is_data          TYPE any
+      RETURNING VALUE(rv_result) TYPE abap_bool.
+
     CLASS-METHODS build_display_profile
-      RETURNING
-        VALUE(rs_display_profile) TYPE bal_s_prof.
+      RETURNING VALUE(rs_display_profile) TYPE bal_s_prof.
+
     CLASS-METHODS show_appl_log
-      RAISING
-        zcx_error.
+      RAISING zcx_error.
+
     CLASS-METHODS exp_excel.
+
     CLASS-METHODS sel_appl_log
-      IMPORTING
-        iv_sel_to_show TYPE abap_bool DEFAULT abap_true
-      EXPORTING
-        et_header_data TYPE zial_tt_balhdr
-        et_messages    TYPE zial_tt_balm
-      RAISING
-        zcx_error.
+      IMPORTING iv_sel_to_show TYPE abap_bool DEFAULT abap_true
+      EXPORTING et_header_data TYPE zial_tt_balhdr
+                et_messages    TYPE zial_tt_balm
+      RAISING   zcx_error.
+
     CLASS-METHODS export_to_excel
-      IMPORTING
-        it_messages TYPE zial_tt_balm
-      RAISING
-        zcx_error.
+      IMPORTING it_messages TYPE zial_tt_balm
+      RAISING   zcx_error.
+
     CLASS-METHODS filter_messages
-      CHANGING
-        ct_messages TYPE zial_tt_balm.
+      CHANGING ct_messages TYPE zial_tt_balm.
 
 ENDCLASS.
 
@@ -69,12 +62,11 @@ CLASS lcl_application IMPLEMENTATION.
   METHOD on_value_req_msgid.
 
     CALL FUNCTION 'RS_HELP_HANDLING'
-      EXPORTING
-        dynpfield                 = 'S_MSGID-LOW'
-        dynpname                  = sy-dynnr
-        object                    = 'MI'
-        suppress_selection_screen = abap_true
-        progname                  = sy-repid.
+      EXPORTING dynpfield                 = 'S_MSGID-LOW'
+                dynpname                  = sy-dynnr
+                object                    = 'MI'
+                suppress_selection_screen = abap_true
+                progname                  = sy-repid.
 
   ENDMETHOD.
 
@@ -115,7 +107,7 @@ CLASS lcl_application IMPLEMENTATION.
 
   METHOD has_valid_obligatory_attr.
 
-    FIELD-SYMBOLS: <lt_r_msg_attr> TYPE ANY TABLE.
+    FIELD-SYMBOLS <lt_r_msg_attr> TYPE ANY TABLE.
 
     DO 3 TIMES.
 
@@ -148,7 +140,7 @@ CLASS lcl_application IMPLEMENTATION.
         rv_result = abap_true.
       ENDIF.
 
-      UNASSIGN: <lv_value>.
+      UNASSIGN <lv_value>.
 
     ENDDO.
 
@@ -157,7 +149,7 @@ CLASS lcl_application IMPLEMENTATION.
 
   METHOD has_valid_optional_attr.
 
-    FIELD-SYMBOLS: <lt_r_msg_attr> TYPE ANY TABLE.
+    FIELD-SYMBOLS <lt_r_msg_attr> TYPE ANY TABLE.
 
     rv_result = abap_true.
 
@@ -183,8 +175,7 @@ CLASS lcl_application IMPLEMENTATION.
   METHOD build_display_profile.
 
     CALL FUNCTION 'BAL_DSP_PROFILE_STANDARD_GET'
-      IMPORTING
-        e_s_display_profile = rs_display_profile.
+      IMPORTING e_s_display_profile = rs_display_profile.
 
     rs_display_profile-show_all = abap_true.
 
@@ -221,14 +212,13 @@ CLASS lcl_application IMPLEMENTATION.
 
   METHOD show_appl_log.
 
-    sel_appl_log(
-      IMPORTING
-        et_header_data = DATA(lt_header_data)
-        et_messages    = DATA(lt_messages) ).
+    sel_appl_log( IMPORTING et_header_data = DATA(lt_header_data)
+                  " TODO: variable is assigned but never used (ABAP cleaner)
+                            et_messages    = DATA(lt_messages) ).
 
     DATA(ls_profile) = build_display_profile( ).
     DATA(lt_log_handle) = VALUE bal_t_logh( FOR <s_header_data> IN lt_header_data
-                                              ( <s_header_data>-log_handle ) ).
+                                            ( <s_header_data>-log_handle ) ).
 
     IF p_appl EQ abap_false.
       DATA(ls_msg_filter) = VALUE bal_s_mfil( msgid = s_msgid[]
@@ -237,13 +227,11 @@ CLASS lcl_application IMPLEMENTATION.
     ENDIF.
 
     CALL FUNCTION 'BAL_DSP_LOG_DISPLAY'
-      EXPORTING
-        i_s_display_profile = ls_profile
-        i_t_log_handle      = lt_log_handle
-        i_s_msg_filter      = ls_msg_filter
-      EXCEPTIONS
-        no_authority        = 1
-        OTHERS              = 2.
+      EXPORTING  i_s_display_profile = ls_profile
+                 i_t_log_handle      = lt_log_handle
+                 i_s_msg_filter      = ls_msg_filter
+      EXCEPTIONS no_authority        = 1
+                 OTHERS              = 2.
 
     IF sy-subrc NE 0.
       MESSAGE ID sy-msgid TYPE 'E' NUMBER sy-msgno
@@ -256,15 +244,10 @@ CLASS lcl_application IMPLEMENTATION.
   METHOD exp_excel.
 
     TRY.
-        sel_appl_log(
-          EXPORTING
-            iv_sel_to_show = abap_false
-          IMPORTING
-            et_messages    = DATA(lt_messages) ).
+        sel_appl_log( EXPORTING iv_sel_to_show = abap_false
+                      IMPORTING et_messages    = DATA(lt_messages) ).
 
-        filter_messages(
-          CHANGING
-            ct_messages = lt_messages ).
+        filter_messages( CHANGING ct_messages = lt_messages ).
 
         export_to_excel( lt_messages ).
 
@@ -297,29 +280,28 @@ CLASS lcl_application IMPLEMENTATION.
       DATA(lv_put_into_memory) = abap_true.
     ENDIF.
 
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(lt_header_data) = VALUE zial_tt_balhdr( ).
     CALL FUNCTION 'APPL_LOG_READ_DB'
-      EXPORTING
-        object           = p_obj
-        subobject        = p_subobj
-        external_number  = p_extnum
-        date_from        = p_datfr
-        date_to          = p_datto
-        time_from        = p_timfr
-        time_to          = p_timto
-        log_class        = lv_probclass
-        program_name     = p_prog
-        transaction_code = p_tcode
-        user_id          = p_user
-        put_into_memory  = lv_put_into_memory
-        mode             = '+'
-      TABLES
-        header_data      = et_header_data
-        messages         = et_messages.
+      EXPORTING object           = p_obj
+                subobject        = p_subobj
+                external_number  = p_extnum
+                date_from        = p_datfr
+                date_to          = p_datto
+                time_from        = p_timfr
+                time_to          = p_timto
+                log_class        = lv_probclass
+                program_name     = p_prog
+                transaction_code = p_tcode
+                user_id          = p_user
+                put_into_memory  = lv_put_into_memory
+                mode             = '+'
+      TABLES    header_data      = et_header_data
+                messages         = et_messages.
 
     IF et_messages IS INITIAL.
       RAISE EXCEPTION TYPE zcx_error
-        MESSAGE w000(zial_log) WITH TEXT-901  ##FM_SUBRC_OK .
+        MESSAGE w000(zial_log) WITH TEXT-901 ##FM_SUBRC_OK.
     ENDIF.
 
   ENDMETHOD.
@@ -341,8 +323,6 @@ CLASS lcl_application IMPLEMENTATION.
 
   METHOD export_to_excel.
 
-    CONSTANTS: lc_export_format TYPE string VALUE 'xlsx'.
-
     TYPES: BEGIN OF s_data_tab,
              msgtx TYPE string,
              msgid TYPE msgid,
@@ -356,33 +336,32 @@ CLASS lcl_application IMPLEMENTATION.
            END OF s_data_tab,
            t_data_tab TYPE STANDARD TABLE OF s_data_tab WITH DEFAULT KEY.
 
+    CONSTANTS lc_export_format TYPE string VALUE 'xlsx'.
+
     DATA(lv_default_file_name) = |ApplLog_{ sy-datlo }_{ sy-timlo }|.
-    DATA(lv_file_filter) = |{ TEXT-009 } (*.{ lc_export_format })\|*.{ lc_export_format }\|{ cl_gui_frontend_services=>filetype_all }|.
+    DATA(lv_file_filter) = |{ TEXT-009 } (*.{ lc_export_format })\|*.{ lc_export_format }| &&
+                           |\|{ cl_gui_frontend_services=>filetype_all }|.
 
     DATA(lv_filename)    = VALUE string( ).
     DATA(lv_path)        = VALUE string( ).
     DATA(lv_fullpath)    = VALUE string( ).
     DATA(lv_user_action) = VALUE i( ).
 
-    cl_gui_frontend_services=>file_save_dialog(
-      EXPORTING
-        window_title              = |{ TEXT-008 }|
-        default_extension         = lc_export_format
-        default_file_name         = lv_default_file_name
-        file_filter               = lv_file_filter
-      CHANGING
-        filename                  = lv_filename
-        path                      = lv_path
-        fullpath                  = lv_fullpath
-        user_action               = lv_user_action
-      EXCEPTIONS
-        cntl_error                = 1
-        error_no_gui              = 2
-        not_supported_by_gui      = 3
-        invalid_default_file_name = 4
-        OTHERS                    = 5 ).
+    cl_gui_frontend_services=>file_save_dialog( EXPORTING  window_title              = |{ TEXT-008 }|
+                                                           default_extension         = lc_export_format
+                                                           default_file_name         = lv_default_file_name
+                                                           file_filter               = lv_file_filter
+                                                CHANGING   filename                  = lv_filename
+                                                           path                      = lv_path
+                                                           fullpath                  = lv_fullpath
+                                                           user_action               = lv_user_action
+                                                EXCEPTIONS cntl_error                = 1
+                                                           error_no_gui              = 2
+                                                           not_supported_by_gui      = 3
+                                                           invalid_default_file_name = 4
+                                                           OTHERS                    = 5 ).
 
-    IF sy-subrc <> 0.
+    IF sy-subrc NE 0.
       RAISE EXCEPTION TYPE zcx_error
         MESSAGE ID sy-msgid NUMBER sy-msgno
         WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
@@ -401,12 +380,8 @@ CLASS lcl_application IMPLEMENTATION.
     ENDLOOP.
 
     TRY.
-        DATA: lo_salv_table TYPE REF TO cl_salv_table.
-        cl_salv_table=>factory(
-          IMPORTING
-            r_salv_table = lo_salv_table
-          CHANGING
-            t_table      = lt_data_tab ).
+        cl_salv_table=>factory( IMPORTING r_salv_table = DATA(lo_salv_table)
+                                CHANGING  t_table      = lt_data_tab ).
 
       CATCH cx_salv_msg INTO DATA(lo_error).
         RAISE EXCEPTION TYPE zcx_error
@@ -419,47 +394,40 @@ CLASS lcl_application IMPLEMENTATION.
     DATA(lv_xml_bytes) = lo_salv_table->to_xml( xml_type = if_salv_bs_xml=>c_type_xlsx ).
 
     " xstring (bytes) -> raw
-    cl_scp_change_db=>xstr_to_xtab(
-      EXPORTING
-        im_xstring = lv_xml_bytes
-      IMPORTING
-        ex_size    = DATA(lv_size)
-        ex_xtab    = DATA(lt_raw_data) ).
+    cl_scp_change_db=>xstr_to_xtab( EXPORTING im_xstring = lv_xml_bytes
+                                    IMPORTING ex_size    = DATA(lv_size)
+                                              ex_xtab    = DATA(lt_raw_data) ).
 
-    cl_gui_frontend_services=>gui_download(
-      EXPORTING
-        filename                = lv_fullpath
-        filetype                = 'BIN'
-        bin_filesize            = lv_size
-      CHANGING
-        data_tab                = lt_raw_data
-      EXCEPTIONS
-        file_write_error        = 1
-        no_batch                = 2
-        gui_refuse_filetransfer = 3
-        invalid_type            = 4
-        no_authority            = 5
-        unknown_error           = 6
-        header_not_allowed      = 7
-        separator_not_allowed   = 8
-        filesize_not_allowed    = 9
-        header_too_long         = 10
-        dp_error_create         = 11
-        dp_error_send           = 12
-        dp_error_write          = 13
-        unknown_dp_error        = 14
-        access_denied           = 15
-        dp_out_of_memory        = 16
-        disk_full               = 17
-        dp_timeout              = 18
-        file_not_found          = 19
-        dataprovider_exception  = 20
-        control_flush_error     = 21
-        not_supported_by_gui    = 22
-        error_no_gui            = 23
-        OTHERS                  = 24 ).
+    cl_gui_frontend_services=>gui_download( EXPORTING  filename                = lv_fullpath
+                                                       filetype                = 'BIN'
+                                                       bin_filesize            = lv_size
+                                            CHANGING   data_tab                = lt_raw_data
+                                            EXCEPTIONS file_write_error        = 1
+                                                       no_batch                = 2
+                                                       gui_refuse_filetransfer = 3
+                                                       invalid_type            = 4
+                                                       no_authority            = 5
+                                                       unknown_error           = 6
+                                                       header_not_allowed      = 7
+                                                       separator_not_allowed   = 8
+                                                       filesize_not_allowed    = 9
+                                                       header_too_long         = 10
+                                                       dp_error_create         = 11
+                                                       dp_error_send           = 12
+                                                       dp_error_write          = 13
+                                                       unknown_dp_error        = 14
+                                                       access_denied           = 15
+                                                       dp_out_of_memory        = 16
+                                                       disk_full               = 17
+                                                       dp_timeout              = 18
+                                                       file_not_found          = 19
+                                                       dataprovider_exception  = 20
+                                                       control_flush_error     = 21
+                                                       not_supported_by_gui    = 22
+                                                       error_no_gui            = 23
+                                                       OTHERS                  = 24 ).
 
-    IF sy-subrc <> 0.
+    IF sy-subrc NE 0.
       RAISE EXCEPTION TYPE zcx_error
         MESSAGE ID sy-msgid NUMBER sy-msgno
         WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
