@@ -38,6 +38,10 @@ CLASS zial_cl_log_ewm DEFINITION
     METHODS set_lgnum
       IMPORTING iv_lgnum TYPE /scwm/lgnum.
 
+    CLASS-METHODS to_bapirettab
+      IMPORTING it_dm_message        TYPE /scdl/dm_message_tab
+      RETURNING VALUE(rt_bapirettab) TYPE bapirettab.
+
   PROTECTED SECTION.
     CLASS-DATA mo_instance   TYPE REF TO zial_cl_log_ewm.
     CLASS-DATA mv_has_error  TYPE abap_bool.
@@ -243,6 +247,19 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
     CHECK io_log IS BOUND.
 
     log_bapiret( io_log->get_prot( ) ).
+
+  ENDMETHOD.
+
+
+  METHOD to_bapirettab.
+
+    rt_bapirettab = CORRESPONDING #( it_dm_message MAPPING id         = msgid
+                                                           type       = msgty
+                                                           number     = msgno
+                                                           message_v1 = msgv1
+                                                           message_v2 = msgv2
+                                                           message_v3 = msgv3
+                                                           message_v4 = msgv4 ).
 
   ENDMETHOD.
 
