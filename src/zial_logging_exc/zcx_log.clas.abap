@@ -9,7 +9,7 @@ CLASS zcx_log DEFINITION
     INTERFACES: zif_cx_group.
 
   PROTECTED SECTION.
-    CLASS-DATA log_group_enabled TYPE cx_bool VALUE mc_log_enabled-undef.
+    CLASS-DATA log_group_enabled TYPE de_bool VALUE mc_log_enabled-undef.
 
 ENDCLASS.
 

@@ -1166,7 +1166,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     CHECK lv_log_number IS NOT INITIAL.
 
     " Load specific message details from database
-    DATA(lt_msg_details) = VALUE /scwm/tt_msg_details( ).
+    DATA(lt_msg_details) = VALUE zial_tt_msg_details( ).
     IMPORT msg_details TO lt_msg_details FROM DATABASE bal_indx(al) ID lv_log_number.
     IF sy-subrc EQ 4.
       MESSAGE s019(zial_log) DISPLAY LIKE 'E'.
