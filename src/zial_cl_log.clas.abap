@@ -7,7 +7,7 @@ CLASS zial_cl_log DEFINITION
     TYPES v_message_param_id TYPE n LENGTH 10.
     TYPES v_input_component  TYPE c LENGTH 150.
 
-    TYPES r_log_instance     TYPE REF TO zial_cl_log_ewm.
+    TYPES r_log_instance     TYPE REF TO zial_cl_log_sap.
     TYPES t_log_stack        TYPE TABLE OF r_log_instance WITH DEFAULT KEY.
 
     CONSTANTS: BEGIN OF mc_msg_content_type,
@@ -151,10 +151,6 @@ CLASS zial_cl_log DEFINITION
                 iv_msgv4         TYPE symsgv   DEFAULT sy-msgv4
                 is_bapiret       TYPE bapiret2 OPTIONAL
       RETURNING VALUE(rv_result) TYPE string.
-
-    CLASS-METHODS to_bapirettab
-      IMPORTING it_dm_message        TYPE /scdl/dm_message_tab
-      RETURNING VALUE(rt_bapirettab) TYPE bapirettab.
 
   PRIVATE SECTION.
     CLASS-METHODS to_msgde_add_by_components
@@ -468,19 +464,6 @@ CLASS zial_cl_log IMPLEMENTATION.
     MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
       WITH  lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4
       INTO rv_result.
-
-  ENDMETHOD.
-
-
-  METHOD to_bapirettab.
-
-    rt_bapirettab = CORRESPONDING #( it_dm_message MAPPING id         = msgid
-                                                           type       = msgty
-                                                           number     = msgno
-                                                           message_v1 = msgv1
-                                                           message_v2 = msgv2
-                                                           message_v3 = msgv3
-                                                           message_v4 = msgv4 ).
 
   ENDMETHOD.
 
