@@ -7,7 +7,7 @@ CLASS zial_cl_log DEFINITION
     TYPES v_message_param_id TYPE n LENGTH 10.
     TYPES v_input_component  TYPE c LENGTH 150.
 
-    TYPES r_log_instance     TYPE REF TO zial_cl_log_ewm.
+    TYPES r_log_instance     TYPE REF TO zial_cl_log_sap.
     TYPES t_log_stack        TYPE TABLE OF r_log_instance WITH DEFAULT KEY.
 
     CONSTANTS: BEGIN OF mc_msg_content_type,
@@ -162,27 +162,7 @@ CLASS zial_cl_log DEFINITION
 ENDCLASS.
 
 
-
-CLASS ZIAL_CL_LOG IMPLEMENTATION.
-
-
-  METHOD create.
-
-    mo_instance = NEW #( iv_object        = iv_object
-                         iv_subobject     = iv_subobject
-                         iv_extnumber     = iv_extnumber
-                         it_extnumber     = it_extnumber
-                         iv_callstack_lvl = iv_callstack_lvl ).
-
-    mo_instance->init( iv_extnumber = iv_extnumber
-                       it_extnumber = it_extnumber ).
-
-    APPEND mo_instance TO mt_log_stack.
-
-    ro_instance = mo_instance.
-
-  ENDMETHOD.
-
+CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD display_as_popup.
 
@@ -226,6 +206,24 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
       ENDCASE.
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD create.
+
+    mo_instance = NEW #( iv_object        = iv_object
+                         iv_subobject     = iv_subobject
+                         iv_extnumber     = iv_extnumber
+                         it_extnumber     = it_extnumber
+                         iv_callstack_lvl = iv_callstack_lvl ).
+
+    mo_instance->init( iv_extnumber = iv_extnumber
+                       it_extnumber = it_extnumber ).
+
+    APPEND mo_instance TO mt_log_stack.
+
+    ro_instance = mo_instance.
 
   ENDMETHOD.
 
@@ -464,8 +462,9 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
     ENDIF.
 
     MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
-      WITH  lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4
+      WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4
       INTO rv_result.
 
   ENDMETHOD.
+
 ENDCLASS.
