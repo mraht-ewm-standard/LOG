@@ -462,7 +462,7 @@ CLASS zial_cl_log IMPLEMENTATION.
     ENDIF.
 
     MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
-      WITH  lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4
+      WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4
       INTO rv_result.
 
   ENDMETHOD.
