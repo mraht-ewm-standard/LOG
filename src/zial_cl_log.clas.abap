@@ -7,7 +7,7 @@ CLASS zial_cl_log DEFINITION
     TYPES v_message_param_id TYPE n LENGTH 10.
     TYPES v_input_component  TYPE c LENGTH 150.
 
-    TYPES r_log_instance     TYPE REF TO zial_cl_log_sap.
+    TYPES r_log_instance     TYPE REF TO zial_cl_log_ewm.
     TYPES t_log_stack        TYPE TABLE OF r_log_instance WITH DEFAULT KEY.
 
     CONSTANTS: BEGIN OF mc_msg_content_type,
@@ -24,7 +24,7 @@ CLASS zial_cl_log DEFINITION
 
     CONSTANTS: BEGIN OF mc_default,
                  log_object    TYPE balobj_d  VALUE 'ZIAL_LOG' ##NO_TEXT, " Adjust to your needs
-                 log_subobject TYPE balsubobj VALUE 'ZIAL_LOG' ##NO_TEXT,
+                 log_subobject TYPE balsubobj VALUE 'LOG' ##NO_TEXT,
                  msgid         TYPE msgid     VALUE '0Q',
                  msgno         TYPE msgno     VALUE '000',
                END OF mc_default.
@@ -164,12 +164,29 @@ ENDCLASS.
 
 CLASS zial_cl_log IMPLEMENTATION.
 
+  METHOD create.
+
+    mo_instance = NEW #( iv_object        = iv_object
+                         iv_subobject     = iv_subobject
+                         iv_extnumber     = iv_extnumber
+                         it_extnumber     = it_extnumber
+                         iv_callstack_lvl = iv_callstack_lvl ).
+
+    mo_instance->init( iv_extnumber = iv_extnumber
+                       it_extnumber = it_extnumber ).
+
+    APPEND mo_instance TO mt_log_stack.
+
+    ro_instance = mo_instance.
+
+  ENDMETHOD.
+
+
   METHOD display_as_popup.
 
     DATA(lt_bapiret) = it_bapiret.
     CALL FUNCTION 'RSCRMBW_DISPLAY_BAPIRET2'
-      TABLES
-        it_return = lt_bapiret.
+      TABLES it_return = lt_bapiret.
 
   ENDMETHOD.
 
@@ -206,24 +223,6 @@ CLASS zial_cl_log IMPLEMENTATION.
       ENDCASE.
 
     ENDLOOP.
-
-  ENDMETHOD.
-
-
-  METHOD create.
-
-    mo_instance = NEW #( iv_object        = iv_object
-                         iv_subobject     = iv_subobject
-                         iv_extnumber     = iv_extnumber
-                         it_extnumber     = it_extnumber
-                         iv_callstack_lvl = iv_callstack_lvl ).
-
-    mo_instance->init( iv_extnumber = iv_extnumber
-                       it_extnumber = it_extnumber ).
-
-    APPEND mo_instance TO mt_log_stack.
-
-    ro_instance = mo_instance.
 
   ENDMETHOD.
 
@@ -309,16 +308,14 @@ CLASS zial_cl_log IMPLEMENTATION.
     ENDIF.
 
     CALL FUNCTION 'BALW_BAPIRETURN_GET2'
-      EXPORTING
-        type   = rs_bapiret-type
-        cl     = rs_bapiret-id
-        number = rs_bapiret-number
-        par1   = rs_bapiret-message_v1
-        par2   = rs_bapiret-message_v2
-        par3   = rs_bapiret-message_v3
-        par4   = rs_bapiret-message_v4
-      IMPORTING
-        return = rs_bapiret.
+      EXPORTING type   = rs_bapiret-type
+                cl     = rs_bapiret-id
+                number = rs_bapiret-number
+                par1   = rs_bapiret-message_v1
+                par2   = rs_bapiret-message_v2
+                par3   = rs_bapiret-message_v3
+                par4   = rs_bapiret-message_v4
+      IMPORTING return = rs_bapiret.
 
   ENDMETHOD.
 
