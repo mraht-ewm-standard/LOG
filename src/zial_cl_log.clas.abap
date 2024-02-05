@@ -24,7 +24,7 @@ CLASS zial_cl_log DEFINITION
 
     CONSTANTS: BEGIN OF mc_default,
                  log_object    TYPE balobj_d  VALUE 'ZIAL_LOG' ##NO_TEXT, " Adjust to your needs
-                 log_subobject TYPE balsubobj VALUE 'ZIAL_LOG' ##NO_TEXT,
+                 log_subobject TYPE balsubobj VALUE 'LOG' ##NO_TEXT,
                  msgid         TYPE msgid     VALUE '0Q',
                  msgno         TYPE msgno     VALUE '000',
                END OF mc_default.
@@ -162,9 +162,7 @@ CLASS zial_cl_log DEFINITION
 ENDCLASS.
 
 
-
-CLASS ZIAL_CL_LOG IMPLEMENTATION.
-
+CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD create.
 
@@ -188,8 +186,7 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
 
     DATA(lt_bapiret) = it_bapiret.
     CALL FUNCTION 'RSCRMBW_DISPLAY_BAPIRET2'
-      TABLES
-        it_return = lt_bapiret.
+      TABLES it_return = lt_bapiret.
 
   ENDMETHOD.
 
@@ -311,16 +308,14 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
     ENDIF.
 
     CALL FUNCTION 'BALW_BAPIRETURN_GET2'
-      EXPORTING
-        type   = rs_bapiret-type
-        cl     = rs_bapiret-id
-        number = rs_bapiret-number
-        par1   = rs_bapiret-message_v1
-        par2   = rs_bapiret-message_v2
-        par3   = rs_bapiret-message_v3
-        par4   = rs_bapiret-message_v4
-      IMPORTING
-        return = rs_bapiret.
+      EXPORTING type   = rs_bapiret-type
+                cl     = rs_bapiret-id
+                number = rs_bapiret-number
+                par1   = rs_bapiret-message_v1
+                par2   = rs_bapiret-message_v2
+                par3   = rs_bapiret-message_v3
+                par4   = rs_bapiret-message_v4
+      IMPORTING return = rs_bapiret.
 
   ENDMETHOD.
 
@@ -468,4 +463,5 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
       INTO rv_result.
 
   ENDMETHOD.
+
 ENDCLASS.
