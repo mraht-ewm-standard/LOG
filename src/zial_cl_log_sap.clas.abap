@@ -36,14 +36,6 @@ CLASS zial_cl_log_sap DEFINITION
                 it_extnumber     TYPE stringtab OPTIONAL
                 iv_callstack_lvl TYPE numc1     DEFAULT zial_cl_log=>mc_callstack_lvl-info.
 
-    "! Initialize log
-    "!
-    "! @parameter iv_extnumber | External number / description for a log
-    "! @parameter it_extnumber | External number elements
-    METHODS init
-      IMPORTING iv_extnumber TYPE balnrext
-                it_extnumber TYPE stringtab.
-
     "! Get all logged messages
     "!
     "! @parameter rt_messages | BAPI messages
@@ -87,7 +79,7 @@ CLASS zial_cl_log_sap DEFINITION
     "! @parameter iv_msgv3 | Message variable 3
     "! @parameter iv_msgv4 | Message variable 4
     "! @parameter it_msgde | Message details
-    METHODS warning
+    METHODS log_warning
       IMPORTING iv_msgtx TYPE bapi_msg                OPTIONAL
                 iv_msgno TYPE symsgno                 OPTIONAL
                 iv_msgv1 TYPE symsgv                  OPTIONAL
@@ -127,7 +119,7 @@ CLASS zial_cl_log_sap DEFINITION
     "! @parameter iv_msgv3 | Message variable 3
     "! @parameter iv_msgv4 | Message variable 4
     "! @parameter it_msgde | Message details
-    METHODS success
+    METHODS log_success
       IMPORTING iv_msgtx TYPE bapi_msg                OPTIONAL
                 iv_msgno TYPE symsgno                 OPTIONAL
                 iv_msgv1 TYPE symsgv                  OPTIONAL
@@ -145,7 +137,7 @@ CLASS zial_cl_log_sap DEFINITION
     "! @parameter iv_msgv3 | Message variable 3
     "! @parameter iv_msgv4 | Message variable 4
     "! @parameter it_msgde | Message details
-    METHODS error
+    METHODS log_error
       IMPORTING iv_msgtx TYPE bapi_msg                OPTIONAL
                 iv_msgno TYPE symsgno                 OPTIONAL
                 iv_msgv1 TYPE symsgv                  OPTIONAL
@@ -197,6 +189,14 @@ CLASS zial_cl_log_sap DEFINITION
                 io_exception      TYPE REF TO cx_root
                 is_log_msg        TYPE zial_s_log_msg
       RETURNING VALUE(rt_bapiret) TYPE bapirettab.
+
+    "! Initialize log
+    "!
+    "! @parameter iv_extnumber | External number / description for a log
+    "! @parameter it_extnumber | External number elements
+    METHODS init
+      IMPORTING iv_extnumber TYPE balnrext
+                it_extnumber TYPE stringtab.
 
     METHODS add_msg_to_log_protocol
       IMPORTING is_msg_handle TYPE balmsghndl.
@@ -352,7 +352,6 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                                     msgv4     = mv_msg_var4 ).
 
     DATA(ls_msg_handle) = VALUE balmsghndl( ).
-
     CALL FUNCTION 'BAL_LOG_MSG_ADD'
       EXPORTING  i_log_handle     = mv_log_handle
                  i_s_msg          = ls_msg
@@ -378,7 +377,6 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   METHOD add_msg_by_message_text.
 
     DATA(ls_msg_handle) = VALUE balmsghndl( ).
-
     CALL FUNCTION 'BAL_LOG_MSG_ADD_FREE_TEXT'
       EXPORTING  i_log_handle     = mv_log_handle
                  i_msgty          = mv_msg_type
@@ -578,7 +576,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD error.
+  METHOD log_error.
 
     create_message( iv_msgty = zial_cl_log=>mc_log_type-error
                     iv_msgtx = iv_msgtx
@@ -780,6 +778,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                                 aldate    = sy-datum
                                 altime    = sy-uzeit ).
 
+    init( iv_extnumber = iv_extnumber
+          it_extnumber = it_extnumber ).
+
   ENDMETHOD.
 
 
@@ -862,9 +863,11 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     DATA(lt_messages) = VALUE bapirettab( ).
     CASE TYPE OF io_exception.
       WHEN TYPE zcx_static_check INTO DATA(lx_static_check).
+        lx_static_check->log_exception_raised( ).
         INSERT LINES OF lx_static_check->get_messages( ) INTO TABLE lt_messages.
 
       WHEN TYPE zcx_no_check INTO DATA(lx_no_check).
+        lx_static_check->log_exception_raised( ).
         INSERT LINES OF lx_no_check->get_messages( ) INTO TABLE lt_messages.
 
       WHEN OTHERS.
@@ -924,25 +927,25 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
               iv_msgv4 = is_symsg-msgv4 ).
 
       WHEN zial_cl_log=>mc_log_type-success.
-        success( iv_msgno = is_symsg-msgno
-                 iv_msgv1 = is_symsg-msgv1
-                 iv_msgv2 = is_symsg-msgv2
-                 iv_msgv3 = is_symsg-msgv3
-                 iv_msgv4 = is_symsg-msgv4 ).
+        log_success( iv_msgno = is_symsg-msgno
+                     iv_msgv1 = is_symsg-msgv1
+                     iv_msgv2 = is_symsg-msgv2
+                     iv_msgv3 = is_symsg-msgv3
+                     iv_msgv4 = is_symsg-msgv4 ).
 
       WHEN zial_cl_log=>mc_log_type-warning.
-        warning( iv_msgno = is_symsg-msgno
-                 iv_msgv1 = is_symsg-msgv1
-                 iv_msgv2 = is_symsg-msgv2
-                 iv_msgv3 = is_symsg-msgv3
-                 iv_msgv4 = is_symsg-msgv4 ).
+        log_warning( iv_msgno = is_symsg-msgno
+                     iv_msgv1 = is_symsg-msgv1
+                     iv_msgv2 = is_symsg-msgv2
+                     iv_msgv3 = is_symsg-msgv3
+                     iv_msgv4 = is_symsg-msgv4 ).
 
       WHEN zial_cl_log=>mc_log_type-error.
-        error( iv_msgno = is_symsg-msgno
-               iv_msgv1 = is_symsg-msgv1
-               iv_msgv2 = is_symsg-msgv2
-               iv_msgv3 = is_symsg-msgv3
-               iv_msgv4 = is_symsg-msgv4 ).
+        log_error( iv_msgno = is_symsg-msgno
+                   iv_msgv1 = is_symsg-msgv1
+                   iv_msgv2 = is_symsg-msgv2
+                   iv_msgv3 = is_symsg-msgv3
+                   iv_msgv4 = is_symsg-msgv4 ).
 
     ENDCASE.
 
@@ -1106,7 +1109,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD success.
+  METHOD log_success.
 
     create_message( iv_msgty = zial_cl_log=>mc_log_type-success
                     iv_msgtx = iv_msgtx
@@ -1120,7 +1123,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD warning.
+  METHOD log_warning.
 
     create_message( iv_msgty = zial_cl_log=>mc_log_type-warning
                     iv_msgtx = iv_msgtx

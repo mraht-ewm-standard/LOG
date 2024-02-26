@@ -172,9 +172,6 @@ CLASS zial_cl_log IMPLEMENTATION.
                          it_extnumber     = it_extnumber
                          iv_callstack_lvl = iv_callstack_lvl ).
 
-    mo_instance->init( iv_extnumber = iv_extnumber
-                       it_extnumber = it_extnumber ).
-
     APPEND mo_instance TO mt_log_stack.
 
     ro_instance = mo_instance.
@@ -195,10 +192,9 @@ CLASS zial_cl_log IMPLEMENTATION.
 
     mo_instance = VALUE #( mt_log_stack[ lines( mt_log_stack ) ] OPTIONAL ).
     IF mo_instance IS INITIAL.
-      mo_instance = NEW #( iv_object    = mc_default-log_object
-                           iv_subobject = mc_default-log_subobject
-                           iv_extnumber = CONV #( TEXT-001 ) ).
-      APPEND mo_instance TO mt_log_stack.
+      mo_instance = create( iv_object    = mc_default-log_object
+                            iv_subobject = mc_default-log_subobject
+                            iv_extnumber = CONV #( TEXT-001 ) ).
     ENDIF.
 
     ro_instance = mo_instance.
@@ -229,6 +225,7 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD save.
 
+    mo_instance = get( ).
     mo_instance->save( iv_finalize ).
 
     IF iv_finalize EQ abap_true.
