@@ -171,22 +171,7 @@ CLASS zial_cl_log DEFINITION
 ENDCLASS.
 
 
-
-CLASS ZIAL_CL_LOG IMPLEMENTATION.
-
-
-  METHOD backup_sy_msg.
-
-    ms_symsg = VALUE #( msgid = sy-msgid
-                        msgno = sy-msgno
-                        msgty = sy-msgty
-                        msgv1 = sy-msgv1
-                        msgv2 = sy-msgv2
-                        msgv3 = sy-msgv3
-                        msgv4 = sy-msgv4 ).
-
-  ENDMETHOD.
-
+CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD create.
 
@@ -211,14 +196,6 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
     DATA(lt_bapiret) = it_bapiret.
     CALL FUNCTION 'RSCRMBW_DISPLAY_BAPIRET2'
       TABLES it_return = lt_bapiret.
-
-  ENDMETHOD.
-
-
-  METHOD free.
-
-    FREE: mo_instance,
-          mt_log_stack.
 
   ENDMETHOD.
 
@@ -258,21 +235,6 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
     IF rv_components IS INITIAL.
       rv_components = 'N/A'.
     ENDIF.
-
-  ENDMETHOD.
-
-
-  METHOD recover_sy_msg.
-
-    CHECK mo_instance->has_error( ) EQ abap_false.
-
-    sy-msgid = ms_symsg-msgid.
-    sy-msgno = ms_symsg-msgno.
-    sy-msgty = ms_symsg-msgty.
-    sy-msgv1 = ms_symsg-msgv1.
-    sy-msgv2 = ms_symsg-msgv2.
-    sy-msgv3 = ms_symsg-msgv3.
-    sy-msgv4 = ms_symsg-msgv4.
 
   ENDMETHOD.
 
@@ -521,4 +483,41 @@ CLASS ZIAL_CL_LOG IMPLEMENTATION.
       INTO rv_result.
 
   ENDMETHOD.
+
+
+  METHOD backup_sy_msg.
+
+    ms_symsg = VALUE #( msgid = sy-msgid
+                        msgno = sy-msgno
+                        msgty = sy-msgty
+                        msgv1 = sy-msgv1
+                        msgv2 = sy-msgv2
+                        msgv3 = sy-msgv3
+                        msgv4 = sy-msgv4 ).
+
+  ENDMETHOD.
+
+
+  METHOD recover_sy_msg.
+
+    CHECK mo_instance->has_error( ) EQ abap_false.
+
+    sy-msgid = ms_symsg-msgid.
+    sy-msgno = ms_symsg-msgno.
+    sy-msgty = ms_symsg-msgty.
+    sy-msgv1 = ms_symsg-msgv1.
+    sy-msgv2 = ms_symsg-msgv2.
+    sy-msgv3 = ms_symsg-msgv3.
+    sy-msgv4 = ms_symsg-msgv4.
+
+  ENDMETHOD.
+
+
+  METHOD free.
+
+    FREE: mo_instance,
+          mt_log_stack.
+
+  ENDMETHOD.
+
 ENDCLASS.
