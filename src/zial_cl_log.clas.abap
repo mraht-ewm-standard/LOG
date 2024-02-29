@@ -7,7 +7,7 @@ CLASS zial_cl_log DEFINITION
     TYPES v_message_param_id TYPE n LENGTH 10.
     TYPES v_input_component  TYPE c LENGTH 150.
 
-    TYPES r_log_instance     TYPE REF TO zial_cl_log_ewm.
+    TYPES r_log_instance     TYPE REF TO zial_cl_log_sap.
     TYPES t_log_stack        TYPE TABLE OF r_log_instance WITH DEFAULT KEY.
 
     CONSTANTS: BEGIN OF mc_msg_content_type,
@@ -23,10 +23,10 @@ CLASS zial_cl_log DEFINITION
                END OF mc_log_process.
 
     CONSTANTS: BEGIN OF mc_default,
-                 log_object    TYPE balobj_d  VALUE 'ZIAL_LOG' ##NO_TEXT, " Adjust to your needs
-                 log_subobject TYPE balsubobj VALUE 'LOG' ##NO_TEXT,
-                 msgid         TYPE msgid     VALUE 'SY',       " 0Q
-                 msgno         TYPE msgno     VALUE '499',      " 000
+                 log_object    TYPE balobj_d  VALUE 'SYSLOG' ##NO_TEXT,  " Adjust to your needs
+                 log_subobject TYPE balsubobj VALUE 'GENERAL' ##NO_TEXT,
+                 msgid         TYPE msgid     VALUE 'SY',      " 0Q
+                 msgno         TYPE msgno     VALUE '499',     " 000
                  msgty         TYPE msgty     VALUE 'I',
                END OF mc_default.
 
@@ -153,12 +153,20 @@ CLASS zial_cl_log DEFINITION
                 is_bapiret       TYPE bapiret2 OPTIONAL
       RETURNING VALUE(rv_result) TYPE string.
 
+    CLASS-METHODS free.
+
   PRIVATE SECTION.
+    CLASS-DATA ms_symsg TYPE symsg.
+
     CLASS-METHODS to_msgde_add_by_components
       IMPORTING io_struct_descr TYPE REF TO cl_abap_structdescr
                 is_data         TYPE any
                 it_fnam         TYPE string_table
       RETURNING VALUE(rt_msgde) TYPE rsra_t_alert_definition.
+
+    CLASS-METHODS backup_sy_msg.
+
+    CLASS-METHODS recover_sy_msg.
 
 ENDCLASS.
 
@@ -167,13 +175,16 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD create.
 
+    backup_sy_msg( ).
+
     mo_instance = NEW #( iv_object        = iv_object
                          iv_subobject     = iv_subobject
                          iv_extnumber     = iv_extnumber
                          it_extnumber     = it_extnumber
                          iv_callstack_lvl = iv_callstack_lvl ).
-
     APPEND mo_instance TO mt_log_stack.
+
+    recover_sy_msg( ).
 
     ro_instance = mo_instance.
 
@@ -220,6 +231,10 @@ CLASS zial_cl_log IMPLEMENTATION.
       ENDCASE.
 
     ENDLOOP.
+
+    IF rv_components IS INITIAL.
+      rv_components = 'N/A'.
+    ENDIF.
 
   ENDMETHOD.
 
@@ -466,6 +481,42 @@ CLASS zial_cl_log IMPLEMENTATION.
     MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
       WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4
       INTO rv_result.
+
+  ENDMETHOD.
+
+
+  METHOD backup_sy_msg.
+
+    ms_symsg = VALUE #( msgid = sy-msgid
+                        msgno = sy-msgno
+                        msgty = sy-msgty
+                        msgv1 = sy-msgv1
+                        msgv2 = sy-msgv2
+                        msgv3 = sy-msgv3
+                        msgv4 = sy-msgv4 ).
+
+  ENDMETHOD.
+
+
+  METHOD recover_sy_msg.
+
+    CHECK mo_instance->has_error( ) EQ abap_false.
+
+    sy-msgid = ms_symsg-msgid.
+    sy-msgno = ms_symsg-msgno.
+    sy-msgty = ms_symsg-msgty.
+    sy-msgv1 = ms_symsg-msgv1.
+    sy-msgv2 = ms_symsg-msgv2.
+    sy-msgv3 = ms_symsg-msgv3.
+    sy-msgv4 = ms_symsg-msgv4.
+
+  ENDMETHOD.
+
+
+  METHOD free.
+
+    FREE: mo_instance,
+          mt_log_stack.
 
   ENDMETHOD.
 
