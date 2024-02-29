@@ -8,10 +8,6 @@
    </I18N_LANGUAGES>
    <STARTING_FOLDER>/src/</STARTING_FOLDER>
    <FOLDER_LOGIC>FULL</FOLDER_LOGIC>
-   <IGNORE>
-    <item>/src/zial_cl_log_ewm.clas.abap</item>
-    <item>/src/zial_cl_log_ewm.clas.xml</item>
-   </IGNORE>
   </DATA>
  </asx:values>
 </asx:abap>
