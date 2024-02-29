@@ -25,8 +25,9 @@ CLASS zial_cl_log DEFINITION
     CONSTANTS: BEGIN OF mc_default,
                  log_object    TYPE balobj_d  VALUE 'ZIAL_LOG' ##NO_TEXT, " Adjust to your needs
                  log_subobject TYPE balsubobj VALUE 'LOG' ##NO_TEXT,
-                 msgid         TYPE msgid     VALUE '0Q',
-                 msgno         TYPE msgno     VALUE '000',
+                 msgid         TYPE msgid     VALUE 'SY',       " 0Q
+                 msgno         TYPE msgno     VALUE '499',      " 000
+                 msgty         TYPE msgty     VALUE 'I',
                END OF mc_default.
 
     CONSTANTS mc_msg_ident          TYPE c LENGTH 9 VALUE 'MSG_IDENT' ##NO_TEXT.
@@ -257,6 +258,11 @@ CLASS zial_cl_log IMPLEMENTATION.
         lv_msgno = mc_default-msgno.
       ENDIF.
 
+      DATA(lv_msgty) = iv_msgty.
+      IF lv_msgty IS INITIAL.
+        lv_msgty = mc_default-msgty.
+      ENDIF.
+
       rs_bapiret = VALUE #( type    = iv_msgty
                             id      = lv_msgid
                             number  = lv_msgno
@@ -264,27 +270,29 @@ CLASS zial_cl_log IMPLEMENTATION.
 
       DO 8 TIMES.
 
+        IF rs_bapiret-message NS '&'.
+          EXIT.
+        ENDIF.
+
         DATA(lv_index) = sy-index.
 
         DATA(lv_search_str) = COND #( WHEN lv_index LT 5 THEN |&{ lv_index }|
                                       WHEN lv_index GT 4 THEN |&| ).
-
         DATA(lv_msgvar) = SWITCH #( lv_index
                                     WHEN 1 OR 5 THEN iv_msgv1
                                     WHEN 2 OR 6 THEN iv_msgv2
                                     WHEN 3 OR 7 THEN iv_msgv3
                                     WHEN 4 OR 8 THEN iv_msgv4 ).
-
-        REPLACE ALL OCCURRENCES OF lv_search_str IN rs_bapiret-message WITH lv_msgvar.
+        REPLACE FIRST OCCURRENCE OF lv_search_str IN rs_bapiret-message WITH lv_msgvar.
 
       ENDDO.
 
       " Split message into variables of dynamic message
       DATA(ls_message) = CONV s_msgvar( rs_bapiret-message ).
-      rs_bapiret = CORRESPONDING #( ls_message MAPPING message_v1 = v1
-                                                       message_v2 = v2
-                                                       message_v3 = v3
-                                                       message_v4 = v4 ).
+      rs_bapiret-message_v1 = ls_message-v1.
+      rs_bapiret-message_v2 = ls_message-v2.
+      rs_bapiret-message_v3 = ls_message-v3.
+      rs_bapiret-message_v4 = ls_message-v4.
 
     ELSEIF iv_msgty IS NOT INITIAL
        AND iv_msgid IS NOT INITIAL
