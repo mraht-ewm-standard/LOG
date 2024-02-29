@@ -152,6 +152,8 @@ CLASS zial_cl_log_sap DEFINITION
     METHODS save
       IMPORTING iv_finalize TYPE abap_bool DEFAULT abap_true.
 
+    METHODS has_error RETURNING VALUE(rv_result) TYPE abap_bool.
+
   PROTECTED SECTION.
     DATA mv_validity_in_days  TYPE i VALUE 180.
     DATA mv_process_bgn       TYPE timestampl.
@@ -255,8 +257,8 @@ CLASS zial_cl_log_sap DEFINITION
     METHODS delete_log.
 
   PRIVATE SECTION.
-    CLASS-DATA mv_has_error  TYPE abap_bool.
-    CLASS-DATA mv_save_error TYPE abap_bool.
+    DATA mv_has_error  TYPE abap_bool.
+    DATA mv_save_error TYPE abap_bool.
 
 ENDCLASS.
 
@@ -863,11 +865,11 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     DATA(lt_messages) = VALUE bapirettab( ).
     CASE TYPE OF io_exception.
       WHEN TYPE zcx_static_check INTO DATA(lx_static_check).
-        lx_static_check->log_exception_raised( ).
+        lx_static_check->log_info( ).
         INSERT LINES OF lx_static_check->get_messages( ) INTO TABLE lt_messages.
 
       WHEN TYPE zcx_no_check INTO DATA(lx_no_check).
-        lx_static_check->log_exception_raised( ).
+        lx_static_check->log_info( ).
         INSERT LINES OF lx_no_check->get_messages( ) INTO TABLE lt_messages.
 
       WHEN OTHERS.
@@ -1242,6 +1244,11 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     CLEAR: ms_log_header,
            mv_log_handle.
 
+  ENDMETHOD.
+
+
+  METHOD has_error.
+    rv_result = me->mv_has_error.
   ENDMETHOD.
 
 ENDCLASS.
