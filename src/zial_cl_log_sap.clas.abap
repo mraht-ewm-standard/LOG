@@ -101,7 +101,7 @@ CLASS zial_cl_log_sap DEFINITION
     "! @parameter iv_msgv3 | Message variable 3
     "! @parameter iv_msgv4 | Message variable 4
     "! @parameter it_msgde | Message details
-    METHODS info
+    METHODS log_info
       IMPORTING iv_msgtx TYPE bapi_msg                OPTIONAL
                 iv_msgno TYPE symsgno                 OPTIONAL
                 iv_msgv1 TYPE symsgv                  OPTIONAL
@@ -420,24 +420,13 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
       WHEN 0.
         mv_log_counter = mv_log_counter + 1.
 
-        DATA(ls_bapiret2) = CORRESPONDING bapiret2( ls_msg MAPPING id         = msgid
-                                                                   type       = msgty
-                                                                   number     = msgno
-                                                                   message_v1 = msgv1
-                                                                   message_v2 = msgv2
-                                                                   message_v3 = msgv3
-                                                                   message_v4 = msgv4 ).
-
-        CALL FUNCTION 'BAPI_MESSAGE_GETDETAIL'
-          EXPORTING id         = ls_msg-msgid
-                    number     = ls_msg-msgno
-                    textformat = 'RTF'
-                    message_v1 = ls_msg-msgv1
-                    message_v2 = ls_msg-msgv2
-                    message_v3 = ls_msg-msgv3
-                    message_v4 = ls_msg-msgv4
-          IMPORTING message    = ls_bapiret2-message.
-
+        DATA(ls_bapiret2) = zial_cl_log=>to_bapiret( iv_msgid = ls_msg-msgid
+                                                     iv_msgty = ls_msg-msgty
+                                                     iv_msgno = ls_msg-msgno
+                                                     iv_msgv1 = ls_msg-msgv1
+                                                     iv_msgv2 = ls_msg-msgv2
+                                                     iv_msgv3 = ls_msg-msgv3
+                                                     iv_msgv4 = ls_msg-msgv4 ).
         APPEND ls_bapiret2 TO mt_log_messages.
 
     ENDCASE.
@@ -754,7 +743,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD info.
+  METHOD log_info.
 
     create_message( iv_msgty = zial_cl_log=>mc_log_type-info
                     iv_msgtx = iv_msgtx
@@ -807,8 +796,14 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     LOOP AT it_bapiret ASSIGNING FIELD-SYMBOL(<ls_bapiret>).
 
-      create_message( iv_msgty = <ls_bapiret>-type
-                      iv_msgtx = <ls_bapiret>-message ).
+      create_message( iv_msgid = <ls_bapiret>-id
+                      iv_msgno = <ls_bapiret>-number
+                      iv_msgty = <ls_bapiret>-type
+                      iv_msgtx = <ls_bapiret>-message
+                      iv_msgv1 = <ls_bapiret>-message_v1
+                      iv_msgv2 = <ls_bapiret>-message_v2
+                      iv_msgv3 = <ls_bapiret>-message_v3
+                      iv_msgv4 = <ls_bapiret>-message_v4 ).
 
     ENDLOOP.
 
@@ -922,11 +917,11 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     CASE is_symsg-msgty.
       WHEN zial_cl_log=>mc_log_type-info.
-        info( iv_msgno = is_symsg-msgno
-              iv_msgv1 = is_symsg-msgv1
-              iv_msgv2 = is_symsg-msgv2
-              iv_msgv3 = is_symsg-msgv3
-              iv_msgv4 = is_symsg-msgv4 ).
+        log_info( iv_msgno = is_symsg-msgno
+                  iv_msgv1 = is_symsg-msgv1
+                  iv_msgv2 = is_symsg-msgv2
+                  iv_msgv3 = is_symsg-msgv3
+                  iv_msgv4 = is_symsg-msgv4 ).
 
       WHEN zial_cl_log=>mc_log_type-success.
         log_success( iv_msgno = is_symsg-msgno
@@ -1036,7 +1031,19 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     mv_msg_class = iv_msgid.
     mv_msg_type  = iv_msgty.
 
-    IF iv_msgtx IS NOT INITIAL.
+    IF     iv_msgid IS NOT INITIAL
+       AND iv_msgno IS NOT INITIAL.
+
+      mv_msg_number = iv_msgno.
+
+      mv_msg_var1 = iv_msgv1.
+      mv_msg_var2 = iv_msgv2.
+      mv_msg_var3 = iv_msgv3.
+      mv_msg_var4 = iv_msgv4.
+
+      mv_msg_content_type = zial_cl_log=>mc_msg_content_type-obj.
+
+    ELSEIF iv_msgtx IS NOT INITIAL.
 
       mv_msg_text = iv_msgtx.
 
@@ -1070,17 +1077,6 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
       ENDDO.
 
       mv_msg_content_type = zial_cl_log=>mc_msg_content_type-txt.
-
-    ELSEIF iv_msgno CN ' _'.
-
-      mv_msg_number = iv_msgno.
-
-      mv_msg_var1 = iv_msgv1.
-      mv_msg_var2 = iv_msgv2.
-      mv_msg_var3 = iv_msgv3.
-      mv_msg_var4 = iv_msgv4.
-
-      mv_msg_content_type = zial_cl_log=>mc_msg_content_type-obj.
 
     ELSE.
 
