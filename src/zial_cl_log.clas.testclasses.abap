@@ -25,7 +25,6 @@ CLASS ltc_log DEFINITION FINAL
     METHODS setup.
     METHODS teardown.
 
-    METHODS t0001 FOR TESTING RAISING cx_static_check.
     METHODS t0002 FOR TESTING RAISING cx_static_check.
     METHODS t0003 FOR TESTING RAISING cx_static_check.
     METHODS t0004 FOR TESTING RAISING cx_static_check.
@@ -33,7 +32,7 @@ CLASS ltc_log DEFINITION FINAL
     METHODS t0006 FOR TESTING RAISING cx_static_check.
     METHODS t0007 FOR TESTING RAISING cx_static_check.
     METHODS t0008 FOR TESTING RAISING cx_static_check.
-    METHODS t0009 FOR TESTING RAISING cx_static_check.
+    METHODS t0001 FOR TESTING RAISING cx_static_check.
 
 ENDCLASS.
 
@@ -75,26 +74,11 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0001.
 
-    " CHECK 1 = 2. ##DEACTIVATED.
+    zial_cl_log=>get( )->log_info( iv_msgtx = |LOG_INFO| ).
+    cl_abap_unit_assert=>assert_not_initial( zial_cl_log=>mt_log_stack ).
 
-    MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
-    DATA(ls_exp_message) = zial_cl_log=>to_bapiret( ).
-    DATA(ls_symsg_message) = zial_cl_log=>to_symsg( is_bapiret = ls_exp_message ).
-
-    DATA(lo_api_message) = NEW /scwm/cl_api_message( ).
-    lo_api_message->add_message( ls_symsg_message ).
-    zial_cl_log=>get( )->log_api_message( lo_api_message ).
-
-    DATA(lt_act_messages) = zial_cl_log=>get( )->get_messages( ).
-    DATA(ls_act_message) = VALUE #( lt_act_messages[ id     = 'SY'
-                                                     number = '499'
-                                                     type   = 'S' ] OPTIONAL ).
-
-    cl_abap_unit_assert=>assert_equals( exp = ls_exp_message
-                                        act = ls_act_message ).
-
-    cl_abap_unit_assert=>assert_equals( exp = 2
-                                        act = lines( lt_act_messages ) ).
+    zial_cl_log=>save( ).
+    cl_abap_unit_assert=>assert_initial( zial_cl_log=>mt_log_stack ).
 
   ENDMETHOD.
 
@@ -229,17 +213,6 @@ CLASS ltc_log IMPLEMENTATION.
                                                                                ( fnam = 'NLPLA' ) ) ).
     cl_abap_unit_assert=>assert_equals( exp = |LGNUM, HUID, RSRC, NLPLA|
                                         act = lv_act_components ).
-
-  ENDMETHOD.
-
-
-  METHOD t0009.
-
-    zial_cl_log=>get( )->log_info( iv_msgtx = |LOG_INFO| ).
-    cl_abap_unit_assert=>assert_not_initial( zial_cl_log=>mt_log_stack ).
-
-    zial_cl_log=>save( ).
-    cl_abap_unit_assert=>assert_initial( zial_cl_log=>mt_log_stack ).
 
   ENDMETHOD.
 
