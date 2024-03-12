@@ -5,16 +5,15 @@ CLASS zcx_log_instance_missing DEFINITION
   CREATE PUBLIC.
 
   PUBLIC SECTION.
-    METHODS log REDEFINITION.
+    METHODS zcx_if_check_class~log REDEFINITION.
 
   PROTECTED SECTION.
-
 ENDCLASS.
 
 
 CLASS zcx_log_instance_missing IMPLEMENTATION.
 
-  METHOD log.
+  METHOD zcx_if_check_class~log.
 
     super->log( ).
 
