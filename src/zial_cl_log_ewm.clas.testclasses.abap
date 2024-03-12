@@ -27,6 +27,8 @@ CLASS ltc_log_ewm DEFINITION FINAL
 
     METHODS t0001 FOR TESTING RAISING cx_static_check.
 
+    METHODS t0002 FOR TESTING RAISING cx_static_check.
+
 ENDCLASS.
 
 
@@ -87,6 +89,69 @@ CLASS ltc_log_ewm IMPLEMENTATION.
 
     cl_abap_unit_assert=>assert_equals( exp = 2
                                         act = lines( lt_act_messages ) ).
+
+  ENDMETHOD.
+
+
+  METHOD t0002.
+
+    " IT_DATA as element with FNAM
+    DATA(lt_lgpla) = VALUE /scwm/tt_lgpla( ( 'TEST1' )
+                                           ( 'TEST2' ) ).
+    DATA(lt_msgde) = zial_cl_log=>to_msgde( it_fnam = VALUE #( ( |LGPLA| ) )
+                                            it_data = lt_lgpla ).
+    cl_abap_unit_assert=>assert_equals( exp = 2
+                                        act = lines( lt_msgde ) ).
+
+    " IT_DATA as element without FNAM
+    lt_msgde = zial_cl_log=>to_msgde( it_data = lt_lgpla ).
+    cl_abap_unit_assert=>assert_equals( exp = 2
+                                        act = lines( lt_msgde ) ).
+
+    " IT_DATA as structure with FNAM
+    DATA(lt_huident) = VALUE /scwm/tt_huident( ( lgnum = '0001' huident = '1234' )
+                                               ( lgnum = '0002' huident = '5678' ) ).
+    lt_msgde = zial_cl_log=>to_msgde( it_fnam = VALUE #( ( |HUIDENT| )
+                                                         ( |LGNUM| ) )
+                                      it_data = lt_huident ).
+    cl_abap_unit_assert=>assert_equals( exp = 4
+                                        act = lines( lt_msgde ) ).
+
+    " IT_DATA as structure without FNAM
+    lt_msgde = zial_cl_log=>to_msgde( it_data = lt_huident ).
+    cl_abap_unit_assert=>assert_equals( exp = 6
+                                        act = lines( lt_msgde ) ).
+
+    " IS_DATA without FNAM
+    lt_msgde = zial_cl_log=>to_msgde( is_data = VALUE /scwm/s_huident( lgnum   = '0001'
+                                                                       huident = '1234' ) ).
+    cl_abap_unit_assert=>assert_equals( exp = 3
+                                        act = lines( lt_msgde ) ).
+
+    " IS_MSGDE
+    lt_msgde = zial_cl_log=>to_msgde( is_msgde = VALUE #( fnam = 'TEST'
+                                                          low  = '1234' ) ).
+    cl_abap_unit_assert=>assert_equals( exp = 1
+                                        act = lines( lt_msgde ) ).
+
+    " IT_DATA as range without FNAM
+    lt_msgde = zial_cl_log=>to_msgde( iv_is_range = abap_true
+                                      it_data     = VALUE rseloption( sign   = 'I'
+                                                                      option = 'EQ'
+                                                                      ( low = '1234' )
+                                                                      ( low = '5678' ) ) ).
+    cl_abap_unit_assert=>assert_equals( exp = 2
+                                        act = lines( lt_msgde ) ).
+
+    " IT_DATA as range with FNAM
+    lt_msgde = zial_cl_log=>to_msgde( iv_is_range = abap_true
+                                      it_fnam     = VALUE #( ( |HUIDENT| ) )
+                                      it_data     = VALUE rseloption( sign   = 'I'
+                                                                      option = 'EQ'
+                                                                      ( low = '1234' )
+                                                                      ( low = '5678' ) ) ).
+    cl_abap_unit_assert=>assert_equals( exp = 2
+                                        act = lines( lt_msgde ) ).
 
   ENDMETHOD.
 

@@ -25,14 +25,13 @@ CLASS ltc_log DEFINITION FINAL
     METHODS setup.
     METHODS teardown.
 
+    METHODS t0001 FOR TESTING RAISING cx_static_check.
     METHODS t0002 FOR TESTING RAISING cx_static_check.
     METHODS t0003 FOR TESTING RAISING cx_static_check.
     METHODS t0004 FOR TESTING RAISING cx_static_check.
     METHODS t0005 FOR TESTING RAISING cx_static_check.
     METHODS t0006 FOR TESTING RAISING cx_static_check.
     METHODS t0007 FOR TESTING RAISING cx_static_check.
-    METHODS t0008 FOR TESTING RAISING cx_static_check.
-    METHODS t0001 FOR TESTING RAISING cx_static_check.
 
 ENDCLASS.
 
@@ -124,59 +123,12 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0005.
 
-    " IT_DATA as element with FNAM
-    DATA(lt_lgpla) = VALUE /scwm/tt_lgpla( ( 'TEST1' )
-                                           ( 'TEST2' ) ).
-    DATA(lt_msgde) = zial_cl_log=>to_msgde( it_fnam = VALUE #( ( |LGPLA| ) )
-                                            it_data = lt_lgpla ).
-    cl_abap_unit_assert=>assert_equals( exp = 2
-                                        act = lines( lt_msgde ) ).
-
-    " IT_DATA as element without FNAM
-    lt_msgde = zial_cl_log=>to_msgde( it_data = lt_lgpla ).
-    cl_abap_unit_assert=>assert_equals( exp = 2
-                                        act = lines( lt_msgde ) ).
-
-    " IT_DATA as structure with FNAM
-    DATA(lt_huident) = VALUE /scwm/tt_huident( ( lgnum = '0001' huident = '1234' )
-                                               ( lgnum = '0002' huident = '5678' ) ).
-    lt_msgde = zial_cl_log=>to_msgde( it_fnam = VALUE #( ( |HUIDENT| )
-                                                         ( |LGNUM| ) )
-                                      it_data = lt_huident ).
-    cl_abap_unit_assert=>assert_equals( exp = 4
-                                        act = lines( lt_msgde ) ).
-
-    " IT_DATA as structure without FNAM
-    lt_msgde = zial_cl_log=>to_msgde( it_data = lt_huident ).
-    cl_abap_unit_assert=>assert_equals( exp = 6
-                                        act = lines( lt_msgde ) ).
-
-    " IS_DATA without FNAM
-    lt_msgde = zial_cl_log=>to_msgde( is_data = VALUE /scwm/s_huident( lgnum   = '0001'
-                                                                       huident = '1234' ) ).
-    cl_abap_unit_assert=>assert_equals( exp = 3
-                                        act = lines( lt_msgde ) ).
-
-    " IS_MSGDE
-    lt_msgde = zial_cl_log=>to_msgde( is_msgde = VALUE #( fnam = 'TEST'
-                                                          low  = '1234' ) ).
-    cl_abap_unit_assert=>assert_equals( exp = 1
-                                        act = lines( lt_msgde ) ).
-
-    " IT_DATA as range without FNAM
-    lt_msgde = zial_cl_log=>to_msgde( iv_is_range = abap_true
-                                      it_data     = VALUE rseloption( ( sign = 'I' option = 'EQ' low = '1234' )
-                                                                      ( sign = 'I' option = 'EQ' low = '5678' ) ) ).
-    cl_abap_unit_assert=>assert_equals( exp = 2
-                                        act = lines( lt_msgde ) ).
-
-    " IT_DATA as range with FNAM
-    lt_msgde = zial_cl_log=>to_msgde( iv_is_range = abap_true
-                                      it_fnam     = VALUE #( ( |HUIDENT| ) )
-                                      it_data     = VALUE rseloption( ( sign = 'I' option = 'EQ' low = '1234' )
-                                                                      ( sign = 'I' option = 'EQ' low = '5678' ) ) ).
-    cl_abap_unit_assert=>assert_equals( exp = 2
-                                        act = lines( lt_msgde ) ).
+    DATA(lv_act_components) = zial_cl_log=>get_components_from_msgde( VALUE #( ( fnam = 'LGNUM' )
+                                                                               ( fnam = 'HUID' )
+                                                                               ( fnam = 'RSRC' )
+                                                                               ( fnam = 'NLPLA' ) ) ).
+    cl_abap_unit_assert=>assert_equals( exp = |LGNUM, HUID, RSRC, NLPLA|
+                                        act = lv_act_components ).
 
   ENDMETHOD.
 
@@ -201,18 +153,6 @@ CLASS ltc_log IMPLEMENTATION.
                                                     iv_msgv4 = 'NLPLA' ).
 
     cl_abap_unit_assert=>assert_not_initial( ls_exp_message ).
-
-  ENDMETHOD.
-
-
-  METHOD t0008.
-
-    DATA(lv_act_components) = zial_cl_log=>get_components_from_msgde( VALUE #( ( fnam = 'LGNUM' )
-                                                                               ( fnam = 'HUID' )
-                                                                               ( fnam = 'RSRC' )
-                                                                               ( fnam = 'NLPLA' ) ) ).
-    cl_abap_unit_assert=>assert_equals( exp = |LGNUM, HUID, RSRC, NLPLA|
-                                        act = lv_act_components ).
 
   ENDMETHOD.
 
