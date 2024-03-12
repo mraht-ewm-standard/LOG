@@ -124,6 +124,7 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0005.
 
+    ##TODO. " Move to ZIAL_CL_LOG_EWM
     " IT_DATA as element with FNAM
     DATA(lt_lgpla) = VALUE /scwm/tt_lgpla( ( 'TEST1' )
                                            ( 'TEST2' ) ).
@@ -165,16 +166,20 @@ CLASS ltc_log IMPLEMENTATION.
 
     " IT_DATA as range without FNAM
     lt_msgde = zial_cl_log=>to_msgde( iv_is_range = abap_true
-                                      it_data     = VALUE rseloption( ( sign = 'I' option = 'EQ' low = '1234' )
-                                                                      ( sign = 'I' option = 'EQ' low = '5678' ) ) ).
+                                      it_data     = VALUE rseloption( sign   = 'I'
+                                                                      option = 'EQ'
+                                                                      ( low = '1234' )
+                                                                      ( low = '5678' ) ) ).
     cl_abap_unit_assert=>assert_equals( exp = 2
                                         act = lines( lt_msgde ) ).
 
     " IT_DATA as range with FNAM
     lt_msgde = zial_cl_log=>to_msgde( iv_is_range = abap_true
                                       it_fnam     = VALUE #( ( |HUIDENT| ) )
-                                      it_data     = VALUE rseloption( ( sign = 'I' option = 'EQ' low = '1234' )
-                                                                      ( sign = 'I' option = 'EQ' low = '5678' ) ) ).
+                                      it_data     = VALUE rseloption( sign   = 'I'
+                                                                      option = 'EQ'
+                                                                      ( low = '1234' )
+                                                                      ( low = '5678' ) ) ).
     cl_abap_unit_assert=>assert_equals( exp = 2
                                         act = lines( lt_msgde ) ).
 
