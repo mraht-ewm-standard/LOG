@@ -39,7 +39,8 @@ CLASS zial_cl_log_ewm DEFINITION
       IMPORTING iv_lgnum TYPE /scwm/lgnum.
 
     CLASS-METHODS to_bapirettab
-      IMPORTING it_dm_message        TYPE /scdl/dm_message_tab
+      IMPORTING it_dm_messages        TYPE /scdl/dm_message_tab OPTIONAL
+                it_wm_messages       TYPE /scwm/t_messages     OPTIONAL
       RETURNING VALUE(rt_bapirettab) TYPE bapirettab.
 
   PROTECTED SECTION.
@@ -115,14 +116,11 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
           " Note: Configure Z-Subobject of Object
           " /SCWM/WME in Transaction/SCWM/ACTLOG
           CALL FUNCTION '/SCWM/LOG_ACT_READ_SINGLE'
-            EXPORTING
-              iv_lgnum     = mv_lgnum
-              iv_subobject = ms_log_header-subobject
-            IMPORTING
-              es_log_act   = ls_log_act
-            EXCEPTIONS
-              not_found    = 1
-              OTHERS       = 2.
+            EXPORTING  iv_lgnum     = mv_lgnum
+                       iv_subobject = ms_log_header-subobject
+            IMPORTING  es_log_act   = ls_log_act
+            EXCEPTIONS not_found    = 1
+                       OTHERS       = 2.
 
         WHEN 2.
           ls_log_act-lgnum     = mv_lgnum.
@@ -136,10 +134,8 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
 
         " Append valid expiration date
         CALL FUNCTION '/SCWM/APP_LOG_EXPIRY_DATE_DET'
-          EXPORTING
-            is_log_act = ls_log_act
-          CHANGING
-            cs_log     = ms_log_header.
+          EXPORTING is_log_act = ls_log_act
+          CHANGING  cs_log     = ms_log_header.
 
         EXIT.
 
@@ -178,11 +174,10 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
     " Close existing log and create a new one for error handling
     save( ).
 
-    DATA(lo_log_sap) = NEW zial_cl_log_ewm(
-      iv_lgnum     = mv_lgnum
-      iv_object    = zial_cl_log=>mc_default-log_object
-      iv_subobject = zial_cl_log=>mc_default-log_subobject
-      iv_extnumber = TEXT-000 ).
+    DATA(lo_log_sap) = NEW zial_cl_log_ewm( iv_lgnum     = mv_lgnum
+                                            iv_object    = zial_cl_log=>mc_default-log_object
+                                            iv_subobject = zial_cl_log=>mc_default-log_subobject
+                                            iv_extnumber = TEXT-000 ).
 
     DATA(lt_bapiret) = error_handling( iv_process   = iv_process
                                        iv_subrc     = iv_subrc
@@ -253,13 +248,23 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
 
   METHOD to_bapirettab.
 
-    rt_bapirettab = CORRESPONDING #( it_dm_message MAPPING id         = msgid
-                                                           type       = msgty
-                                                           number     = msgno
-                                                           message_v1 = msgv1
-                                                           message_v2 = msgv2
-                                                           message_v3 = msgv3
-                                                           message_v4 = msgv4 ).
+    IF it_dm_messages IS SUPPLIED.
+      rt_bapirettab = CORRESPONDING #( it_dm_messages MAPPING id         = msgid
+                                                             type       = msgty
+                                                             number     = msgno
+                                                             message_v1 = msgv1
+                                                             message_v2 = msgv2
+                                                             message_v3 = msgv3
+                                                             message_v4 = msgv4 ).
+    ELSEIF it_wm_messages IS SUPPLIED.
+      rt_bapirettab = CORRESPONDING #( it_wm_messages MAPPING id        = msgid
+                                                             type       = msgty
+                                                             number     = msgno
+                                                             message_v1 = msgv1
+                                                             message_v2 = msgv2
+                                                             message_v3 = msgv3
+                                                             message_v4 = msgv4 ).
+    ENDIF.
 
   ENDMETHOD.
 
