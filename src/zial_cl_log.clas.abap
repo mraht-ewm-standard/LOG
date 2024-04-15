@@ -7,7 +7,7 @@ CLASS zial_cl_log DEFINITION
     TYPES v_message_param_id TYPE n LENGTH 10.
     TYPES v_input_component  TYPE c LENGTH 150.
 
-    TYPES r_log_instance     TYPE REF TO zial_cl_log_sap.
+    TYPES r_log_instance     TYPE REF TO zial_cl_log_ewm.
     TYPES t_log_stack        TYPE TABLE OF r_log_instance WITH DEFAULT KEY.
 
     CONSTANTS: BEGIN OF mc_msg_content_type,
@@ -335,6 +335,8 @@ CLASS zial_cl_log IMPLEMENTATION.
                             message_v2 = iv_msgv2
                             message_v3 = iv_msgv3
                             message_v4 = iv_msgv4 ).
+      MESSAGE ID iv_msgid TYPE iv_msgty NUMBER iv_msgno
+              WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 INTO rs_bapiret-message.
 
     ELSE.
 
