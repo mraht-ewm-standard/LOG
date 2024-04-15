@@ -335,6 +335,8 @@ CLASS zial_cl_log IMPLEMENTATION.
                             message_v2 = iv_msgv2
                             message_v3 = iv_msgv3
                             message_v4 = iv_msgv4 ).
+      MESSAGE ID iv_msgid TYPE iv_msgty NUMBER iv_msgno
+              WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 INTO rs_bapiret-message.
 
     ELSE.
 
