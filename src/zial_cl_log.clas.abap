@@ -7,8 +7,7 @@ CLASS zial_cl_log DEFINITION
     TYPES v_message_param_id TYPE n LENGTH 10.
     TYPES v_input_component  TYPE c LENGTH 150.
 
-    TYPES r_log_instance     TYPE REF TO zial_cl_log_sap.
-    TYPES t_log_stack        TYPE TABLE OF r_log_instance WITH DEFAULT KEY.
+    TYPES t_log_stack        TYPE TABLE OF zial_cl_log_const=>r_log_instance WITH DEFAULT KEY.
 
     CONSTANTS: BEGIN OF mc_msg_content_type,
                  obj TYPE numc1 VALUE 1,
@@ -56,7 +55,7 @@ CLASS zial_cl_log DEFINITION
     CLASS-DATA mo_gui_alv_grid          TYPE REF TO cl_gui_alv_grid.
     CLASS-DATA mv_sel_msg_param_id      TYPE v_message_param_id.
 
-    CLASS-DATA mo_instance              TYPE r_log_instance.
+    CLASS-DATA mo_instance              TYPE zial_cl_log_const=>r_log_instance.
     CLASS-DATA mt_log_stack             TYPE t_log_stack. " LIFO: Last log initiated is first to be saved
 
     "! Get existing or create and return new log instance
