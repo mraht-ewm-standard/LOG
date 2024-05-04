@@ -130,6 +130,15 @@ CLASS zial_cl_log DEFINITION
                 is_bapiret      TYPE bapiret2 OPTIONAL
       RETURNING VALUE(rs_symsg) TYPE symsg.
 
+    CLASS-METHODS show_msgtx
+      IMPORTING iv_msgtx TYPE msgtx
+                iv_msgv1 TYPE msgv1 OPTIONAL
+                iv_msgv2 TYPE msgv2 OPTIONAL
+                iv_msgv3 TYPE msgv3 OPTIONAL
+                iv_msgv4 TYPE msgv4 OPTIONAL
+                iv_msgty TYPE msgty DEFAULT 'S'
+                iv_msgdl TYPE msgty OPTIONAL.
+
     "! Convert data dynamically into message details
     "! <p><strong>Note:</strong><br/>If you supply an element-wise table you'll have to provide
     "! at least one fieldname! You can use the fieldname table to define which attributes of a
@@ -164,6 +173,16 @@ CLASS zial_cl_log DEFINITION
       IMPORTING it_bapiret TYPE bapirettab.
 
     CLASS-METHODS free.
+
+    "! <p class="shorttext synchronized">Check results for error</p>
+    "!
+    "! @parameter iv_severity | <p class="shorttext synchronized">Severity</p>
+    "! @parameter it_bapiret  | <p class="shorttext synchronized">Protocol</p>
+    "! @parameter rv_result   | <p class="shorttext synchronized">Error? (Y/N)</p>
+    CLASS-METHODS has_error
+      IMPORTING iv_severity      TYPE bapi_mtype OPTIONAL
+                it_bapiret       TYPE bapirettab OPTIONAL
+      RETURNING VALUE(rv_result) TYPE abap_bool.
 
   PROTECTED SECTION.
     CLASS-METHODS harmonize_msg
@@ -521,6 +540,32 @@ CLASS zial_cl_log IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD show_msgtx.
+
+    DATA(lv_msgdl) = iv_msgdl.
+    IF lv_msgdl IS INITIAL.
+      lv_msgdl = iv_msgty.
+    ENDIF.
+
+    DATA(lv_msgtx) = iv_msgtx.
+    IF iv_msgv1 IS NOT INITIAL.
+      REPLACE '&1' IN lv_msgtx WITH iv_msgv1.
+    ENDIF.
+    IF iv_msgv2 IS NOT INITIAL.
+      REPLACE '&2' IN lv_msgtx WITH iv_msgv2.
+    ENDIF.
+    IF iv_msgv3 IS NOT INITIAL.
+      REPLACE '&3' IN lv_msgtx WITH iv_msgv3.
+    ENDIF.
+    IF iv_msgv4 IS NOT INITIAL.
+      REPLACE '&4' IN lv_msgtx WITH iv_msgv4.
+    ENDIF.
+
+    MESSAGE lv_msgtx TYPE iv_msgty DISPLAY LIKE lv_msgdl.
+
+  ENDMETHOD.
+
+
   METHOD harmonize_msg.
 
     IF is_bapiret IS NOT INITIAL.
@@ -562,6 +607,21 @@ CLASS zial_cl_log IMPLEMENTATION.
                       msgv2 = lv_msgv2
                       msgv3 = lv_msgv3
                       msgv4 = lv_msgv4 ).
+
+  ENDMETHOD.
+
+
+  METHOD has_error.
+
+    IF iv_severity CA 'AEX'.
+      rv_result = abap_true.
+      RETURN.
+    ENDIF.
+
+    LOOP AT it_bapiret TRANSPORTING NO FIELDS WHERE type CA 'AEX'.
+      rv_result = abap_true.
+      EXIT.
+    ENDLOOP.
 
   ENDMETHOD.
 
