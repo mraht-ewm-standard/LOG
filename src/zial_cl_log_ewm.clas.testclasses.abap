@@ -12,10 +12,8 @@ CLASS ltc_log_ewm DEFINITION FINAL
 
     CONSTANTS mc_tdc_cnt TYPE etobj_name VALUE 'ZIAL_TDC_LOG'.
 
-    CLASS-DATA mo_aunit                 TYPE REF TO zial_cl_aunit.
-    CLASS-DATA ms_tdc_data              TYPE s_tdc_data.
-
-    CLASS-DATA mo_osql_test_environment TYPE REF TO if_osql_test_environment.
+    CLASS-DATA mo_aunit    TYPE REF TO zial_cl_aunit.
+    CLASS-DATA ms_tdc_data TYPE s_tdc_data.
 
     CLASS-METHODS class_setup
       RAISING cx_ecatt_tdc_access.
@@ -72,7 +70,8 @@ CLASS ltc_log_ewm IMPLEMENTATION.
     " CHECK 1 = 2. ##DEACTIVATED.
 
     MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
-    DATA(ls_exp_message) = zial_cl_log=>to_bapiret( ).
+    DATA(lt_exp_messages) = zial_cl_log=>to_bapiret( ).
+    DATA(ls_exp_message) = VALUE #( lt_exp_messages[ 1 ] OPTIONAL ).
     DATA(ls_symsg_message) = zial_cl_log=>to_symsg( is_bapiret = ls_exp_message ).
 
     DATA(lo_api_message) = NEW /scwm/cl_api_message( ).
