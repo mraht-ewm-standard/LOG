@@ -38,8 +38,8 @@ CLASS zial_cl_log_ewm DEFINITION
     METHODS set_lgnum
       IMPORTING iv_lgnum TYPE /scwm/lgnum.
 
-    CLASS-METHODS to_bapirettab
-      IMPORTING it_dm_messages        TYPE /scdl/dm_message_tab OPTIONAL
+    CLASS-METHODS to_bapiret
+      IMPORTING it_dm_messages       TYPE /scdl/dm_message_tab OPTIONAL
                 it_wm_messages       TYPE /scwm/t_messages     OPTIONAL
       RETURNING VALUE(rt_bapirettab) TYPE bapirettab.
 
@@ -246,24 +246,24 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD to_bapirettab.
+  METHOD to_bapiret.
 
     IF it_dm_messages IS SUPPLIED.
       rt_bapirettab = CORRESPONDING #( it_dm_messages MAPPING id         = msgid
-                                                             type       = msgty
-                                                             number     = msgno
-                                                             message_v1 = msgv1
-                                                             message_v2 = msgv2
-                                                             message_v3 = msgv3
-                                                             message_v4 = msgv4 ).
+                                                              type       = msgty
+                                                              number     = msgno
+                                                              message_v1 = msgv1
+                                                              message_v2 = msgv2
+                                                              message_v3 = msgv3
+                                                              message_v4 = msgv4 ).
     ELSEIF it_wm_messages IS SUPPLIED.
-      rt_bapirettab = CORRESPONDING #( it_wm_messages MAPPING id        = msgid
-                                                             type       = msgty
-                                                             number     = msgno
-                                                             message_v1 = msgv1
-                                                             message_v2 = msgv2
-                                                             message_v3 = msgv3
-                                                             message_v4 = msgv4 ).
+      rt_bapirettab = CORRESPONDING #( it_wm_messages MAPPING id         = msgid
+                                                              type       = msgty
+                                                              number     = msgno
+                                                              message_v1 = msgv1
+                                                              message_v2 = msgv2
+                                                              message_v3 = msgv3
+                                                              message_v4 = msgv4 ).
     ENDIF.
 
   ENDMETHOD.
