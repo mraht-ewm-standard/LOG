@@ -12,10 +12,8 @@ CLASS ltc_log DEFINITION FINAL
 
     CONSTANTS mc_tdc_cnt TYPE etobj_name VALUE 'ZIAL_TDC_LOG'.
 
-    CLASS-DATA mo_aunit                 TYPE REF TO zial_cl_aunit.
-    CLASS-DATA ms_tdc_data              TYPE s_tdc_data.
-
-    CLASS-DATA mo_osql_test_environment TYPE REF TO if_osql_test_environment.
+    CLASS-DATA mo_aunit    TYPE REF TO zial_cl_aunit.
+    CLASS-DATA ms_tdc_data TYPE s_tdc_data.
 
     CLASS-METHODS class_setup
       RAISING cx_ecatt_tdc_access.
@@ -99,8 +97,8 @@ CLASS ltc_log IMPLEMENTATION.
   METHOD t0003.
 
     MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
-    DATA(ls_exp_message) = zial_cl_log=>to_bapiret( ).
-    zial_cl_log=>get( )->log_bapiret( VALUE #( ( ls_exp_message ) ) ).
+    DATA(lt_exp_messages) = zial_cl_log=>to_bapiret( ).
+    zial_cl_log=>get( )->log_bapiret( lt_exp_messages ).
 
     DATA(lt_act_messages) = zial_cl_log=>get( )->get_messages( ).
     cl_abap_unit_assert=>assert_equals( exp = 2
