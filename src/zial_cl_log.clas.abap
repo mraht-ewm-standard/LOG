@@ -7,7 +7,14 @@ CLASS zial_cl_log DEFINITION
     TYPES v_message_param_id TYPE n LENGTH 10.
     TYPES v_input_component  TYPE c LENGTH 150.
 
-    TYPES t_log_stack        TYPE TABLE OF zial_cl_log_const=>r_log_instance WITH DEFAULT KEY.
+    TYPES: BEGIN OF s_msgvar,
+             v1 TYPE symsgv,
+             v2 TYPE symsgv,
+             v3 TYPE symsgv,
+             v4 TYPE symsgv,
+           END OF s_msgvar.
+
+    TYPES t_log_stack TYPE TABLE OF zial_cl_log_const=>r_log_instance WITH DEFAULT KEY.
 
     CONSTANTS: BEGIN OF mc_msg_content_type,
                  obj TYPE numc1 VALUE 1,
@@ -89,8 +96,8 @@ CLASS zial_cl_log DEFINITION
     CLASS-METHODS to_bapiret
       IMPORTING iv_msgid          TYPE symsgid        DEFAULT sy-msgid
                 iv_msgty          TYPE symsgty        DEFAULT sy-msgty
-                iv_msgtx          TYPE bapi_msg       OPTIONAL
                 iv_msgno          TYPE symsgno        DEFAULT sy-msgno
+                iv_msgtx          TYPE bapi_msg       OPTIONAL
                 iv_msgv1          TYPE clike          DEFAULT sy-msgv1
                 iv_msgv2          TYPE clike          DEFAULT sy-msgv2
                 iv_msgv3          TYPE clike          DEFAULT sy-msgv3
@@ -124,6 +131,7 @@ CLASS zial_cl_log DEFINITION
       IMPORTING iv_msgid        TYPE symsgid  DEFAULT sy-msgid
                 iv_msgty        TYPE symsgty  DEFAULT sy-msgty
                 iv_msgno        TYPE symsgno  DEFAULT sy-msgno
+                iv_msgtx        TYPE bapi_msg OPTIONAL
                 iv_msgv1        TYPE symsgv   DEFAULT sy-msgv1
                 iv_msgv2        TYPE symsgv   DEFAULT sy-msgv2
                 iv_msgv3        TYPE symsgv   DEFAULT sy-msgv3
@@ -132,12 +140,12 @@ CLASS zial_cl_log DEFINITION
       RETURNING VALUE(rs_symsg) TYPE symsg.
 
     CLASS-METHODS show_msgtx
-      IMPORTING iv_msgtx TYPE msgtx
+      IMPORTING iv_msgty TYPE msgty DEFAULT 'S'
+                iv_msgtx TYPE msgtx
                 iv_msgv1 TYPE msgv1 OPTIONAL
                 iv_msgv2 TYPE msgv2 OPTIONAL
                 iv_msgv3 TYPE msgv3 OPTIONAL
                 iv_msgv4 TYPE msgv4 OPTIONAL
-                iv_msgty TYPE msgty DEFAULT 'S'
                 iv_msgdl TYPE msgty OPTIONAL.
 
     "! Convert data dynamically into message details
@@ -187,15 +195,17 @@ CLASS zial_cl_log DEFINITION
 
   PROTECTED SECTION.
     CLASS-METHODS harmonize_msg
-      IMPORTING iv_msgid      TYPE symsgid
-                iv_msgno      TYPE symsgno
-                iv_msgty      TYPE symsgty
-                iv_msgv1      TYPE symsgv
-                iv_msgv2      TYPE symsgv
-                iv_msgv3      TYPE symsgv
-                iv_msgv4      TYPE symsgv
-                is_bapiret    TYPE bapiret2 OPTIONAL
-      RETURNING VALUE(rs_msg) TYPE symsg.
+      IMPORTING iv_msgid   TYPE symsgid
+                iv_msgno   TYPE symsgno
+                iv_msgty   TYPE symsgty
+                iv_msgtx   TYPE bapi_msg OPTIONAL
+                iv_msgv1   TYPE symsgv
+                iv_msgv2   TYPE symsgv
+                iv_msgv3   TYPE symsgv
+                iv_msgv4   TYPE symsgv
+                is_bapiret TYPE bapiret2 OPTIONAL
+      EXPORTING ev_msgtx   TYPE bapi_msg
+                es_symsg   TYPE symsg.
 
   PRIVATE SECTION.
     CLASS-DATA ms_symsg TYPE symsg.
@@ -298,58 +308,19 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD to_bapiret.
 
-    TYPES: BEGIN OF s_msgvar,
-             v1 TYPE symsgv,
-             v2 TYPE symsgv,
-             v3 TYPE symsgv,
-             v4 TYPE symsgv,
-           END OF s_msgvar.
-
     DATA(ls_bapiret) = VALUE bapiret2( ).
     IF iv_msgtx IS SUPPLIED.
 
-      DATA(lv_msgtx) = iv_msgtx.
-
-      DATA(ls_msgvar) = VALUE s_msgvar( ).
-      IF iv_msgv1 IS NOT SUPPLIED.
-
-        ls_msgvar = iv_msgtx.
-
-      ELSE.
-
-        ls_msgvar-v1 = iv_msgv1.
-        ls_msgvar-v2 = iv_msgv2.
-        ls_msgvar-v3 = iv_msgv3.
-        ls_msgvar-v4 = iv_msgv4.
-
-        DO 8 TIMES.
-          DATA(lv_index) = sy-index.
-
-          IF ls_bapiret-message NS '&'.
-            EXIT.
-          ENDIF.
-
-          " Index 1-4: &1-&4
-          " Index 5-8: &
-          DATA(lv_search_str) = COND #( WHEN lv_index LT 5 THEN |&{ lv_index }|
-                                        WHEN lv_index GT 4 THEN |&| ).
-          DATA(lv_msgvar) = SWITCH #( lv_index
-                                      WHEN 1 OR 5 THEN ls_msgvar-v1
-                                      WHEN 2 OR 6 THEN ls_msgvar-v2
-                                      WHEN 3 OR 7 THEN ls_msgvar-v3
-                                      WHEN 4 OR 8 THEN ls_msgvar-v4 ).
-          REPLACE FIRST OCCURRENCE OF lv_search_str IN lv_msgtx WITH lv_msgvar.
-        ENDDO.
-
-      ENDIF.
-
-      DATA(ls_symsg) = harmonize_msg( iv_msgid = mc_default-msgid
-                                      iv_msgno = mc_default-msgno
-                                      iv_msgty = iv_msgty
-                                      iv_msgv1 = ls_msgvar-v1
-                                      iv_msgv2 = ls_msgvar-v2
-                                      iv_msgv3 = ls_msgvar-v3
-                                      iv_msgv4 = ls_msgvar-v4 ).
+      harmonize_msg( EXPORTING iv_msgid = mc_default-msgid
+                               iv_msgno = mc_default-msgno
+                               iv_msgty = iv_msgty
+                               iv_msgtx = iv_msgtx
+                               iv_msgv1 = iv_msgv1
+                               iv_msgv2 = iv_msgv2
+                               iv_msgv3 = iv_msgv3
+                               iv_msgv4 = iv_msgv4
+                     IMPORTING ev_msgtx = DATA(lv_msgtx)
+                               es_symsg = DATA(ls_symsg) ).
 
       INSERT VALUE #( id         = ls_symsg-msgid
                       number     = ls_symsg-msgno
@@ -359,22 +330,6 @@ CLASS zial_cl_log IMPLEMENTATION.
                       message_v2 = ls_symsg-msgv2
                       message_v3 = ls_symsg-msgv3
                       message_v4 = ls_symsg-msgv4 ) INTO TABLE rt_bapiret.
-
-    ELSEIF iv_msgty IS NOT INITIAL
-       AND iv_msgid IS NOT INITIAL
-       AND iv_msgno CN ' _'.
-
-      ls_bapiret = VALUE #( type       = iv_msgty
-                            id         = iv_msgid
-                            number     = iv_msgno
-                            message_v1 = iv_msgv1
-                            message_v2 = iv_msgv2
-                            message_v3 = iv_msgv3
-                            message_v4 = iv_msgv4 ).
-      MESSAGE ID iv_msgid TYPE iv_msgty NUMBER iv_msgno
-              WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 INTO ls_bapiret-message.
-
-      INSERT ls_bapiret INTO TABLE rt_bapiret.
 
     ELSEIF io_exception IS BOUND.
 
@@ -392,6 +347,22 @@ CLASS zial_cl_log IMPLEMENTATION.
           RETURN.
 
       ENDCASE.
+
+    ELSEIF iv_msgty IS NOT INITIAL
+       AND iv_msgid IS NOT INITIAL
+       AND iv_msgno CN ' _'.
+
+      ls_bapiret = VALUE #( type       = iv_msgty
+                            id         = iv_msgid
+                            number     = iv_msgno
+                            message_v1 = iv_msgv1
+                            message_v2 = iv_msgv2
+                            message_v3 = iv_msgv3
+                            message_v4 = iv_msgv4 ).
+      MESSAGE ID iv_msgid TYPE iv_msgty NUMBER iv_msgno
+              WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 INTO ls_bapiret-message.
+
+      INSERT ls_bapiret INTO TABLE rt_bapiret.
 
     ELSE.
 
@@ -513,18 +484,21 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD to_string.
 
-    DATA(ls_symsg) = harmonize_msg( iv_msgid   = iv_msgid
-                                    iv_msgno   = iv_msgno
-                                    iv_msgty   = iv_msgty
-                                    iv_msgv1   = iv_msgv1
-                                    iv_msgv2   = iv_msgv2
-                                    iv_msgv3   = iv_msgv3
-                                    iv_msgv4   = iv_msgv4
-                                    is_bapiret = is_bapiret ).
+    harmonize_msg( EXPORTING iv_msgid   = iv_msgid
+                             iv_msgno   = iv_msgno
+                             iv_msgty   = iv_msgty
+                             iv_msgv1   = iv_msgv1
+                             iv_msgv2   = iv_msgv2
+                             iv_msgv3   = iv_msgv3
+                             iv_msgv4   = iv_msgv4
+                             is_bapiret = is_bapiret
+                   IMPORTING es_symsg   = DATA(ls_symsg) ).
 
-    MESSAGE ID ls_symsg-msgid TYPE ls_symsg-msgty NUMBER ls_symsg-msgno
-            WITH ls_symsg-msgv1 ls_symsg-msgv2 ls_symsg-msgv3 ls_symsg-msgv4
-            INTO rv_result.
+    IF ls_symsg IS NOT INITIAL.
+      MESSAGE ID ls_symsg-msgid TYPE ls_symsg-msgty NUMBER ls_symsg-msgno
+              WITH ls_symsg-msgv1 ls_symsg-msgv2 ls_symsg-msgv3 ls_symsg-msgv4
+              INTO rv_result.
+    ENDIF.
 
   ENDMETHOD.
 
@@ -567,14 +541,16 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD to_symsg.
 
-    rs_symsg = harmonize_msg( iv_msgid   = iv_msgid
-                              iv_msgno   = iv_msgno
-                              iv_msgty   = iv_msgty
-                              iv_msgv1   = iv_msgv1
-                              iv_msgv2   = iv_msgv2
-                              iv_msgv3   = iv_msgv3
-                              iv_msgv4   = iv_msgv4
-                              is_bapiret = is_bapiret ).
+    harmonize_msg( EXPORTING iv_msgid   = iv_msgid
+                             iv_msgno   = iv_msgno
+                             iv_msgty   = iv_msgty
+                             iv_msgtx   = iv_msgtx
+                             iv_msgv1   = iv_msgv1
+                             iv_msgv2   = iv_msgv2
+                             iv_msgv3   = iv_msgv3
+                             iv_msgv4   = iv_msgv4
+                             is_bapiret = is_bapiret
+                   IMPORTING es_symsg   = rs_symsg ).
 
   ENDMETHOD.
 
@@ -612,6 +588,7 @@ CLASS zial_cl_log IMPLEMENTATION.
       DATA(lv_msgid) = is_bapiret-id.
       DATA(lv_msgno) = is_bapiret-number.
       DATA(lv_msgty) = is_bapiret-type.
+      DATA(lv_msgtx) = is_bapiret-message.
       DATA(lv_msgv1) = is_bapiret-message_v1.
       DATA(lv_msgv2) = is_bapiret-message_v2.
       DATA(lv_msgv3) = is_bapiret-message_v3.
@@ -622,6 +599,7 @@ CLASS zial_cl_log IMPLEMENTATION.
       lv_msgid = iv_msgid.
       lv_msgno = iv_msgno.
       lv_msgty = iv_msgty.
+      lv_msgtx = iv_msgtx.
       lv_msgv1 = iv_msgv1.
       lv_msgv2 = iv_msgv2.
       lv_msgv3 = iv_msgv3.
@@ -639,13 +617,42 @@ CLASS zial_cl_log IMPLEMENTATION.
       lv_msgty = mc_log_type-success.
     ENDIF.
 
-    rs_msg = VALUE #( msgid = lv_msgid
-                      msgno = lv_msgno
-                      msgty = lv_msgty
-                      msgv1 = lv_msgv1
-                      msgv2 = lv_msgv2
-                      msgv3 = lv_msgv3
-                      msgv4 = lv_msgv4 ).
+    WHILE lv_msgtx CS '&'.
+
+      DATA(lv_index) = sy-index.
+      IF lv_index GT 8.
+        EXIT.
+      ENDIF.
+
+      DATA(lv_search_str) = COND #( WHEN lv_index LT 5 THEN |&{ lv_index }|
+                                    WHEN lv_index GT 4 THEN |&| ).
+      DATA(lv_msgvar) = SWITCH #( lv_index
+                                  WHEN 1 OR 5 THEN lv_msgv1
+                                  WHEN 2 OR 6 THEN lv_msgv2
+                                  WHEN 3 OR 7 THEN lv_msgv3
+                                  WHEN 4 OR 8 THEN lv_msgv4 ).
+      REPLACE FIRST OCCURRENCE OF lv_search_str IN lv_msgtx WITH lv_msgvar.
+
+    ENDWHILE.
+
+    DATA(ls_msgvar) = VALUE s_msgvar( ).
+    IF lv_msgtx IS NOT INITIAL.
+      ls_msgvar = lv_msgtx.
+    ELSE.
+      ls_msgvar-v1 = iv_msgv1.
+      ls_msgvar-v2 = iv_msgv2.
+      ls_msgvar-v3 = iv_msgv3.
+      ls_msgvar-v4 = iv_msgv4.
+    ENDIF.
+
+    ev_msgtx = lv_msgtx.
+    es_symsg = VALUE #( msgid = lv_msgid
+                        msgno = lv_msgno
+                        msgty = lv_msgty
+                        msgv1 = ls_msgvar-v1
+                        msgv2 = ls_msgvar-v2
+                        msgv3 = ls_msgvar-v3
+                        msgv4 = ls_msgvar-v4 ).
 
   ENDMETHOD.
 
