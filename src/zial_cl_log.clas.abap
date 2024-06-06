@@ -97,7 +97,19 @@ CLASS zial_cl_log DEFINITION
       IMPORTING iv_msgid          TYPE symsgid        DEFAULT sy-msgid
                 iv_msgty          TYPE symsgty        DEFAULT sy-msgty
                 iv_msgno          TYPE symsgno        DEFAULT sy-msgno
-                iv_msgtx          TYPE bapi_msg       OPTIONAL
+                iv_msgtx          TYPE clike          OPTIONAL
+                iv_msgv1          TYPE clike          DEFAULT sy-msgv1
+                iv_msgv2          TYPE clike          DEFAULT sy-msgv2
+                iv_msgv3          TYPE clike          DEFAULT sy-msgv3
+                iv_msgv4          TYPE clike          DEFAULT sy-msgv4
+                io_exception      TYPE REF TO cx_root OPTIONAL
+      RETURNING VALUE(rs_bapiret) TYPE bapiret2.
+
+    CLASS-METHODS to_bapirets
+      IMPORTING iv_msgid          TYPE symsgid        DEFAULT sy-msgid
+                iv_msgty          TYPE symsgty        DEFAULT sy-msgty
+                iv_msgno          TYPE symsgno        DEFAULT sy-msgno
+                iv_msgtx          TYPE clike          OPTIONAL
                 iv_msgv1          TYPE clike          DEFAULT sy-msgv1
                 iv_msgv2          TYPE clike          DEFAULT sy-msgv2
                 iv_msgv3          TYPE clike          DEFAULT sy-msgv3
@@ -308,40 +320,39 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD to_bapiret.
 
-    DATA(ls_bapiret) = VALUE bapiret2( ).
     IF iv_msgtx IS SUPPLIED.
 
       harmonize_msg( EXPORTING iv_msgid = mc_default-msgid
                                iv_msgno = mc_default-msgno
                                iv_msgty = iv_msgty
-                               iv_msgtx = iv_msgtx
-                               iv_msgv1 = iv_msgv1
-                               iv_msgv2 = iv_msgv2
-                               iv_msgv3 = iv_msgv3
-                               iv_msgv4 = iv_msgv4
+                               iv_msgtx = CONV #( iv_msgtx )
+                               iv_msgv1 = CONV #( iv_msgv1 )
+                               iv_msgv2 = CONV #( iv_msgv2 )
+                               iv_msgv3 = CONV #( iv_msgv3 )
+                               iv_msgv4 = CONV #( iv_msgv4 )
                      IMPORTING ev_msgtx = DATA(lv_msgtx)
                                es_symsg = DATA(ls_symsg) ).
 
-      INSERT VALUE #( id         = ls_symsg-msgid
-                      number     = ls_symsg-msgno
-                      type       = ls_symsg-msgty
-                      message    = lv_msgtx
-                      message_v1 = ls_symsg-msgv1
-                      message_v2 = ls_symsg-msgv2
-                      message_v3 = ls_symsg-msgv3
-                      message_v4 = ls_symsg-msgv4 ) INTO TABLE rt_bapiret.
+      rs_bapiret = VALUE #( id         = ls_symsg-msgid
+                            number     = ls_symsg-msgno
+                            type       = ls_symsg-msgty
+                            message    = lv_msgtx
+                            message_v1 = ls_symsg-msgv1
+                            message_v2 = ls_symsg-msgv2
+                            message_v3 = ls_symsg-msgv3
+                            message_v4 = ls_symsg-msgv4 ).
 
     ELSEIF io_exception IS BOUND.
 
       CASE TYPE OF io_exception.
         WHEN TYPE zcx_static_check.
-          rt_bapiret = CAST zcx_static_check( io_exception )->get_messages( ).
+          rs_bapiret = CAST zcx_static_check( io_exception )->get_message( ).
 
         WHEN TYPE zcx_no_check.
-          rt_bapiret = CAST zcx_no_check( io_exception )->get_messages( ).
+          rs_bapiret = CAST zcx_no_check( io_exception )->get_message( ).
 
         WHEN TYPE cx_root.
-          rt_bapiret = to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ).
+          rs_bapiret = to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ).
 
         WHEN OTHERS.
           RETURN.
@@ -352,17 +363,15 @@ CLASS zial_cl_log IMPLEMENTATION.
        AND iv_msgid IS NOT INITIAL
        AND iv_msgno CN ' _'.
 
-      ls_bapiret = VALUE #( type       = iv_msgty
+      rs_bapiret = VALUE #( type       = iv_msgty
                             id         = iv_msgid
                             number     = iv_msgno
-                            message_v1 = iv_msgv1
-                            message_v2 = iv_msgv2
-                            message_v3 = iv_msgv3
-                            message_v4 = iv_msgv4 ).
+                            message_v1 = CONV #( iv_msgv1 )
+                            message_v2 = CONV #( iv_msgv2 )
+                            message_v3 = CONV #( iv_msgv3 )
+                            message_v4 = CONV #( iv_msgv4 ) ).
       MESSAGE ID iv_msgid TYPE iv_msgty NUMBER iv_msgno
-              WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 INTO ls_bapiret-message.
-
-      INSERT ls_bapiret INTO TABLE rt_bapiret.
+              WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 INTO rs_bapiret-message.
 
     ELSE.
 
@@ -370,7 +379,46 @@ CLASS zial_cl_log IMPLEMENTATION.
 
     ENDIF.
 
-    LOOP AT rt_bapiret ASSIGNING FIELD-SYMBOL(<ls_bapiret>).
+    CALL FUNCTION 'OWN_LOGICAL_SYSTEM_GET_STABLE'
+      IMPORTING  own_logical_system = rs_bapiret-system
+      EXCEPTIONS OTHERS             = 0.
+
+  ENDMETHOD.
+
+
+  METHOD to_bapirets.
+
+    IF io_exception IS BOUND.
+
+      CASE TYPE OF io_exception.
+        WHEN TYPE zcx_static_check.
+          rt_bapiret = CAST zcx_static_check( io_exception )->get_messages( ).
+
+        WHEN TYPE zcx_no_check.
+          rt_bapiret = CAST zcx_no_check( io_exception )->get_messages( ).
+
+        WHEN TYPE cx_root.
+          rt_bapiret = VALUE #( ( to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ) ) ).
+
+        WHEN OTHERS.
+          RETURN.
+
+      ENDCASE.
+
+    ELSE.
+
+      rt_bapiret = VALUE #( ( to_bapiret( iv_msgid = iv_msgid
+                                          iv_msgty = iv_msgty
+                                          iv_msgno = iv_msgno
+                                          iv_msgtx = iv_msgtx
+                                          iv_msgv1 = iv_msgv1
+                                          iv_msgv2 = iv_msgv2
+                                          iv_msgv3 = iv_msgv3
+                                          iv_msgv4 = iv_msgv4 ) ) ).
+
+    ENDIF.
+
+    LOOP AT rt_bapiret ASSIGNING FIELD-SYMBOL(<ls_bapiret>) WHERE system IS INITIAL.
       CALL FUNCTION 'OWN_LOGICAL_SYSTEM_GET_STABLE'
         IMPORTING  own_logical_system = <ls_bapiret>-system
         EXCEPTIONS OTHERS             = 0.
@@ -639,6 +687,8 @@ CLASS zial_cl_log IMPLEMENTATION.
     IF lv_msgtx IS NOT INITIAL.
       ls_msgvar = lv_msgtx.
     ELSE.
+      MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
+              WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4 INTO lv_msgtx.
       ls_msgvar-v1 = iv_msgv1.
       ls_msgvar-v2 = iv_msgv2.
       ls_msgvar-v3 = iv_msgv3.

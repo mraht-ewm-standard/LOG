@@ -70,8 +70,7 @@ CLASS ltc_log_ewm IMPLEMENTATION.
     " CHECK 1 = 2. ##DEACTIVATED.
 
     MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
-    DATA(lt_exp_messages) = zial_cl_log=>to_bapiret( ).
-    DATA(ls_exp_message) = VALUE #( lt_exp_messages[ 1 ] OPTIONAL ).
+    DATA(ls_exp_message) = zial_cl_log=>to_bapiret( ).
     DATA(ls_symsg_message) = zial_cl_log=>to_symsg( is_bapiret = ls_exp_message ).
 
     DATA(lo_api_message) = NEW /scwm/cl_api_message( ).

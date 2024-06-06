@@ -420,14 +420,14 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
       WHEN 0.
         mv_log_counter = mv_log_counter + 1.
 
-        DATA(lt_bapiret2) = zial_cl_log=>to_bapiret( iv_msgid = ls_msg-msgid
-                                                     iv_msgty = ls_msg-msgty
-                                                     iv_msgno = ls_msg-msgno
-                                                     iv_msgv1 = ls_msg-msgv1
-                                                     iv_msgv2 = ls_msg-msgv2
-                                                     iv_msgv3 = ls_msg-msgv3
-                                                     iv_msgv4 = ls_msg-msgv4 ).
-        INSERT LINES OF lt_bapiret2 INTO TABLE mt_log_messages.
+        DATA(ls_bapiret) = zial_cl_log=>to_bapiret( iv_msgid = ls_msg-msgid
+                                                    iv_msgty = ls_msg-msgty
+                                                    iv_msgno = ls_msg-msgno
+                                                    iv_msgv1 = ls_msg-msgv1
+                                                    iv_msgv2 = ls_msg-msgv2
+                                                    iv_msgv3 = ls_msg-msgv3
+                                                    iv_msgv4 = ls_msg-msgv4 ).
+        INSERT ls_bapiret INTO TABLE mt_log_messages.
 
     ENDCASE.
 
@@ -635,15 +635,15 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   METHOD error_handling.
 
     MESSAGE e017(zial_log) WITH iv_process INTO DATA(lv_msg) ##NEEDED.
-    INSERT LINES OF zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
+    INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
     " Log general log data
     DATA(lv_msg_txt_gen) = CONV bapi_msg( |; OBJECT: { is_log_msg-hdr-object }; | &&
                                           |SUBOBJ: { is_log_msg-hdr-subobject }| &&
                                           |; EXTNUM: { is_log_msg-hdr-extnumber }; | &&
                                           |ALDDEL: { is_log_msg-hdr-aldate_del }| ).
-    INSERT LINES OF zial_cl_log=>to_bapiret( iv_msgty = zial_cl_log=>mc_log_type-error
-                                             iv_msgtx = lv_msg_txt_gen ) INTO TABLE rt_bapiret.
+    INSERT zial_cl_log=>to_bapiret( iv_msgty = zial_cl_log=>mc_log_type-error
+                                    iv_msgtx = lv_msg_txt_gen ) INTO TABLE rt_bapiret.
 
     CASE iv_process.
       WHEN zial_cl_log=>mc_log_process-init.
@@ -690,7 +690,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     ENDCASE.
 
-    INSERT LINES OF zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
+    INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
     " Log process-specific log data
     CASE iv_process.
@@ -701,24 +701,24 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
         IF is_log_msg-msg-msgtx CN ' _0'.
 
           MESSAGE e015(zial_log) WITH is_log_msg-msg-msgty INTO lv_msg.
-          INSERT LINES OF zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
+          INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
         ELSEIF is_log_msg-msg-msgno CN ' _0'.
 
           MESSAGE e003(zial_log) WITH is_log_msg-msg-msgno
                                       is_log_msg-msg-msgid INTO lv_msg.
-          INSERT LINES OF zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
+          INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
           MESSAGE e004(zial_log) WITH is_log_msg-msg-msgv1
                                       is_log_msg-msg-msgv2
                                       is_log_msg-msg-msgv3
                                       is_log_msg-msg-msgv4 INTO lv_msg.
-          INSERT LINES OF zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
+          INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
         ELSE.
 
           MESSAGE e002(zial_log) INTO lv_msg.
-          INSERT LINES OF zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
+          INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
         ENDIF.
 
@@ -726,7 +726,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
         DATA(lo_exc_descr) = NEW cl_instance_description( io_exception ).
 
         MESSAGE e005(zial_log) WITH lo_exc_descr->class_name INTO lv_msg.
-        INSERT LINES OF zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
+        INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
       WHEN zial_cl_log=>mc_log_process-save.
         " Nothing to log
@@ -868,7 +868,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
         INSERT LINES OF lx_no_check->get_messages( ) INTO TABLE lt_messages.
 
       WHEN OTHERS.
-        INSERT LINES OF zial_cl_log=>to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ) INTO TABLE lt_messages.
+        INSERT zial_cl_log=>to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ) INTO TABLE lt_messages.
 
     ENDCASE.
 

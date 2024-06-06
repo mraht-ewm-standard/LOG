@@ -97,7 +97,7 @@ CLASS ltc_log IMPLEMENTATION.
   METHOD t0003.
 
     MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
-    DATA(lt_exp_messages) = zial_cl_log=>to_bapiret( ).
+    DATA(lt_exp_messages) = zial_cl_log=>to_bapirets( ).
     zial_cl_log=>get( )->log_bapiret( lt_exp_messages ).
 
     DATA(lt_act_messages) = zial_cl_log=>get( )->get_messages( ).
