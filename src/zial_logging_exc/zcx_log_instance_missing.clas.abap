@@ -18,8 +18,8 @@ CLASS zcx_log_instance_missing IMPLEMENTATION.
     super->log( ).
 
     MESSAGE e016(zial_log) INTO DATA(lv_msg) ##NEEDED.
-    zcx_if_check_class~messages = zial_cl_log=>to_bapiret( iv_msgid = sy-msgid
-                                                           iv_msgno = sy-msgno ).
+    zcx_if_check_class~messages = zial_cl_log=>to_bapirets( iv_msgid = sy-msgid
+                                                            iv_msgno = sy-msgno ).
     zial_cl_log=>get( )->log_message( ).
 
   ENDMETHOD.
