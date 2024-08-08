@@ -47,7 +47,8 @@ CLASS zial_cl_log DEFINITION
                  info    TYPE numc1 VALUE 4,
                END OF mc_callstack_lvl.
 
-    CONSTANTS: BEGIN OF mc_log_type,
+    CONSTANTS: BEGIN OF mc_msgty,
+                 any_error    TYPE char3     VALUE 'EAX',
                  error        TYPE symsgty   VALUE 'E',
                  error_prio   TYPE balprobcl VALUE 1,
                  warning      TYPE symsgty   VALUE 'W',
@@ -56,7 +57,7 @@ CLASS zial_cl_log DEFINITION
                  success_prio TYPE balprobcl VALUE 3,
                  info         TYPE symsgty   VALUE 'I',
                  info_prio    TYPE balprobcl VALUE 4,
-               END OF mc_log_type.
+               END OF mc_msgty.
 
     CLASS-DATA mo_gui_docking_container TYPE REF TO cl_gui_docking_container.
     CLASS-DATA mo_gui_alv_grid          TYPE REF TO cl_gui_alv_grid.
@@ -203,6 +204,7 @@ CLASS zial_cl_log DEFINITION
     CLASS-METHODS has_error
       IMPORTING iv_severity      TYPE bapi_mtype OPTIONAL
                 it_bapiret       TYPE bapirettab OPTIONAL
+      PREFERRED PARAMETER it_bapiret
       RETURNING VALUE(rv_result) TYPE abap_bool.
 
   PROTECTED SECTION.
@@ -662,7 +664,7 @@ CLASS zial_cl_log IMPLEMENTATION.
     ENDIF.
 
     IF lv_msgty IS INITIAL.
-      lv_msgty = mc_log_type-success.
+      lv_msgty = mc_msgty-success.
     ENDIF.
 
     WHILE lv_msgtx CS '&'.
