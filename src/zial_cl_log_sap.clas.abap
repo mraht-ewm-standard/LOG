@@ -270,22 +270,22 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     CHECK mv_callstack_lvl GT 0.
 
     CASE mv_msg_type.
-      WHEN zial_cl_log=>mc_log_type-info.
+      WHEN zial_cl_log=>mc_msgty-info.
         IF mv_callstack_lvl LT zial_cl_log=>mc_callstack_lvl-info.
           RETURN.
         ENDIF.
 
-      WHEN zial_cl_log=>mc_log_type-success.
+      WHEN zial_cl_log=>mc_msgty-success.
         IF mv_callstack_lvl LT zial_cl_log=>mc_callstack_lvl-success.
           RETURN.
         ENDIF.
 
-      WHEN zial_cl_log=>mc_log_type-warning.
+      WHEN zial_cl_log=>mc_msgty-warning.
         IF mv_callstack_lvl LT zial_cl_log=>mc_callstack_lvl-warning.
           RETURN.
         ENDIF.
 
-      WHEN zial_cl_log=>mc_log_type-error.
+      WHEN zial_cl_log=>mc_msgty-error.
         IF mv_callstack_lvl LT zial_cl_log=>mc_callstack_lvl-error.
           RETURN.
         ENDIF.
@@ -569,7 +569,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_error.
 
-    create_message( iv_msgty = zial_cl_log=>mc_log_type-error
+    create_message( iv_msgty = zial_cl_log=>mc_msgty-error
                     iv_msgtx = iv_msgtx
                     iv_msgno = iv_msgno
                     iv_msgv1 = iv_msgv1
@@ -642,7 +642,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                                           |SUBOBJ: { is_log_msg-hdr-subobject }| &&
                                           |; EXTNUM: { is_log_msg-hdr-extnumber }; | &&
                                           |ALDDEL: { is_log_msg-hdr-aldate_del }| ).
-    INSERT zial_cl_log=>to_bapiret( iv_msgty = zial_cl_log=>mc_log_type-error
+    INSERT zial_cl_log=>to_bapiret( iv_msgty = zial_cl_log=>mc_msgty-error
                                     iv_msgtx = lv_msg_txt_gen ) INTO TABLE rt_bapiret.
 
     CASE iv_process.
@@ -745,7 +745,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_info.
 
-    create_message( iv_msgty = zial_cl_log=>mc_log_type-info
+    create_message( iv_msgty = zial_cl_log=>mc_msgty-info
                     iv_msgtx = iv_msgtx
                     iv_msgno = iv_msgno
                     iv_msgv1 = iv_msgv1
@@ -822,7 +822,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     det_caller( ).
 
-    create_message( iv_msgty        = zial_cl_log=>mc_log_type-success
+    create_message( iv_msgty        = zial_cl_log=>mc_msgty-success
                     iv_msgtx        = |***** { mv_caller } at { add_timestamp( ) } *****|
                     iv_is_dummy_msg = abap_true ).
 
@@ -841,7 +841,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                                                      tstmp2 = mv_process_bgn ) * 1000.
 
         MESSAGE s018(zial_log) WITH lv_duration INTO DATA(lv_msgtx).
-        create_message( iv_msgty        = zial_cl_log=>mc_log_type-success
+        create_message( iv_msgty        = zial_cl_log=>mc_msgty-success
                         iv_msgtx        = CONV #( lv_msgtx )
                         iv_is_dummy_msg = abap_true ).
 
@@ -889,7 +889,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_line.
 
-    create_message( iv_msgty        = zial_cl_log=>mc_log_type-success
+    create_message( iv_msgty        = zial_cl_log=>mc_msgty-success
                     iv_msgtx        = repeat( val = '-'
                                               occ = 255 )
                     iv_is_dummy_msg = abap_true ).
@@ -916,28 +916,28 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     mv_msg_class = is_symsg-msgid.
 
     CASE is_symsg-msgty.
-      WHEN zial_cl_log=>mc_log_type-info.
+      WHEN zial_cl_log=>mc_msgty-info.
         log_info( iv_msgno = is_symsg-msgno
                   iv_msgv1 = is_symsg-msgv1
                   iv_msgv2 = is_symsg-msgv2
                   iv_msgv3 = is_symsg-msgv3
                   iv_msgv4 = is_symsg-msgv4 ).
 
-      WHEN zial_cl_log=>mc_log_type-success.
+      WHEN zial_cl_log=>mc_msgty-success.
         log_success( iv_msgno = is_symsg-msgno
                      iv_msgv1 = is_symsg-msgv1
                      iv_msgv2 = is_symsg-msgv2
                      iv_msgv3 = is_symsg-msgv3
                      iv_msgv4 = is_symsg-msgv4 ).
 
-      WHEN zial_cl_log=>mc_log_type-warning.
+      WHEN zial_cl_log=>mc_msgty-warning.
         log_warning( iv_msgno = is_symsg-msgno
                      iv_msgv1 = is_symsg-msgv1
                      iv_msgv2 = is_symsg-msgv2
                      iv_msgv3 = is_symsg-msgv3
                      iv_msgv4 = is_symsg-msgv4 ).
 
-      WHEN zial_cl_log=>mc_log_type-error.
+      WHEN zial_cl_log=>mc_msgty-error.
         log_error( iv_msgno = is_symsg-msgno
                    iv_msgv1 = is_symsg-msgv1
                    iv_msgv2 = is_symsg-msgv2
@@ -1090,17 +1090,17 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   METHOD set_priority.
 
     CASE mv_msg_type.
-      WHEN zial_cl_log=>mc_log_type-info.
-        mv_msg_priority = zial_cl_log=>mc_log_type-info_prio.    " Additional information
+      WHEN zial_cl_log=>mc_msgty-info.
+        mv_msg_priority = zial_cl_log=>mc_msgty-info_prio.    " Additional information
 
-      WHEN zial_cl_log=>mc_log_type-success.
-        mv_msg_priority = zial_cl_log=>mc_log_type-success_prio. " Medium important
+      WHEN zial_cl_log=>mc_msgty-success.
+        mv_msg_priority = zial_cl_log=>mc_msgty-success_prio. " Medium important
 
-      WHEN zial_cl_log=>mc_log_type-warning.
-        mv_msg_priority = zial_cl_log=>mc_log_type-warning_prio. " Important
+      WHEN zial_cl_log=>mc_msgty-warning.
+        mv_msg_priority = zial_cl_log=>mc_msgty-warning_prio. " Important
 
-      WHEN zial_cl_log=>mc_log_type-error.
-        mv_msg_priority = zial_cl_log=>mc_log_type-error_prio.   " Very important
+      WHEN zial_cl_log=>mc_msgty-error.
+        mv_msg_priority = zial_cl_log=>mc_msgty-error_prio.   " Very important
 
     ENDCASE.
 
@@ -1109,7 +1109,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_success.
 
-    create_message( iv_msgty = zial_cl_log=>mc_log_type-success
+    create_message( iv_msgty = zial_cl_log=>mc_msgty-success
                     iv_msgtx = iv_msgtx
                     iv_msgno = iv_msgno
                     iv_msgv1 = iv_msgv1
@@ -1123,7 +1123,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_warning.
 
-    create_message( iv_msgty = zial_cl_log=>mc_log_type-warning
+    create_message( iv_msgty = zial_cl_log=>mc_msgty-warning
                     iv_msgtx = iv_msgtx
                     iv_msgno = iv_msgno
                     iv_msgv1 = iv_msgv1
