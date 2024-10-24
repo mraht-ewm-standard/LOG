@@ -257,16 +257,6 @@ CLASS zial_cl_log_sap DEFINITION
     METHODS delete_log.
 
   PRIVATE SECTION.
-    TYPES: BEGIN OF s_abap_callstack_entry,
-             mainprogram TYPE dbgsrepid,
-             include     TYPE dbgsrepid,
-             line        TYPE dbglinno,
-             eventtype   TYPE dbglevtype,
-             event       TYPE dbglevent,
-             flag_system TYPE c LENGTH 1,
-           END OF s_abap_callstack_entry,
-           tt_abap_callstack TYPE STANDARD TABLE OF s_abap_callstack_entry WITH DEFAULT KEY.
-
     DATA mv_has_error  TYPE abap_bool.
     DATA mv_save_error TYPE abap_bool.
 
