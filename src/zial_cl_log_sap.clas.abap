@@ -292,7 +292,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     ENDCASE.
 
-    zial_cl_session=>get_callstack( IMPORTING et_callstack = DATA(lt_callstack) ).
+    lcl_session=>get_callstack( IMPORTING et_callstack = DATA(lt_callstack) ).
     DELETE lt_callstack WHERE mainprogram CS mc_class_name.
 
     DATA(lv_line) = repeat( val = '-'
@@ -308,9 +308,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD add_message_context.
 
-    zial_cl_session=>get_context( IMPORTING ev_program   = DATA(lv_program)
-                                            ev_blockname = DATA(lv_include)
-                                            ev_line      = DATA(lv_line) ).
+    lcl_session=>get_context( IMPORTING ev_program   = DATA(lv_program)
+                                        ev_blockname = DATA(lv_include)
+                                        ev_line      = DATA(lv_line) ).
 
     ms_msg_context = VALUE #( value   = VALUE zial_s_log_context( program = lv_program
                                                                   include = lv_include
@@ -540,10 +540,10 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     CHECK mv_caller CO ' _0'.
 
-    zial_cl_session=>get_callstack( IMPORTING ev_function = DATA(lv_function)
-                                              ev_method   = DATA(lv_method)
-                                              ev_class    = DATA(lv_class)
-                                              ev_report   = DATA(lv_report) ).
+    lcl_session=>get_callstack( IMPORTING ev_function = DATA(lv_function)
+                                          ev_method   = DATA(lv_method)
+                                          ev_class    = DATA(lv_class)
+                                          ev_report   = DATA(lv_report) ).
 
     IF lv_function IS NOT INITIAL.
 
@@ -837,8 +837,8 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     ENDIF.
 
     TRY.
-        DATA(lv_duration) = cl_abap_tstmp=>subtract( tstmp1 = mv_process_end
-                                                     tstmp2 = mv_process_bgn ) * 1000.
+        DATA(lv_duration) = CONV tzntstmpl( cl_abap_tstmp=>subtract( tstmp1 = mv_process_end
+                                                                     tstmp2 = mv_process_bgn ) * 1000 ).
 
         MESSAGE s018(zial_log) WITH lv_duration INTO DATA(lv_msgtx).
         create_message( iv_msgty        = zial_cl_log=>mc_msgty-success
