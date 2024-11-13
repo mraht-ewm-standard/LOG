@@ -24,7 +24,6 @@ CLASS ltc_log_ewm DEFINITION FINAL
     METHODS teardown.
 
     METHODS t0001 FOR TESTING RAISING cx_static_check.
-
     METHODS t0002 FOR TESTING RAISING cx_static_check.
 
 ENDCLASS.

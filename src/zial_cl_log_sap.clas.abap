@@ -1,40 +1,47 @@
 "! <p class="shorttext synchronized">Logging: General Log</p>
 CLASS zial_cl_log_sap DEFINITION
   PUBLIC
-  CREATE PUBLIC.
+  CREATE PROTECTED.
 
   PUBLIC SECTION.
     TYPES t_spar TYPE STANDARD TABLE OF spar WITH DEFAULT KEY.
 
-    CONSTANTS mc_class_name TYPE classname VALUE 'ZIAL_CL_LOG_SAP'.
-
-    CONSTANTS: BEGIN OF mc_msgde_callback_type,
-                 form     TYPE baluet VALUE ' ',
-                 function TYPE baluet VALUE 'F',
-               END OF mc_msgde_callback_type.
-
-    CONSTANTS: BEGIN OF mc_msgde_callback,
-                 baluef      TYPE baluef VALUE 'ZIAL_FM_LOG_CALLBACK',
-                 baluep      TYPE baluep VALUE 'ZIAL_R_BS_LOG_CALLBACK',
-                 baluep_form TYPE baluef VALUE 'ON_CLICK_MSG_DETAIL',
-               END OF mc_msgde_callback.
+    CONSTANTS mc_class_name TYPE classname VALUE 'ZIAL_CL_LOG_SAP' ##NO_TEXT.
+    CONSTANTS:
+      BEGIN OF mc_msgde_callback_type,
+        form     TYPE baluet VALUE ' ',
+        function TYPE baluet VALUE 'F',
+      END OF mc_msgde_callback_type.
+    CONSTANTS:
+      BEGIN OF mc_msgde_callback,
+        baluef      TYPE baluef VALUE 'ZIAL_FM_LOG_CALLBACK',
+        baluep      TYPE baluep VALUE 'ZIAL_R_BS_LOG_CALLBACK',
+        baluep_form TYPE baluef VALUE 'ON_CLICK_MSG_DETAIL',
+      END OF mc_msgde_callback.
 
     CLASS-METHODS on_log_callback
       IMPORTING it_params TYPE t_spar.
 
     "! Initialize log instance
     "!
-    "! @parameter iv_object        | Log object
-    "! @parameter iv_subobject     | Log subobject
-    "! @parameter iv_extnumber     | External number / description for a log
-    "! @parameter it_extnumber     | External number elements
-    "! @parameter iv_callstack_lvl | Level of min. message type for which callstack is to be logged in message details
+    "! @parameter iv_object          | Log object
+    "! @parameter iv_subobject       | Log subobject
+    "! @parameter iv_extnumber       | External number / description for a log
+    "! @parameter it_extnumber       | External number elements
+    "! @parameter iv_detail_level    | Minimum message type level of messages to log
+    "! @parameter iv_validity_period | Days until expiration of log
+    "! @parameter iv_log_part_id     | ID for the new log as part of another log
     METHODS constructor
-      IMPORTING iv_object        TYPE balobj_d  DEFAULT zial_cl_log=>mc_default-log_object
-                iv_subobject     TYPE balsubobj DEFAULT zial_cl_log=>mc_default-log_subobject
-                iv_extnumber     TYPE balnrext  OPTIONAL
-                it_extnumber     TYPE stringtab OPTIONAL
-                iv_callstack_lvl TYPE numc1     DEFAULT zial_cl_log=>mc_callstack_lvl-info.
+      IMPORTING iv_object          TYPE balobj_d                    DEFAULT zial_cl_log=>mc_default-log_object
+                iv_subobject       TYPE balsubobj                   DEFAULT zial_cl_log=>mc_default-log_subobject
+                iv_extnumber       TYPE balnrext                    OPTIONAL
+                it_extnumber       TYPE stringtab                   OPTIONAL
+                iv_detail_level    TYPE zial_de_log_detail_level    OPTIONAL
+                iv_validity_period TYPE zial_de_log_validity_period OPTIONAL
+                iv_log_part_id     TYPE i                           DEFAULT 0.
+
+    METHODS get_log_handle
+      RETURNING VALUE(rv_log_handle) TYPE balloghndl.
 
     "! Get all logged messages
     "!
@@ -44,9 +51,25 @@ CLASS zial_cl_log_sap DEFINITION
 
     "! Log a message with optionally message details
     "!
+    "! @parameter iv_msgty | Message type
+    "! @parameter iv_msgtx | Message text
+    "! @parameter iv_msgid | Message ID
+    "! @parameter iv_msgno | Message number
+    "! @parameter iv_msgv1 | Message variable 1
+    "! @parameter iv_msgv2 | Message variable 2
+    "! @parameter iv_msgv3 | Message variable 3
+    "! @parameter iv_msgv4 | Message variable 4
     "! @parameter it_msgde | Message details
     METHODS log_message
-      IMPORTING it_msgde TYPE rsra_t_alert_definition OPTIONAL.
+      IMPORTING iv_msgty TYPE symsgty                 DEFAULT sy-msgty
+                iv_msgtx TYPE bapi_msg                OPTIONAL
+                iv_msgid TYPE symsgid                 DEFAULT sy-msgid
+                iv_msgno TYPE symsgno                 DEFAULT sy-msgno
+                iv_msgv1 TYPE symsgv                  DEFAULT sy-msgv1
+                iv_msgv2 TYPE symsgv                  DEFAULT sy-msgv2
+                iv_msgv3 TYPE symsgv                  DEFAULT sy-msgv3
+                iv_msgv4 TYPE symsgv                  DEFAULT sy-msgv4
+                it_msgde TYPE rsra_t_alert_definition OPTIONAL.
 
     "! Log exception
     "!
@@ -57,7 +80,7 @@ CLASS zial_cl_log_sap DEFINITION
     "! Log symsg messages
     "!
     "! @parameter is_symsg | SAP system message structure
-    METHODS log_sy_message
+    METHODS log_symsg
       IMPORTING is_symsg TYPE symsg.
 
     "! Log a table of bapi messages
@@ -69,82 +92,12 @@ CLASS zial_cl_log_sap DEFINITION
     "! Log a horizontal line
     "!
     METHODS log_line.
-
-    "! Log warning message
-    "!
-    "! @parameter iv_msgtx | Message text
-    "! @parameter iv_msgno | Message number
-    "! @parameter iv_msgv1 | Message variable 1
-    "! @parameter iv_msgv2 | Message variable 2
-    "! @parameter iv_msgv3 | Message variable 3
-    "! @parameter iv_msgv4 | Message variable 4
-    "! @parameter it_msgde | Message details
-    METHODS log_warning
-      IMPORTING iv_msgtx TYPE bapi_msg                OPTIONAL
-                iv_msgno TYPE symsgno                 OPTIONAL
-                iv_msgv1 TYPE symsgv                  OPTIONAL
-                iv_msgv2 TYPE symsgv                  OPTIONAL
-                iv_msgv3 TYPE symsgv                  OPTIONAL
-                iv_msgv4 TYPE symsgv                  OPTIONAL
-                it_msgde TYPE rsra_t_alert_definition OPTIONAL.
-
     "! Log name of development object which called the function to be logged
     "!
     METHODS log_caller.
 
-    "! Log info message
-    "!
-    "! @parameter iv_msgtx | Message text
-    "! @parameter iv_msgno | Message number
-    "! @parameter iv_msgv1 | Message variable 1
-    "! @parameter iv_msgv2 | Message variable 2
-    "! @parameter iv_msgv3 | Message variable 3
-    "! @parameter iv_msgv4 | Message variable 4
-    "! @parameter it_msgde | Message details
-    METHODS log_info
-      IMPORTING iv_msgtx TYPE bapi_msg                OPTIONAL
-                iv_msgno TYPE symsgno                 OPTIONAL
-                iv_msgv1 TYPE symsgv                  OPTIONAL
-                iv_msgv2 TYPE symsgv                  OPTIONAL
-                iv_msgv3 TYPE symsgv                  OPTIONAL
-                iv_msgv4 TYPE symsgv                  OPTIONAL
-                it_msgde TYPE rsra_t_alert_definition OPTIONAL.
-
-    "! Log success message
-    "!
-    "! @parameter iv_msgtx | Message text
-    "! @parameter iv_msgno | Message number
-    "! @parameter iv_msgv1 | Message variable 1
-    "! @parameter iv_msgv2 | Message variable 2
-    "! @parameter iv_msgv3 | Message variable 3
-    "! @parameter iv_msgv4 | Message variable 4
-    "! @parameter it_msgde | Message details
-    METHODS log_success
-      IMPORTING iv_msgtx TYPE bapi_msg                OPTIONAL
-                iv_msgno TYPE symsgno                 OPTIONAL
-                iv_msgv1 TYPE symsgv                  OPTIONAL
-                iv_msgv2 TYPE symsgv                  OPTIONAL
-                iv_msgv3 TYPE symsgv                  OPTIONAL
-                iv_msgv4 TYPE symsgv                  OPTIONAL
-                it_msgde TYPE rsra_t_alert_definition OPTIONAL.
-
-    "! Log error message
-    "!
-    "! @parameter iv_msgtx | Message text
-    "! @parameter iv_msgno | Message number
-    "! @parameter iv_msgv1 | Message variable 1
-    "! @parameter iv_msgv2 | Message variable 2
-    "! @parameter iv_msgv3 | Message variable 3
-    "! @parameter iv_msgv4 | Message variable 4
-    "! @parameter it_msgde | Message details
-    METHODS log_error
-      IMPORTING iv_msgtx TYPE bapi_msg                OPTIONAL
-                iv_msgno TYPE symsgno                 OPTIONAL
-                iv_msgv1 TYPE symsgv                  OPTIONAL
-                iv_msgv2 TYPE symsgv                  OPTIONAL
-                iv_msgv3 TYPE symsgv                  OPTIONAL
-                iv_msgv4 TYPE symsgv                  OPTIONAL
-                it_msgde TYPE rsra_t_alert_definition OPTIONAL.
+    METHODS has_error
+      RETURNING VALUE(rv_result) TYPE abap_bool.
 
     "! Save log to application log and optionally close log instance
     "!
@@ -152,43 +105,32 @@ CLASS zial_cl_log_sap DEFINITION
     METHODS save
       IMPORTING iv_finalize TYPE abap_bool DEFAULT abap_true.
 
-    METHODS has_error RETURNING VALUE(rv_result) TYPE abap_bool.
+    METHODS is_log_part
+      RETURNING VALUE(rv_result) TYPE abap_bool.
 
   PROTECTED SECTION.
-    DATA mv_validity_in_days  TYPE i VALUE 180.
-    DATA mv_process_bgn       TYPE timestampl.
-    DATA mv_process_end       TYPE timestampl.
+    TYPES: BEGIN OF s_processing_control,
+             has_error   TYPE abap_bool,
+             save_error  TYPE abap_bool,
+             log_part_id TYPE i,
+           END OF s_processing_control.
 
-    DATA mv_caller            TYPE c LENGTH 200.
-    DATA mv_callstack_lvl     TYPE numc1.
+    DATA ms_processing_control TYPE s_processing_control.
 
-    DATA mv_msg_text          TYPE bapi_msg.
-    DATA mv_msg_type          TYPE symsgty.
-    DATA mv_msg_content_type  TYPE numc1.
-    DATA mv_msg_class         TYPE symsgid.
-    DATA ms_msg_params        TYPE bal_s_parm.
-    DATA mv_msg_number        TYPE symsgno.
-    DATA mv_msg_var1          TYPE symsgv.
-    DATA mv_msg_var2          TYPE symsgv.
-    DATA mv_msg_var3          TYPE symsgv.
-    DATA mv_msg_var4          TYPE symsgv.
-    DATA mv_msg_priority      TYPE balprobcl.
-    DATA ms_msg_context       TYPE bal_s_cont.
+    DATA mv_process_bgn        TYPE timestampl.
+    DATA mv_process_end        TYPE timestampl.
+    DATA mv_caller             TYPE c LENGTH 200.
+    DATA mt_bapiret2           TYPE bapiret2_t.
 
-    DATA mv_log_handle        TYPE balloghndl.
-    DATA ms_log_header        TYPE bal_s_log.
-    DATA mt_log_messages      TYPE bapirettab.
-    DATA mv_log_counter       TYPE i.
+    DATA ms_log                TYPE zial_s_log_msg.
 
-    DATA mv_msg_param_id      TYPE zial_cl_log=>v_message_param_id.
-    DATA ms_msg_details       TYPE zial_s_msg_details.
-    DATA mt_msg_details       TYPE zial_tt_msg_details.
-    DATA mt_msg_details_input TYPE rsra_t_alert_definition.
+    DATA mv_msg_param_id       TYPE zial_cl_log=>v_message_param_id.
+    DATA ms_msg_details        TYPE zial_s_msg_details.
+    DATA mt_msg_details        TYPE zial_tt_msg_details.
 
     CLASS-METHODS error_handling
       IMPORTING iv_process        TYPE char4
                 iv_subrc          TYPE sysubrc
-                io_exception      TYPE REF TO cx_root
                 is_log_msg        TYPE zial_s_log_msg
       RETURNING VALUE(rt_bapiret) TYPE bapirettab.
 
@@ -200,34 +142,41 @@ CLASS zial_cl_log_sap DEFINITION
       IMPORTING iv_extnumber TYPE balnrext
                 it_extnumber TYPE stringtab.
 
-    METHODS add_msg_to_log_protocol
-      IMPORTING is_msg_handle TYPE balmsghndl.
+    METHODS has_msg_added_to_log
+      IMPORTING is_msg_handle    TYPE balmsghndl OPTIONAL
+      RETURNING VALUE(rv_result) TYPE abap_bool.
 
-    METHODS build_extnumber
+    METHODS set_extnumber
       IMPORTING iv_extnumber TYPE balnrext  OPTIONAL
                 it_extnumber TYPE stringtab OPTIONAL.
 
+    METHODS handle_full_log
+      RETURNING VALUE(rv_result) TYPE abap_bool.
+
     METHODS handle_error
-      IMPORTING iv_process   TYPE char4
-                iv_subrc     TYPE sysubrc        OPTIONAL
-                io_exception TYPE REF TO cx_root OPTIONAL.
+      IMPORTING iv_process TYPE char4
+                iv_subrc   TYPE sysubrc.
 
     METHODS set_priority.
 
     METHODS set_content
-      IMPORTING iv_msgid TYPE symsgid
-                iv_msgty TYPE symsgty
-                iv_msgtx TYPE bapi_msg
-                iv_msgno TYPE symsgno
-                iv_msgv1 TYPE symsgv
-                iv_msgv2 TYPE symsgv
-                iv_msgv3 TYPE symsgv
-                iv_msgv4 TYPE symsgv.
+      IMPORTING iv_msgty              TYPE symsgty
+                iv_msgtx              TYPE bapi_msg
+                iv_msgid              TYPE symsgid
+                iv_msgno              TYPE symsgno
+                iv_msgv1              TYPE symsgv
+                iv_msgv2              TYPE symsgv
+                iv_msgv3              TYPE symsgv
+                iv_msgv4              TYPE symsgv
+      RETURNING VALUE(rs_log_message) TYPE zial_s_log_msg.
+
+    METHODS set_log_part_id
+      IMPORTING iv_log_part_id TYPE i.
 
     METHODS create_message
-      IMPORTING iv_msgid        TYPE symsgid                 OPTIONAL
-                iv_msgty        TYPE symsgty
+      IMPORTING iv_msgty        TYPE symsgty
                 iv_msgtx        TYPE bapi_msg                OPTIONAL
+                iv_msgid        TYPE symsgid                 OPTIONAL
                 iv_msgno        TYPE symsgno                 OPTIONAL
                 iv_msgv1        TYPE symsgv                  OPTIONAL
                 iv_msgv2        TYPE symsgv                  OPTIONAL
@@ -236,200 +185,181 @@ CLASS zial_cl_log_sap DEFINITION
                 it_msgde        TYPE rsra_t_alert_definition OPTIONAL
                 iv_is_dummy_msg TYPE abap_bool               DEFAULT abap_false.
 
-    METHODS add_msg_by_message_text.
-    METHODS add_msg_by_message_object.
-
     METHODS add_timestamp
       RETURNING VALUE(rv_time) TYPE symsgv.
 
-    METHODS build_validity.
-    METHODS add_message_context.
-    METHODS add_message_callstack.
+    METHODS set_detail_level.
+    METHODS set_expiry_date.
+
+    METHODS set_context.
+
+    METHODS set_callstack
+      CHANGING ct_msgde TYPE rsra_t_alert_definition.
+
+    METHODS add_msg_by_message_text
+      IMPORTING is_log_msg           TYPE zial_s_log_msg
+      RETURNING VALUE(rs_msg_handle) TYPE balmsghndl.
+
+    METHODS add_msg_by_message_object
+      IMPORTING is_log_msg           TYPE zial_s_log_msg
+      RETURNING VALUE(rs_msg_handle) TYPE balmsghndl.
+
     METHODS log_duration.
     METHODS det_caller.
-    METHODS save_log.
-    METHODS add_message_detail.
+
+    METHODS save_log
+      IMPORTING iv_log_handle TYPE balloghndl.
+
+    METHODS set_detail
+      IMPORTING it_msgde TYPE rsra_t_alert_definition.
 
     METHODS save_msgde
       IMPORTING it_new_lognumbers TYPE bal_t_lgnm.
 
-    METHODS create_log.
-    METHODS delete_log.
+    METHODS create_log
+      IMPORTING is_log_header        TYPE bal_s_log
+      RETURNING VALUE(rv_log_handle) TYPE balloghndl.
+
+    METHODS create_and_save_error_log
+      IMPORTING iv_process TYPE char4
+                iv_subrc   TYPE sysubrc
+                is_log_msg TYPE zial_s_log_msg.
+
+    METHODS is_valid_detail_level
+      IMPORTING iv_msgty         TYPE msgty
+      RETURNING VALUE(rv_result) TYPE abap_bool.
+
+    METHODS add_msg_to_appl_log.
 
   PRIVATE SECTION.
-    DATA mv_has_error  TYPE abap_bool.
-    DATA mv_save_error TYPE abap_bool.
+    METHODS is_log_getting_full
+      RETURNING VALUE(rv_result) TYPE abap_bool.
 
 ENDCLASS.
 
 
 CLASS zial_cl_log_sap IMPLEMENTATION.
 
-  METHOD add_message_callstack.
-
-    CHECK mv_callstack_lvl GT 0.
-
-    CASE mv_msg_type.
-      WHEN zial_cl_log=>mc_msgty-info.
-        IF mv_callstack_lvl LT zial_cl_log=>mc_callstack_lvl-info.
-          RETURN.
-        ENDIF.
-
-      WHEN zial_cl_log=>mc_msgty-success.
-        IF mv_callstack_lvl LT zial_cl_log=>mc_callstack_lvl-success.
-          RETURN.
-        ENDIF.
-
-      WHEN zial_cl_log=>mc_msgty-warning.
-        IF mv_callstack_lvl LT zial_cl_log=>mc_callstack_lvl-warning.
-          RETURN.
-        ENDIF.
-
-      WHEN zial_cl_log=>mc_msgty-error.
-        IF mv_callstack_lvl LT zial_cl_log=>mc_callstack_lvl-error.
-          RETURN.
-        ENDIF.
-
-    ENDCASE.
+  METHOD set_callstack.
 
     lcl_session=>get_callstack( IMPORTING et_callstack = DATA(lt_callstack) ).
     DELETE lt_callstack WHERE mainprogram CS mc_class_name.
 
     DATA(lv_line) = repeat( val = '-'
                             occ = 80 ).
-    INSERT VALUE #( low = lv_line ) INTO TABLE mt_msg_details_input.
+    INSERT VALUE #( low = lv_line ) INTO TABLE ct_msgde.
     INSERT LINES OF VALUE rsra_t_alert_definition( FOR <s_callstack> IN lt_callstack
                                                    ( low = |{ <s_callstack>-mainprogram }=>| &&
                                                            |{ <s_callstack>-event }, { TEXT-002 } | &&
-                                                           |{ <s_callstack>-line }| ) ) INTO TABLE mt_msg_details_input.
+                                                           |{ <s_callstack>-line }| ) ) INTO TABLE ct_msgde.
 
   ENDMETHOD.
 
 
-  METHOD add_message_context.
+  METHOD is_valid_detail_level.
+
+    CHECK ms_log-hdr-detail_level GT 0.
+
+    DATA(lv_detail_level) = SWITCH #( iv_msgty
+                                      WHEN zial_cl_log=>mc_msgty-info    THEN zial_cl_log=>mc_detail_level-info
+                                      WHEN zial_cl_log=>mc_msgty-success THEN zial_cl_log=>mc_detail_level-success
+                                      WHEN zial_cl_log=>mc_msgty-warning THEN zial_cl_log=>mc_detail_level-warning
+                                      WHEN zial_cl_log=>mc_msgty-error   THEN zial_cl_log=>mc_detail_level-error ).
+
+    CHECK lv_detail_level LE ms_log-hdr-detail_level.
+    rv_result = abap_true.
+
+  ENDMETHOD.
+
+
+  METHOD set_context.
 
     lcl_session=>get_context( IMPORTING ev_program   = DATA(lv_program)
                                         ev_blockname = DATA(lv_include)
                                         ev_line      = DATA(lv_line) ).
 
-    ms_msg_context = VALUE #( value   = VALUE zial_s_log_context( program = lv_program
-                                                                  include = lv_include
-                                                                  line    = lv_line )
-                              tabname = zial_cl_log=>mc_log_context_struct ).
+    ms_log-msg-context = VALUE #( value   = VALUE zial_s_log_context( program = lv_program
+                                                                      include = lv_include
+                                                                      line    = lv_line )
+                                  tabname = zial_cl_log=>mc_log_context_struct ).
 
   ENDMETHOD.
 
 
-  METHOD add_message_detail.
+  METHOD set_detail.
 
-    CHECK mt_msg_details_input IS NOT INITIAL.
+    CHECK it_msgde IS NOT INITIAL.
 
     " Add message identifier, s. include LSBAL_DETAILF02 (example: SBAL_CALLBACK)
-    ms_msg_params-callback = VALUE #( userexitf = mc_msgde_callback-baluef
-                                      userexitt = mc_msgde_callback_type-function ).
+    ms_log-msg-params-callback = VALUE #( userexitf = mc_msgde_callback-baluef
+                                          userexitt = mc_msgde_callback_type-function ).
 
     mv_msg_param_id = mv_msg_param_id + 1.
     INSERT VALUE #( parname  = zial_cl_log=>mc_msg_ident
-                    parvalue = mv_msg_param_id ) INTO TABLE ms_msg_params-t_par.
+                    parvalue = mv_msg_param_id ) INTO TABLE ms_log-msg-params-t_par.
 
     INSERT VALUE #( v_id              = mv_msg_param_id
-                    t_input_parameter = mt_msg_details_input ) INTO TABLE mt_msg_details.
-
-    CLEAR mt_msg_details_input.
+                    t_input_parameter = it_msgde ) INTO TABLE mt_msg_details.
 
   ENDMETHOD.
 
 
   METHOD add_msg_by_message_object.
 
-    DATA(ls_msg) = VALUE bal_s_msg( msgty     = mv_msg_type
-                                    probclass = mv_msg_priority
-                                    context   = ms_msg_context
-                                    params    = ms_msg_params
-                                    msgid     = mv_msg_class
-                                    msgno     = mv_msg_number
-                                    msgv1     = mv_msg_var1
-                                    msgv2     = mv_msg_var2
-                                    msgv3     = mv_msg_var3
-                                    msgv4     = mv_msg_var4 ).
-
-    DATA(ls_msg_handle) = VALUE balmsghndl( ).
+    DATA(ls_bal_msg) = CORRESPONDING bal_s_msg( is_log_msg-msg ).
     CALL FUNCTION 'BAL_LOG_MSG_ADD'
-      EXPORTING  i_log_handle     = mv_log_handle
-                 i_s_msg          = ls_msg
-      IMPORTING  e_s_msg_handle   = ls_msg_handle
+      EXPORTING  i_log_handle     = is_log_msg-hdr-log_handle
+                 i_s_msg          = ls_bal_msg
+      IMPORTING  e_s_msg_handle   = rs_msg_handle
       EXCEPTIONS log_not_found    = 1
                  msg_inconsistent = 2
                  log_is_full      = 3
                  OTHERS           = 4.
 
-    CASE sy-subrc.
-      WHEN 0.
-        add_msg_to_log_protocol( ls_msg_handle ).
-
-      WHEN OTHERS.
-        handle_error( iv_process = zial_cl_log=>mc_log_process-create
-                      iv_subrc   = sy-subrc ).
-
-    ENDCASE.
+    IF sy-subrc NE 0.
+      handle_error( iv_process = zial_cl_log=>mc_log_process-add_msg
+                    iv_subrc   = sy-subrc ).
+    ENDIF.
 
   ENDMETHOD.
 
 
   METHOD add_msg_by_message_text.
 
-    DATA(ls_msg_handle) = VALUE balmsghndl( ).
     CALL FUNCTION 'BAL_LOG_MSG_ADD_FREE_TEXT'
-      EXPORTING  i_log_handle     = mv_log_handle
-                 i_msgty          = mv_msg_type
-                 i_probclass      = mv_msg_priority
-                 i_s_context      = ms_msg_context
-                 i_text           = mv_msg_text
-                 i_s_params       = ms_msg_params
-      IMPORTING  e_s_msg_handle   = ls_msg_handle
+      EXPORTING  i_log_handle     = is_log_msg-hdr-log_handle
+                 i_msgty          = is_log_msg-msg-msgty
+                 i_probclass      = is_log_msg-msg-probclass
+                 i_s_context      = is_log_msg-msg-context
+                 i_text           = is_log_msg-msg-msgtx
+                 i_s_params       = is_log_msg-msg-params
+      IMPORTING  e_s_msg_handle   = rs_msg_handle
       EXCEPTIONS log_not_found    = 1
                  msg_inconsistent = 2
                  log_is_full      = 3
                  OTHERS           = 4.
 
-    CASE sy-subrc.
-      WHEN 0.
-        add_msg_to_log_protocol( ls_msg_handle ).
-
-      WHEN OTHERS.
-        handle_error( iv_process = zial_cl_log=>mc_log_process-create
-                      iv_subrc   = sy-subrc ).
-
-    ENDCASE.
+    IF sy-subrc NE 0.
+      handle_error( iv_process = zial_cl_log=>mc_log_process-add_msg
+                    iv_subrc   = sy-subrc ).
+    ENDIF.
 
   ENDMETHOD.
 
 
-  METHOD add_msg_to_log_protocol.
+  METHOD has_msg_added_to_log.
 
-    DATA(ls_msg) = VALUE bal_s_msg( ).
-
-    CALL FUNCTION 'BAL_LOG_MSG_READ'
-      EXPORTING  i_s_msg_handle = is_msg_handle
-      IMPORTING  e_s_msg        = ls_msg
-      EXCEPTIONS log_not_found  = 1
-                 msg_not_found  = 2
-                 OTHERS         = 3.
-
-    CASE sy-subrc.
-      WHEN 0.
-        mv_log_counter = mv_log_counter + 1.
-
-        DATA(ls_bapiret) = zial_cl_log=>to_bapiret( iv_msgid = ls_msg-msgid
-                                                    iv_msgty = ls_msg-msgty
-                                                    iv_msgno = ls_msg-msgno
-                                                    iv_msgv1 = ls_msg-msgv1
-                                                    iv_msgv2 = ls_msg-msgv2
-                                                    iv_msgv3 = ls_msg-msgv3
-                                                    iv_msgv4 = ls_msg-msgv4 ).
-        INSERT ls_bapiret INTO TABLE mt_log_messages.
-
-    ENDCASE.
+    IF is_msg_handle IS NOT INITIAL.
+      CALL FUNCTION 'BAL_LOG_MSG_READ'
+        EXPORTING  i_s_msg_handle = is_msg_handle
+        EXCEPTIONS log_not_found  = 1
+                   msg_not_found  = 2
+                   OTHERS         = 3.
+      CHECK sy-subrc EQ 0.
+      rv_result = abap_true.
+    ELSE.
+      rv_result = abap_true.
+    ENDIF.
 
   ENDMETHOD.
 
@@ -448,7 +378,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD build_extnumber.
+  METHOD set_extnumber.
 
     DATA(lt_extnumber) = VALUE stringtab( ).
 
@@ -466,10 +396,10 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
       CASE sy-tabix.
         WHEN 1.
-          ms_log_header-extnumber = |{ <lv_extnumber> }|.
+          ms_log-hdr-extnumber = |{ <lv_extnumber> }|.
 
         WHEN OTHERS.
-          ms_log_header-extnumber = |{ ms_log_header-extnumber } { <lv_extnumber> }|.
+          ms_log-hdr-extnumber = |{ ms_log-hdr-extnumber } { <lv_extnumber> }|.
 
       ENDCASE.
 
@@ -478,30 +408,53 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     IF lt_extnumber IS INITIAL.
 
       SELECT SINGLE subobjtxt FROM balsubt
-        INTO @ms_log_header-extnumber
+        INTO @ms_log-hdr-extnumber
         WHERE spras     EQ @sy-langu
-          AND object    EQ @ms_log_header-object
-          AND subobject EQ @ms_log_header-subobject.
+          AND object    EQ @ms_log-hdr-object
+          AND subobject EQ @ms_log-hdr-subobject.
 
     ENDIF.
 
   ENDMETHOD.
 
 
-  METHOD build_validity.
+  METHOD set_detail_level.
 
-    CHECK mv_validity_in_days GT 0.
+    DATA(ls_log_conf) = zial_cl_log_conf=>get( iv_object    = ms_log-hdr-object
+                                               iv_subobject = ms_log-hdr-subobject
+                                               iv_uname     = sy-uname ).
+    IF ls_log_conf IS INITIAL.
+      ms_log-hdr-detail_level = zial_cl_log_conf=>mc_default-detail_level.
+    ELSE.
+      ms_log-hdr-detail_level = ls_log_conf-detail_level.
+    ENDIF.
 
-    ms_log_header-aldate_del = sy-datum + mv_validity_in_days.
+  ENDMETHOD.
+
+
+  METHOD set_expiry_date.
+
+    DATA(lv_validity_period) = zial_cl_log_conf=>get( iv_object    = ms_log-hdr-object
+                                                      iv_subobject = ms_log-hdr-subobject
+                                                      iv_uname     = sy-uname )-validity_period.
+    IF lv_validity_period LE 0.
+      lv_validity_period = zial_cl_log_conf=>mc_default-validity_period.
+    ENDIF.
+
+    IF ms_log-hdr-aldate IS INITIAL.
+      ms_log-hdr-aldate = sy-datum.
+    ENDIF.
+    ms_log-hdr-validity_period = lv_validity_period.
+    ms_log-hdr-aldate_del      = ms_log-hdr-aldate + lv_validity_period.
 
   ENDMETHOD.
 
 
   METHOD create_message.
 
-    set_content( iv_msgid = iv_msgid
-                 iv_msgty = iv_msgty
+    set_content( iv_msgty = iv_msgty
                  iv_msgtx = iv_msgtx
+                 iv_msgid = iv_msgid
                  iv_msgno = iv_msgno
                  iv_msgv1 = iv_msgv1
                  iv_msgv2 = iv_msgv2
@@ -510,28 +463,18 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     IF iv_is_dummy_msg EQ abap_false.
 
-      mt_msg_details_input = it_msgde.
-
       set_priority( ).
 
-      add_message_context( ).
+      set_context( ).
 
-      add_message_callstack( ).
+      DATA(lt_msgde) = it_msgde.
+      set_callstack( CHANGING ct_msgde = lt_msgde ).
 
-      add_message_detail( ).
+      set_detail( it_msgde ).
 
     ENDIF.
 
-    CASE mv_msg_content_type.
-      WHEN zial_cl_log=>mc_msg_content_type-obj.
-        add_msg_by_message_object( ).
-
-      WHEN zial_cl_log=>mc_msg_content_type-txt.
-        add_msg_by_message_text( ).
-
-    ENDCASE.
-
-    CLEAR ms_msg_params.
+    add_msg_to_appl_log( ).
 
   ENDMETHOD.
 
@@ -540,43 +483,62 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     CHECK mv_caller CO ' _0'.
 
-    lcl_session=>get_callstack( IMPORTING ev_function = DATA(lv_function)
-                                          ev_method   = DATA(lv_method)
-                                          ev_class    = DATA(lv_class)
-                                          ev_report   = DATA(lv_report) ).
+    lcl_session=>get_callstack( IMPORTING ev_object  = DATA(lv_object)
+                                          ev_routine = DATA(lv_routine) ).
 
-    IF lv_function IS NOT INITIAL.
-
-      mv_caller = lv_function.
-
-    ELSEIF lv_class  IS NOT INITIAL
-       AND lv_method IS NOT INITIAL.
-
-      CONCATENATE lv_class '=>' lv_method INTO mv_caller.
-
-    ELSEIF lv_report IS NOT INITIAL.
-
-      mv_caller = lv_report.
-
+    IF lv_object IS NOT INITIAL.
+      mv_caller = lv_object.
     ELSE.
-
       RETURN.
+    ENDIF.
 
+    IF lv_routine IS NOT INITIAL.
+      mv_caller = |{ mv_caller }=>{ lv_routine }|.
     ENDIF.
 
   ENDMETHOD.
 
 
-  METHOD log_error.
+  METHOD handle_full_log.
 
-    create_message( iv_msgty = zial_cl_log=>mc_msgty-error
-                    iv_msgtx = iv_msgtx
-                    iv_msgno = iv_msgno
-                    iv_msgv1 = iv_msgv1
-                    iv_msgv2 = iv_msgv2
-                    iv_msgv3 = iv_msgv3
-                    iv_msgv4 = iv_msgv4
-                    it_msgde = it_msgde ).
+    CHECK is_log_getting_full( ) EQ abap_true.
+
+    DATA(ls_log) = ms_log.
+    ms_processing_control-log_part_id = zial_cl_log=>get_next_log_part_id( ).
+
+    zial_cl_log=>save( ).
+
+    DATA(lo_log) = CAST zial_cl_log_sap( zial_cl_log=>create( iv_object    = ls_log-hdr-object
+                                                              iv_subobject = ls_log-hdr-subobject
+                                                              iv_extnumber = ls_log-hdr-extnumber ) ).
+    lo_log->set_log_part_id( ms_processing_control-log_part_id + 1 ).
+
+    lo_log->log_message( iv_msgty = ls_log-msg-msgty
+                         iv_msgtx = ls_log-msg-msgtx
+                         iv_msgid = ls_log-msg-msgid
+                         iv_msgno = ls_log-msg-msgno
+                         iv_msgv1 = ls_log-msg-msgv1
+                         iv_msgv2 = ls_log-msg-msgv2
+                         iv_msgv3 = ls_log-msg-msgv3
+                         iv_msgv4 = ls_log-msg-msgv4
+                         it_msgde = ls_log-msg-msgde ).
+
+    lo_log->set_log_part_id( 0 ).
+
+    rv_result = abap_true.
+
+  ENDMETHOD.
+
+
+  METHOD set_log_part_id.
+
+    ms_processing_control-log_part_id = iv_log_part_id.
+
+    IF ms_processing_control-log_part_id GT 0.
+      MESSAGE s020(zial_log) WITH zial_cl_log_conf=>mc_default-max_num_of_entries
+                                  ms_processing_control-log_part_id INTO DATA(lv_msgtx) ##NEEDED.
+      log_message( ).
+    ENDIF.
 
   ENDMETHOD.
 
@@ -584,63 +546,39 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   METHOD handle_error.
 
     " Ensures that error handling is only executed once for each error to avoid endless loop
-    CHECK mv_has_error  EQ abap_false
-      AND mv_save_error EQ abap_false.
-    mv_has_error = abap_true.
+    CHECK ms_processing_control-has_error  EQ abap_false
+      AND ms_processing_control-save_error EQ abap_false.
 
-    " Backup input data
-    DATA(ls_log_msg) = VALUE zial_s_log_msg( hdr = VALUE #( object     = ms_log_header-object
-                                                            subobject  = ms_log_header-subobject
-                                                            extnumber  = ms_log_header-extnumber
-                                                            aldate_del = ms_log_header-aldate_del )
-                                             msg = VALUE #( msgid = mv_msg_class
-                                                            msgty = mv_msg_type
-                                                            msgtx = mv_msg_text
-                                                            msgno = mv_msg_number
-                                                            msgv1 = mv_msg_var1
-                                                            msgv2 = mv_msg_var2
-                                                            msgv3 = mv_msg_var3
-                                                            msgv4 = mv_msg_var4 ) ).
+    ms_processing_control-has_error = abap_true.
+
+    DATA(ls_log) = ms_log.
 
     " Try to add error messages regarding failed logging to old log
-    MESSAGE e001(zial_log) INTO DATA(lv_msg) ##NEEDED.
+    MESSAGE e001(zial_log) INTO DATA(lv_msgtx) ##NEEDED.
     log_message( ).
 
-    " Close existing log and create a new one for error handling
-    save( ).
+    zial_cl_log=>save( ).
 
-    DATA(lo_log_sap) = NEW zial_cl_log_sap( iv_object    = zial_cl_log=>mc_default-log_object
-                                            iv_subobject = zial_cl_log=>mc_default-log_subobject
-                                            iv_extnumber = TEXT-000 ).
-
-    DATA(lt_bapiret) = error_handling( iv_process   = iv_process
-                                       iv_subrc     = iv_subrc
-                                       io_exception = io_exception
-                                       is_log_msg   = ls_log_msg ).
-    lo_log_sap->log_bapiret( lt_bapiret ).
-
-    " Enable saving of the error log
-    lo_log_sap->mv_save_error = abap_true.
-
-    " Save log for error logging
-    lo_log_sap->save_log( ).
+    create_and_save_error_log( iv_process = iv_process
+                               iv_subrc   = iv_subrc
+                               is_log_msg = ls_log ).
 
     " Error handling could be executed again
-    mv_has_error  = abap_false.
-    mv_save_error = abap_false.
+    ms_processing_control-has_error  = abap_false.
+    ms_processing_control-save_error = abap_false.
 
   ENDMETHOD.
 
 
   METHOD error_handling.
 
-    MESSAGE e017(zial_log) WITH iv_process INTO DATA(lv_msg) ##NEEDED.
+    MESSAGE e017(zial_log) WITH iv_process INTO DATA(lv_msgtx) ##NEEDED.
     INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
     " Log general log data
-    DATA(lv_msg_txt_gen) = CONV bapi_msg( |; OBJECT: { is_log_msg-hdr-object }; | &&
-                                          |SUBOBJ: { is_log_msg-hdr-subobject }| &&
-                                          |; EXTNUM: { is_log_msg-hdr-extnumber }; | &&
+    DATA(lv_msg_txt_gen) = CONV bapi_msg( |OBJECT: { is_log_msg-hdr-object }; | &&
+                                          |SUBOBJ: { is_log_msg-hdr-subobject }; | &&
+                                          |EXTNUM: { is_log_msg-hdr-extnumber }; | &&
                                           |ALDDEL: { is_log_msg-hdr-aldate_del }| ).
     INSERT zial_cl_log=>to_bapiret( iv_msgty = zial_cl_log=>mc_msgty-error
                                     iv_msgtx = lv_msg_txt_gen ) INTO TABLE rt_bapiret.
@@ -648,44 +586,24 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     CASE iv_process.
       WHEN zial_cl_log=>mc_log_process-init.
         CASE iv_subrc.
-          WHEN 1.
-            MESSAGE e006(zial_log) WITH iv_subrc INTO lv_msg.
-
-          WHEN OTHERS.
-            MESSAGE e007(zial_log) WITH iv_subrc INTO lv_msg.
-
+          WHEN 1. MESSAGE e006(zial_log) WITH iv_subrc INTO lv_msgtx.
+          WHEN OTHERS. MESSAGE e007(zial_log) WITH iv_subrc INTO lv_msgtx.
         ENDCASE.
 
       WHEN zial_cl_log=>mc_log_process-save.
         CASE iv_subrc.
-          WHEN 1.
-            MESSAGE e008(zial_log) WITH iv_subrc INTO lv_msg.
-
-          WHEN 2.
-            MESSAGE e009(zial_log) WITH iv_subrc INTO lv_msg.
-
-          WHEN 3.
-            MESSAGE e010(zial_log) WITH iv_subrc INTO lv_msg.
-
-          WHEN OTHERS.
-            MESSAGE e011(zial_log) WITH iv_subrc INTO lv_msg.
-
+          WHEN 1. MESSAGE e008(zial_log) WITH iv_subrc INTO lv_msgtx.
+          WHEN 2. MESSAGE e009(zial_log) WITH iv_subrc INTO lv_msgtx.
+          WHEN 3. MESSAGE e010(zial_log) WITH iv_subrc INTO lv_msgtx.
+          WHEN OTHERS. MESSAGE e011(zial_log) WITH iv_subrc INTO lv_msgtx.
         ENDCASE.
 
       WHEN OTHERS.
         CASE sy-subrc.
-          WHEN 1.
-            MESSAGE e008(zial_log) WITH iv_subrc INTO lv_msg.
-
-          WHEN 2.
-            MESSAGE e012(zial_log) WITH iv_subrc INTO lv_msg.
-
-          WHEN 3.
-            MESSAGE e013(zial_log) WITH iv_subrc INTO lv_msg.
-
-          WHEN OTHERS.
-            MESSAGE e014(zial_log) WITH iv_subrc INTO lv_msg.
-
+          WHEN 1. MESSAGE e008(zial_log) WITH iv_subrc INTO lv_msgtx.
+          WHEN 2. MESSAGE e012(zial_log) WITH iv_subrc INTO lv_msgtx.
+          WHEN 3. MESSAGE e013(zial_log) WITH iv_subrc INTO lv_msgtx.
+          WHEN OTHERS. MESSAGE e014(zial_log) WITH iv_subrc INTO lv_msgtx.
         ENDCASE.
 
     ENDCASE.
@@ -700,33 +618,27 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
       WHEN zial_cl_log=>mc_log_process-create.
         IF is_log_msg-msg-msgtx CN ' _0'.
 
-          MESSAGE e015(zial_log) WITH is_log_msg-msg-msgty INTO lv_msg.
+          MESSAGE e015(zial_log) WITH is_log_msg-msg-msgty INTO lv_msgtx.
           INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
         ELSEIF is_log_msg-msg-msgno CN ' _0'.
 
           MESSAGE e003(zial_log) WITH is_log_msg-msg-msgno
-                                      is_log_msg-msg-msgid INTO lv_msg.
+                                      is_log_msg-msg-msgid INTO lv_msgtx.
           INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
           MESSAGE e004(zial_log) WITH is_log_msg-msg-msgv1
                                       is_log_msg-msg-msgv2
                                       is_log_msg-msg-msgv3
-                                      is_log_msg-msg-msgv4 INTO lv_msg.
+                                      is_log_msg-msg-msgv4 INTO lv_msgtx.
           INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
         ELSE.
 
-          MESSAGE e002(zial_log) INTO lv_msg.
+          MESSAGE e002(zial_log) INTO lv_msgtx.
           INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
         ENDIF.
-
-      WHEN zial_cl_log=>mc_log_process-exception.
-        DATA(lo_exc_descr) = NEW cl_instance_description( io_exception ).
-
-        MESSAGE e005(zial_log) WITH lo_exc_descr->class_name INTO lv_msg.
-        INSERT zial_cl_log=>to_bapiret( ) INTO TABLE rt_bapiret.
 
       WHEN zial_cl_log=>mc_log_process-save.
         " Nothing to log
@@ -736,58 +648,60 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_messages.
+  METHOD get_log_handle.
 
-    rt_messages = mt_log_messages.
+    rv_log_handle = ms_log-hdr-log_handle.
 
   ENDMETHOD.
 
 
-  METHOD log_info.
+  METHOD get_messages.
 
-    create_message( iv_msgty = zial_cl_log=>mc_msgty-info
-                    iv_msgtx = iv_msgtx
-                    iv_msgno = iv_msgno
-                    iv_msgv1 = iv_msgv1
-                    iv_msgv2 = iv_msgv2
-                    iv_msgv3 = iv_msgv3
-                    iv_msgv4 = iv_msgv4
-                    it_msgde = it_msgde ).
+    rt_messages = mt_bapiret2.
 
   ENDMETHOD.
 
 
   METHOD constructor.
+    " TODO: parameter IV_DETAIL_LEVEL is never used (ABAP cleaner)
+    " TODO: parameter IV_VALIDITY_PERIOD is never used (ABAP cleaner)
 
     GET TIME STAMP FIELD mv_process_bgn.
-
-    mv_callstack_lvl = iv_callstack_lvl.
-
-    ms_log_header    = VALUE #( object    = iv_object
-                                subobject = iv_subobject
-                                aluser    = sy-uname
-                                aldate    = sy-datum
-                                altime    = sy-uzeit ).
+    ms_log-hdr = VALUE #( object    = iv_object
+                          subobject = iv_subobject
+                          aluser    = sy-uname
+                          aldate    = sy-datum
+                          altime    = sy-uzeit ).
 
     init( iv_extnumber = iv_extnumber
           it_extnumber = it_extnumber ).
+
+    IF     iv_log_part_id IS SUPPLIED
+       AND iv_log_part_id IS NOT INITIAL.
+      ms_processing_control-log_part_id = iv_log_part_id.
+    ENDIF.
 
   ENDMETHOD.
 
 
   METHOD init.
 
-    GET TIME STAMP FIELD mv_process_bgn.
+    set_extnumber( iv_extnumber = iv_extnumber
+                   it_extnumber = it_extnumber ).
 
-    build_extnumber( iv_extnumber = iv_extnumber
-                     it_extnumber = it_extnumber ).
+    set_detail_level( ).
+    set_expiry_date( ).
 
-    build_validity( ).
+    create_log( CORRESPONDING #( ms_log-hdr ) ).
 
-    create_log( ).
-
-    det_caller( ).
     log_caller( ).
+
+  ENDMETHOD.
+
+
+  METHOD is_log_part.
+
+    rv_result = xsdbool( ms_processing_control-log_part_id IS NOT INITIAL ).
 
   ENDMETHOD.
 
@@ -795,7 +709,6 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   METHOD log_bapiret.
 
     LOOP AT it_bapiret ASSIGNING FIELD-SYMBOL(<ls_bapiret>).
-
       create_message( iv_msgid = <ls_bapiret>-id
                       iv_msgno = <ls_bapiret>-number
                       iv_msgty = <ls_bapiret>-type
@@ -804,7 +717,6 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                       iv_msgv2 = <ls_bapiret>-message_v2
                       iv_msgv3 = <ls_bapiret>-message_v3
                       iv_msgv4 = <ls_bapiret>-message_v4 ).
-
     ENDLOOP.
 
   ENDMETHOD.
@@ -831,9 +743,10 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_duration.
 
-    IF    mv_process_end IS INITIAL
-       OR mv_process_bgn IS INITIAL.
-      RETURN.
+    CHECK mv_process_bgn IS NOT INITIAL.
+
+    IF mv_process_end IS INITIAL.
+      GET TIME STAMP FIELD mv_process_end.
     ENDIF.
 
     TRY.
@@ -878,9 +791,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     " Determine exception class name
     DATA(lo_exc_descr) = NEW cl_instance_description( io_exception ).
-    ms_msg_params = VALUE #( altext = 'SBAL_EXCEPTION_01'
-                             t_par  = VALUE #( ( parname  = 'EXCEPTION'
-                                                 parvalue = lo_exc_descr->class_name ) ) ).
+    ms_log-msg-params = VALUE #( altext = 'SBAL_EXCEPTION_01'
+                                 t_par  = VALUE #( ( parname  = 'EXCEPTION'
+                                                     parvalue = lo_exc_descr->class_name ) ) ).
 
     log_bapiret( lt_messages ).
 
@@ -899,81 +812,59 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_message.
 
-    create_message( iv_msgid = sy-msgid
-                    iv_msgty = sy-msgty
-                    iv_msgno = sy-msgno
-                    iv_msgv1 = sy-msgv1
-                    iv_msgv2 = sy-msgv2
-                    iv_msgv3 = sy-msgv3
-                    iv_msgv4 = sy-msgv4
+    create_message( iv_msgty = iv_msgty
+                    iv_msgtx = iv_msgtx
+                    iv_msgid = iv_msgid
+                    iv_msgno = iv_msgno
+                    iv_msgv1 = iv_msgv1
+                    iv_msgv2 = iv_msgv2
+                    iv_msgv3 = iv_msgv3
+                    iv_msgv4 = iv_msgv4
                     it_msgde = it_msgde ).
 
   ENDMETHOD.
 
 
-  METHOD log_sy_message.
+  METHOD log_symsg.
 
-    mv_msg_class = is_symsg-msgid.
-
-    CASE is_symsg-msgty.
-      WHEN zial_cl_log=>mc_msgty-info.
-        log_info( iv_msgno = is_symsg-msgno
-                  iv_msgv1 = is_symsg-msgv1
-                  iv_msgv2 = is_symsg-msgv2
-                  iv_msgv3 = is_symsg-msgv3
-                  iv_msgv4 = is_symsg-msgv4 ).
-
-      WHEN zial_cl_log=>mc_msgty-success.
-        log_success( iv_msgno = is_symsg-msgno
-                     iv_msgv1 = is_symsg-msgv1
-                     iv_msgv2 = is_symsg-msgv2
-                     iv_msgv3 = is_symsg-msgv3
-                     iv_msgv4 = is_symsg-msgv4 ).
-
-      WHEN zial_cl_log=>mc_msgty-warning.
-        log_warning( iv_msgno = is_symsg-msgno
-                     iv_msgv1 = is_symsg-msgv1
-                     iv_msgv2 = is_symsg-msgv2
-                     iv_msgv3 = is_symsg-msgv3
-                     iv_msgv4 = is_symsg-msgv4 ).
-
-      WHEN zial_cl_log=>mc_msgty-error.
-        log_error( iv_msgno = is_symsg-msgno
-                   iv_msgv1 = is_symsg-msgv1
-                   iv_msgv2 = is_symsg-msgv2
-                   iv_msgv3 = is_symsg-msgv3
-                   iv_msgv4 = is_symsg-msgv4 ).
-
-    ENDCASE.
+    log_message( iv_msgty = is_symsg-msgty
+                 iv_msgid = is_symsg-msgid
+                 iv_msgno = is_symsg-msgno
+                 iv_msgv1 = is_symsg-msgv1
+                 iv_msgv2 = is_symsg-msgv2
+                 iv_msgv3 = is_symsg-msgv3
+                 iv_msgv4 = is_symsg-msgv4 ).
 
   ENDMETHOD.
 
 
   METHOD save.
 
-    IF     (    mv_has_error  EQ abap_false
-             OR mv_save_error EQ abap_true )
-       AND mv_log_counter GT 0.
+    IF is_log_part( ) EQ abap_true.
+      MESSAGE s021(zial_log) WITH zial_cl_log_conf=>mc_default-max_num_of_entries
+                                  ms_processing_control-log_part_id INTO DATA(lv_msgtx) ##NEEDED.
+      log_message( ).
+    ENDIF.
+
+    IF     lines( mt_bapiret2 ) GT 0
+       AND (    ms_processing_control-has_error  EQ abap_false
+             OR ms_processing_control-save_error EQ abap_true ).
 
       IF iv_finalize EQ abap_true.
-        GET TIME STAMP FIELD mv_process_end.
         log_duration( ).
         log_line( ).
       ENDIF.
 
-      save_log( ).
+      save_log( ms_log-hdr-log_handle ).
+
+      IF iv_finalize EQ abap_true.
+        zial_cl_log_stack=>remove( ms_log-hdr-log_handle ).
+      ENDIF.
 
     ELSE.
 
-      CALL FUNCTION 'BAL_LOG_DELETE'
-        EXPORTING  i_log_handle = mv_log_handle
-        EXCEPTIONS OTHERS       = 0.
+      zial_cl_log=>delete( ms_log-hdr-log_handle ).
 
-    ENDIF.
-
-    IF iv_finalize EQ abap_true.
-      CLEAR: ms_log_header,
-             mv_log_handle.
     ENDIF.
 
   ENDMETHOD.
@@ -981,7 +872,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD save_log.
 
-    DATA(lt_log_handles)    = VALUE bal_t_logh( ( mv_log_handle ) ).
+    DATA(lt_log_handles)    = VALUE bal_t_logh( ( iv_log_handle ) ).
     DATA(lt_new_lognumbers) = VALUE bal_t_lgnm( ).
     CALL FUNCTION 'BAL_DB_SAVE'
       EXPORTING  i_t_log_handle       = lt_log_handles
@@ -1001,7 +892,8 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
       WHEN OTHERS.
         DATA(lv_subrc) = sy-subrc.
-        delete_log( ).
+        zial_cl_log=>delete( ms_log-hdr-log_handle ).
+
         handle_error( iv_process = zial_cl_log=>mc_log_process-save
                       iv_subrc   = lv_subrc ).
 
@@ -1028,55 +920,49 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD set_content.
 
-    mv_msg_class = iv_msgid.
-    mv_msg_type  = iv_msgty.
+    CLEAR ms_log-msg.
 
-    IF     iv_msgid IS NOT INITIAL
-       AND iv_msgno IS NOT INITIAL.
+    ms_log-msg-msgty = iv_msgty.
+    IF ms_log-msg-msgty IS INITIAL.
+      ms_log-msg-msgty = zial_cl_log=>mc_default-msgty.
+    ENDIF.
 
-      mv_msg_number = iv_msgno.
+    ms_log-msg-msgid = iv_msgid.
+    IF ms_log-msg-msgid IS INITIAL.
+      ms_log-msg-msgid = zial_cl_log=>mc_default-msgid.
+    ENDIF.
 
-      mv_msg_var1 = iv_msgv1.
-      mv_msg_var2 = iv_msgv2.
-      mv_msg_var3 = iv_msgv3.
-      mv_msg_var4 = iv_msgv4.
+    ms_log-msg-msgno = iv_msgno.
+    IF ms_log-msg-msgno IS INITIAL.
+      ms_log-msg-msgno = zial_cl_log=>mc_default-msgno.
+    ENDIF.
 
-      mv_msg_content_type = zial_cl_log=>mc_msg_content_type-obj.
+    IF iv_msgtx IS NOT INITIAL.
 
-    ELSEIF iv_msgtx IS NOT INITIAL.
-
-      mv_msg_text = iv_msgtx.
+      ms_log-msg-content_type = zial_cl_log=>mc_msg_content_type-txt.
+      ms_log-msg-msgtx        = iv_msgtx.
 
       DO 4 TIMES.
-
-        DATA(lv_msg_var) = VALUE string( ).
-        CASE sy-index.
-          WHEN 1.
-            lv_msg_var = iv_msgv1.
-
-          WHEN 2.
-            lv_msg_var = iv_msgv2.
-
-          WHEN 3.
-            lv_msg_var = iv_msgv3.
-
-          WHEN 4.
-            lv_msg_var = iv_msgv4.
-
-          WHEN OTHERS.
-            EXIT.
-
-        ENDCASE.
-
+        DATA(lv_msg_var) = SWITCH string( sy-index
+                                          WHEN 1 THEN iv_msgv1
+                                          WHEN 2 THEN iv_msgv2
+                                          WHEN 3 THEN iv_msgv3
+                                          WHEN 4 THEN iv_msgv4 ).
         IF lv_msg_var IS NOT INITIAL.
-          REPLACE FIRST OCCURRENCE OF '&' IN mv_msg_text WITH lv_msg_var.
+          REPLACE FIRST OCCURRENCE OF '&' IN ms_log-msg-msgtx WITH lv_msg_var.
         ELSE.
           EXIT.
         ENDIF.
-
       ENDDO.
 
-      mv_msg_content_type = zial_cl_log=>mc_msg_content_type-txt.
+    ELSEIF iv_msgid IS NOT INITIAL
+       AND iv_msgno IS NOT INITIAL.
+
+      ms_log-msg-content_type = zial_cl_log=>mc_msg_content_type-obj.
+      ms_log-msg-msgv1        = iv_msgv1.
+      ms_log-msg-msgv2        = iv_msgv2.
+      ms_log-msg-msgv3        = iv_msgv3.
+      ms_log-msg-msgv4        = iv_msgv4.
 
     ELSE.
 
@@ -1089,48 +975,11 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD set_priority.
 
-    CASE mv_msg_type.
-      WHEN zial_cl_log=>mc_msgty-info.
-        mv_msg_priority = zial_cl_log=>mc_msgty-info_prio.    " Additional information
-
-      WHEN zial_cl_log=>mc_msgty-success.
-        mv_msg_priority = zial_cl_log=>mc_msgty-success_prio. " Medium important
-
-      WHEN zial_cl_log=>mc_msgty-warning.
-        mv_msg_priority = zial_cl_log=>mc_msgty-warning_prio. " Important
-
-      WHEN zial_cl_log=>mc_msgty-error.
-        mv_msg_priority = zial_cl_log=>mc_msgty-error_prio.   " Very important
-
-    ENDCASE.
-
-  ENDMETHOD.
-
-
-  METHOD log_success.
-
-    create_message( iv_msgty = zial_cl_log=>mc_msgty-success
-                    iv_msgtx = iv_msgtx
-                    iv_msgno = iv_msgno
-                    iv_msgv1 = iv_msgv1
-                    iv_msgv2 = iv_msgv2
-                    iv_msgv3 = iv_msgv3
-                    iv_msgv4 = iv_msgv4
-                    it_msgde = it_msgde ).
-
-  ENDMETHOD.
-
-
-  METHOD log_warning.
-
-    create_message( iv_msgty = zial_cl_log=>mc_msgty-warning
-                    iv_msgtx = iv_msgtx
-                    iv_msgno = iv_msgno
-                    iv_msgv1 = iv_msgv1
-                    iv_msgv2 = iv_msgv2
-                    iv_msgv3 = iv_msgv3
-                    iv_msgv4 = iv_msgv4
-                    it_msgde = it_msgde ).
+    ms_log-msg-probclass = SWITCH #( ms_log-msg-msgty
+                                     WHEN zial_cl_log=>mc_msgty-info    THEN zial_cl_log=>mc_msgty_prio-info     " Additional information
+                                     WHEN zial_cl_log=>mc_msgty-success THEN zial_cl_log=>mc_msgty_prio-success  " Medium important
+                                     WHEN zial_cl_log=>mc_msgty-warning THEN zial_cl_log=>mc_msgty_prio-warning  " Important
+                                     WHEN zial_cl_log=>mc_msgty-error   THEN zial_cl_log=>mc_msgty_prio-error ). " Very important
 
   ENDMETHOD.
 
@@ -1138,13 +987,13 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   METHOD create_log.
 
     CALL FUNCTION 'BAL_LOG_CREATE'
-      EXPORTING  i_s_log                 = ms_log_header
-      IMPORTING  e_log_handle            = mv_log_handle
+      EXPORTING  i_s_log                 = is_log_header
+      IMPORTING  e_log_handle            = ms_log-hdr-log_handle
       EXCEPTIONS log_header_inconsistent = 1
                  OTHERS                  = 2.
 
-    IF     sy-subrc     NE 0
-       AND mv_has_error EQ abap_false.
+    IF     sy-subrc                        NE 0
+       AND ms_processing_control-has_error EQ abap_false.
       handle_error( iv_process = zial_cl_log=>mc_log_process-init
                     iv_subrc   = sy-subrc ).
     ENDIF.
@@ -1231,20 +1080,78 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD delete_log.
+  METHOD has_error.
 
-    CALL FUNCTION 'BAL_LOG_DELETE'
-      EXPORTING  i_log_handle = mv_log_handle
-      EXCEPTIONS OTHERS       = 0.
-
-    CLEAR: ms_log_header,
-           mv_log_handle.
+    rv_result = ms_processing_control-has_error.
 
   ENDMETHOD.
 
 
-  METHOD has_error.
-    rv_result = mv_has_error.
+  METHOD create_and_save_error_log.
+
+    DATA(lo_log_sap) = NEW zial_cl_log_sap( iv_object    = zial_cl_log=>mc_default-log_object
+                                            iv_subobject = zial_cl_log=>mc_default-log_subobject
+                                            iv_extnumber = TEXT-000 ).
+
+    DATA(lt_bapiret) = error_handling( iv_process = iv_process
+                                       iv_subrc   = iv_subrc
+                                       is_log_msg = is_log_msg ).
+    lo_log_sap->log_bapiret( lt_bapiret ).
+
+    " Enable saving of the error log
+    lo_log_sap->ms_processing_control-save_error = abap_true.
+
+    " Save log for error logging
+    lo_log_sap->save_log( ms_log-hdr-log_handle ).
+
+  ENDMETHOD.
+
+
+  METHOD add_msg_to_appl_log.
+
+    CHECK handle_full_log( ) EQ abap_false.
+
+    DATA(ls_msg_handle) = VALUE balmsghndl( ).
+    IF is_valid_detail_level( ms_log-msg-msgty ) EQ abap_true.
+      CASE ms_log-msg-content_type.
+        WHEN zial_cl_log=>mc_msg_content_type-obj.
+          ls_msg_handle = add_msg_by_message_object( ms_log ).
+
+        WHEN zial_cl_log=>mc_msg_content_type-txt.
+          ls_msg_handle = add_msg_by_message_text( ms_log ).
+
+      ENDCASE.
+    ENDIF.
+
+    CASE has_msg_added_to_log( ls_msg_handle ).
+      WHEN abap_true.
+        INSERT zial_cl_log=>to_bapiret( iv_msgty = ms_log-msg-msgty
+                                        iv_msgtx = ms_log-msg-msgtx
+                                        iv_msgid = ms_log-msg-msgid
+                                        iv_msgno = ms_log-msg-msgno
+                                        iv_msgv1 = ms_log-msg-msgv1
+                                        iv_msgv2 = ms_log-msg-msgv2
+                                        iv_msgv3 = ms_log-msg-msgv3
+                                        iv_msgv4 = ms_log-msg-msgv4 ) INTO TABLE mt_bapiret2.
+
+      WHEN abap_false.
+        handle_error( iv_process = zial_cl_log=>mc_log_process-add_msg
+                      iv_subrc   = sy-subrc ).
+
+    ENDCASE.
+
+    CLEAR ms_log-msg-params.
+
+  ENDMETHOD.
+
+
+  METHOD is_log_getting_full.
+
+    " 3 log entries are reserved for internal messages
+    CHECK ms_processing_control-log_part_id IS INITIAL
+      AND lines( mt_bapiret2 )              EQ ( zial_cl_log_conf=>mc_default-max_num_of_entries - 3 ).
+    rv_result = abap_true.
+
   ENDMETHOD.
 
 ENDCLASS.

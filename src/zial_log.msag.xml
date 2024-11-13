@@ -17,7 +17,7 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>001</MSGNR>
-     <TEXT>Logging failed - please check LOG in SLG1.</TEXT>
+     <TEXT>Logging failed: Check object LOG in SLG1 for further details!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -47,19 +47,19 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>006</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Inconsistent Log-Header Data.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Inconsistent log header data.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>007</MSGNR>
-     <TEXT>SUBRC: &amp;1 - The log object couldn&apos;t be created.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log object couldn&apos;t be created.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>008</MSGNR>
-     <TEXT>SUBRC: &amp;1 - The log object couldn&apos;t be found.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log object couldn&apos;t be found.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -77,25 +77,25 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>011</MSGNR>
-     <TEXT>SUBRC: &amp;1 - The log couldn&apos;t be saved.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log couldn&apos;t be saved.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>012</MSGNR>
-     <TEXT>SUBRC: &amp;1 - The log message data is inconsistent.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log message data is inconsistent.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>013</MSGNR>
-     <TEXT>SUBRC: &amp;1 - The log object can&apos;t hold additional log messages.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log object is full and error couldn&apos;t be resolved internally.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>014</MSGNR>
-     <TEXT>SUBRC: &amp;1 - The message couldn&apos;t be added to the log.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Message couldn&apos;t be added to the log.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -113,7 +113,7 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>017</MSGNR>
-     <TEXT>Log-Process &apos;&amp;1&apos; couldn&apos;t be executed successfully.</TEXT>
+     <TEXT>Log process &apos;&amp;1&apos; couldn&apos;t be executed successfully.</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -126,6 +126,18 @@
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>019</MSGNR>
      <TEXT>The data cluster for logging message details couldn&apos;t be found!</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZIAL_LOG</ARBGB>
+     <MSGNR>020</MSGNR>
+     <TEXT>Max. logging entries of &amp;1 reached: Begin of log part &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZIAL_LOG</ARBGB>
+     <MSGNR>021</MSGNR>
+     <TEXT>Max. logging entries of &amp;1 reached: End of log part &amp;2</TEXT>
     </T100>
    </T100>
   </asx:values>

@@ -71,21 +71,26 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0001.
 
-    zial_cl_log=>get( )->log_info( iv_msgtx = |LOG_INFO| ).
-    cl_abap_unit_assert=>assert_not_initial( zial_cl_log=>mt_log_stack ).
+    zial_cl_log=>get( )->log_message( iv_msgty = zial_cl_log=>mc_msgty-info
+                                      iv_msgtx = |LOG_INFO| ).
+    cl_abap_unit_assert=>assert_not_initial( zial_cl_log=>get( ) ).
 
     zial_cl_log=>save( ).
-    cl_abap_unit_assert=>assert_initial( zial_cl_log=>mt_log_stack ).
+    cl_abap_unit_assert=>assert_initial( zial_cl_log=>get( ) ).
 
   ENDMETHOD.
 
 
   METHOD t0002.
 
-    zial_cl_log=>get( )->log_info( iv_msgtx = |LOG_INFO| ).
-    zial_cl_log=>get( )->log_error( iv_msgtx = |LOG_ERROR| ).
-    zial_cl_log=>get( )->log_success( iv_msgtx = |LOG_SUCCESS| ).
-    zial_cl_log=>get( )->log_warning( iv_msgtx = |LOG_WARNING| ).
+    zial_cl_log=>get( )->log_message( iv_msgty = zial_cl_log=>mc_msgty-info
+                                      iv_msgtx = |LOG_INFO| ).
+    zial_cl_log=>get( )->log_message( iv_msgty = zial_cl_log=>mc_msgty-error
+                                      iv_msgtx = |LOG_ERROR| ).
+    zial_cl_log=>get( )->log_message( iv_msgty = zial_cl_log=>mc_msgty-success
+                                      iv_msgtx = |LOG_SUCCESS| ).
+    zial_cl_log=>get( )->log_message( iv_msgty = zial_cl_log=>mc_msgty-warning
+                                      iv_msgtx = |LOG_WARNING| ).
 
     DATA(lt_act_messages) = zial_cl_log=>get( )->get_messages( ).
     cl_abap_unit_assert=>assert_equals( exp = 5

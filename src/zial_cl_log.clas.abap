@@ -1,7 +1,8 @@
 "! <p class="shorttext synchronized">Logging</p>
 CLASS zial_cl_log DEFINITION
   PUBLIC
-  CREATE PRIVATE.
+  CREATE PRIVATE
+  GLOBAL FRIENDS zial_cl_log_sap.
 
   PUBLIC SECTION.
     TYPES v_message_param_id TYPE n LENGTH 10.
@@ -14,19 +15,25 @@ CLASS zial_cl_log DEFINITION
              v4 TYPE symsgv,
            END OF s_msgvar.
 
-    TYPES t_log_stack TYPE TABLE OF zial_cl_log_const=>r_log_instance WITH DEFAULT KEY.
-
     CONSTANTS: BEGIN OF mc_msg_content_type,
                  obj TYPE numc1 VALUE 1,
                  txt TYPE numc1 VALUE 2,
                END OF mc_msg_content_type.
 
     CONSTANTS: BEGIN OF mc_log_process,
-                 create    TYPE char4 VALUE 'CREA' ##NO_TEXT,
-                 init      TYPE char4 VALUE 'INIT' ##NO_TEXT,
-                 save      TYPE char4 VALUE 'SAVE' ##NO_TEXT,
-                 exception TYPE char4 VALUE 'EXCP' ##NO_TEXT,
+                 create  TYPE char4 VALUE 'CREA' ##NO_TEXT,
+                 init    TYPE char4 VALUE 'INIT' ##NO_TEXT,
+                 add_msg TYPE char4 VALUE 'ADD'  ##NO_TEXT,
+                 save    TYPE char4 VALUE 'SAVE' ##NO_TEXT,
                END OF mc_log_process.
+
+    CONSTANTS: BEGIN OF mc_detail_level,
+                 none    TYPE numc1 VALUE 0,
+                 error   TYPE numc1 VALUE 1,
+                 warning TYPE numc1 VALUE 2,
+                 success TYPE numc1 VALUE 3,
+                 info    TYPE numc1 VALUE 4,
+               END OF mc_detail_level.
 
     CONSTANTS: BEGIN OF mc_default,
                  log_object    TYPE balobj_d  VALUE 'SYSLOG' ##NO_TEXT,  " Adjust to your needs
@@ -39,38 +46,26 @@ CLASS zial_cl_log DEFINITION
     CONSTANTS mc_msg_ident          TYPE c LENGTH 9 VALUE 'MSG_IDENT' ##NO_TEXT.
     CONSTANTS mc_log_context_struct TYPE baltabname VALUE 'ZIAL_S_LOG_CONTEXT' ##NO_TEXT.
 
-    CONSTANTS: BEGIN OF mc_callstack_lvl,
-                 none    TYPE numc1 VALUE 0,
-                 error   TYPE numc1 VALUE 1,
-                 warning TYPE numc1 VALUE 2,
-                 success TYPE numc1 VALUE 3,
-                 info    TYPE numc1 VALUE 4,
-               END OF mc_callstack_lvl.
-
     CONSTANTS: BEGIN OF mc_msgty,
-                 any_error    TYPE char3     VALUE 'EAX',
-                 error        TYPE symsgty   VALUE 'E',
-                 error_prio   TYPE balprobcl VALUE 1,
-                 warning      TYPE symsgty   VALUE 'W',
-                 warning_prio TYPE balprobcl VALUE 2,
-                 success      TYPE symsgty   VALUE 'S',
-                 success_prio TYPE balprobcl VALUE 3,
-                 info         TYPE symsgty   VALUE 'I',
-                 info_prio    TYPE balprobcl VALUE 4,
+                 any_error TYPE char3   VALUE 'EAX',
+                 error     TYPE symsgty VALUE 'E',
+                 warning   TYPE symsgty VALUE 'W',
+                 success   TYPE symsgty VALUE 'S',
+                 info      TYPE symsgty VALUE 'I',
                END OF mc_msgty.
 
-    CLASS-DATA mo_gui_docking_container TYPE REF TO cl_gui_docking_container.
-    CLASS-DATA mo_gui_alv_grid          TYPE REF TO cl_gui_alv_grid.
-    CLASS-DATA mv_sel_msg_param_id      TYPE v_message_param_id.
-
-    CLASS-DATA mo_instance              TYPE zial_cl_log_const=>r_log_instance.
-    CLASS-DATA mt_log_stack             TYPE t_log_stack. " LIFO: Last log initiated is first to be saved
+    CONSTANTS: BEGIN OF mc_msgty_prio,
+                 error   TYPE balprobcl VALUE 1,
+                 warning TYPE balprobcl VALUE 2,
+                 success TYPE balprobcl VALUE 3,
+                 info    TYPE balprobcl VALUE 4,
+               END OF mc_msgty_prio.
 
     "! Get existing or create and return new log instance
     "!
     "! @parameter ro_instance | Instance
     CLASS-METHODS get
-      RETURNING VALUE(ro_instance) LIKE mo_instance.
+      RETURNING VALUE(ro_instance) TYPE zial_cl_log_const=>r_log_instance.
 
     "! Create new log instance
     "!
@@ -85,8 +80,11 @@ CLASS zial_cl_log DEFINITION
                 iv_subobject       TYPE balsubobj DEFAULT mc_default-log_subobject
                 iv_extnumber       TYPE balnrext  OPTIONAL
                 it_extnumber       TYPE stringtab OPTIONAL
-                iv_callstack_lvl   TYPE numc1     DEFAULT mc_callstack_lvl-info
-      RETURNING VALUE(ro_instance) LIKE mo_instance.
+                iv_callstack_lvl   TYPE numc1     DEFAULT mc_detail_level-info
+      RETURNING VALUE(ro_instance) TYPE zial_cl_log_const=>r_log_instance.
+
+    CLASS-METHODS delete
+      IMPORTING iv_log_handle TYPE balloghndl.
 
     "! Save log to application log and optionally close log instance
     "!
@@ -208,6 +206,14 @@ CLASS zial_cl_log DEFINITION
       RETURNING VALUE(rv_result) TYPE abap_bool.
 
   PROTECTED SECTION.
+    CLASS-DATA mo_gui_docking_container TYPE REF TO cl_gui_docking_container.
+    CLASS-DATA mo_gui_alv_grid          TYPE REF TO cl_gui_alv_grid.
+    CLASS-DATA mv_sel_msg_param_id      TYPE v_message_param_id.
+    CLASS-DATA mv_log_part_id           TYPE i.
+    CLASS-DATA ms_symsg                 TYPE symsg.
+
+    CLASS-DATA mo_instance              TYPE zial_cl_log_const=>r_log_instance.
+
     CLASS-METHODS harmonize_msg
       IMPORTING iv_msgid   TYPE symsgid
                 iv_msgno   TYPE symsgno
@@ -221,9 +227,6 @@ CLASS zial_cl_log DEFINITION
       EXPORTING ev_msgtx   TYPE bapi_msg
                 es_symsg   TYPE symsg.
 
-  PRIVATE SECTION.
-    CLASS-DATA ms_symsg TYPE symsg.
-
     CLASS-METHODS to_msgde_add_by_components
       IMPORTING io_struct_descr TYPE REF TO cl_abap_structdescr
                 is_data         TYPE any
@@ -231,8 +234,10 @@ CLASS zial_cl_log DEFINITION
       RETURNING VALUE(rt_msgde) TYPE rsra_t_alert_definition.
 
     CLASS-METHODS backup_sy_msg.
-
     CLASS-METHODS recover_sy_msg.
+
+    CLASS-METHODS get_next_log_part_id
+      RETURNING VALUE(rv_log_part_id) TYPE i.
 
 ENDCLASS.
 
@@ -240,19 +245,32 @@ ENDCLASS.
 CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD create.
+    " TODO: parameter IV_CALLSTACK_LVL is never used (ABAP cleaner)
 
     backup_sy_msg( ).
 
-    mo_instance = NEW #( iv_object        = iv_object
-                         iv_subobject     = iv_subobject
-                         iv_extnumber     = iv_extnumber
-                         it_extnumber     = it_extnumber
-                         iv_callstack_lvl = iv_callstack_lvl ).
-    APPEND mo_instance TO mt_log_stack.
+    mo_instance = NEW #( iv_object    = iv_object
+                         iv_subobject = iv_subobject
+                         iv_extnumber = iv_extnumber
+                         it_extnumber = it_extnumber ).
+    zial_cl_log_stack=>push( mo_instance ).
 
     recover_sy_msg( ).
 
     ro_instance = mo_instance.
+
+  ENDMETHOD.
+
+
+  METHOD delete.
+
+    CHECK iv_log_handle IS NOT INITIAL.
+
+    CALL FUNCTION 'BAL_LOG_DELETE'
+      EXPORTING  i_log_handle = iv_log_handle
+      EXCEPTIONS OTHERS       = 0.
+
+    zial_cl_log_stack=>remove( iv_log_handle ).
 
   ENDMETHOD.
 
@@ -268,7 +286,7 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD get.
 
-    mo_instance = VALUE #( mt_log_stack[ lines( mt_log_stack ) ] OPTIONAL ).
+    mo_instance = zial_cl_log_stack=>pop( )-instance.
     IF mo_instance IS INITIAL.
       mo_instance = create( iv_object    = mc_default-log_object
                             iv_subobject = mc_default-log_subobject
@@ -307,22 +325,18 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD save.
 
-    CHECK mt_log_stack IS NOT INITIAL.
+    CHECK zial_cl_log_stack=>is_empty( ) EQ abap_false.
 
     mo_instance = get( ).
     mo_instance->save( iv_finalize ).
-
-    IF iv_finalize EQ abap_true.
-      DELETE TABLE mt_log_stack FROM mo_instance.
-      CLEAR mo_instance.
-    ENDIF.
 
   ENDMETHOD.
 
 
   METHOD to_bapiret.
 
-    IF iv_msgtx IS SUPPLIED.
+    IF     iv_msgtx IS SUPPLIED
+       AND iv_msgtx IS NOT INITIAL.
 
       harmonize_msg( EXPORTING iv_msgid = mc_default-msgid
                                iv_msgno = mc_default-msgno
@@ -393,11 +407,8 @@ CLASS zial_cl_log IMPLEMENTATION.
     IF io_exception IS BOUND.
 
       CASE TYPE OF io_exception.
-        WHEN TYPE zcx_static_check.
-          rt_bapiret = CAST zcx_static_check( io_exception )->get_messages( ).
-
-        WHEN TYPE zcx_no_check.
-          rt_bapiret = CAST zcx_no_check( io_exception )->get_messages( ).
+        WHEN TYPE zcx_if_check_class.
+          rt_bapiret = CAST zcx_if_check_class( io_exception )->get_messages( ).
 
         WHEN TYPE cx_root.
           rt_bapiret = VALUE #( ( to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ) ) ).
@@ -583,8 +594,9 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD free.
 
-    FREE: mo_instance,
-          mt_log_stack.
+    FREE mo_instance.
+
+    zial_cl_log_stack=>free( ).
 
   ENDMETHOD.
 
@@ -720,6 +732,13 @@ CLASS zial_cl_log IMPLEMENTATION.
       rv_result = abap_true.
       EXIT.
     ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD get_next_log_part_id.
+
+    rv_log_part_id = mv_log_part_id + 1.
 
   ENDMETHOD.
 

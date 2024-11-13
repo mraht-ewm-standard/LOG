@@ -1,18 +1,21 @@
 "! <p class="shorttext synchronized">Logging: EWM Log</p>
 CLASS zial_cl_log_ewm DEFINITION
   PUBLIC
-  INHERITING FROM zial_cl_log_sap FINAL
-  CREATE PUBLIC.
+  INHERITING FROM zial_cl_log_sap
+  CREATE PROTECTED
+  GLOBAL FRIENDS zial_cl_log.
 
   PUBLIC SECTION.
     METHODS constructor
-      IMPORTING iv_lgnum         TYPE /scwm/lgnum         OPTIONAL
-                io_sap_log       TYPE REF TO /scwm/cl_log OPTIONAL
-                iv_object        TYPE balobj_d            DEFAULT '/SCWM/WME'
-                iv_subobject     TYPE balsubobj           DEFAULT 'LOG_GENERAL'
-                iv_extnumber     TYPE balnrext            OPTIONAL
-                it_extnumber     TYPE stringtab           OPTIONAL
-                iv_callstack_lvl TYPE numc1               DEFAULT zial_cl_log=>mc_callstack_lvl-info.
+      IMPORTING iv_lgnum           TYPE /scwm/lgnum                 OPTIONAL
+                io_sap_log         TYPE REF TO /scwm/cl_log         OPTIONAL
+                iv_object          TYPE balobj_d                    DEFAULT '/SCWM/WME'
+                iv_subobject       TYPE balsubobj                   DEFAULT 'LOG_GENERAL'
+                iv_extnumber       TYPE balnrext                    OPTIONAL
+                it_extnumber       TYPE stringtab                   OPTIONAL
+                iv_detail_level    TYPE zial_de_log_detail_level    OPTIONAL
+                iv_validity_period TYPE zial_de_log_validity_period OPTIONAL
+                iv_log_part_id     TYPE i                           DEFAULT 0.
 
     "! Log SAP log messages
     "!
@@ -44,30 +47,12 @@ CLASS zial_cl_log_ewm DEFINITION
       RETURNING VALUE(rt_bapirettab) TYPE bapirettab.
 
   PROTECTED SECTION.
-    CLASS-DATA mo_instance   TYPE REF TO zial_cl_log_ewm.
-    CLASS-DATA mv_has_error  TYPE abap_bool.
-    CLASS-DATA mv_save_error TYPE abap_bool.
+    CLASS-DATA mo_instance TYPE REF TO zial_cl_log_ewm.
 
-    DATA mv_lgnum            TYPE /scwm/lgnum.
-    DATA mo_sap_log          TYPE REF TO /scwm/cl_log.
+    DATA mv_lgnum   TYPE /scwm/lgnum.
+    DATA mo_sap_log TYPE REF TO /scwm/cl_log.
 
-    DATA mv_message_text     TYPE bapi_msg.
-    DATA mv_message_type     TYPE symsgty.
-    DATA mv_content_type     TYPE i.
-    DATA mv_message_class    TYPE symsgid.
-    DATA ms_message_params   TYPE bal_s_parm.
-    DATA mv_message_number   TYPE symsgno.
-    DATA mv_message_var1     TYPE symsgv.
-    DATA mv_message_var2     TYPE symsgv.
-    DATA mv_message_var3     TYPE symsgv.
-    DATA mv_message_var4     TYPE symsgv.
-    DATA mv_message_priority TYPE balprobcl.
-    DATA ms_message_context  TYPE bal_s_cont.
-
-    DATA mt_message_detail   TYPE /scwm/tt_msg_details.
-
-    METHODS handle_error              REDEFINITION.
-    METHODS build_validity            REDEFINITION.
+    METHODS set_expiry_date           REDEFINITION.
     METHODS add_msg_by_message_object REDEFINITION.
     METHODS add_msg_by_message_text   REDEFINITION.
 
@@ -79,16 +64,16 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
   METHOD add_msg_by_message_object.
 
     IF mo_sap_log IS BOUND.
-      mo_sap_log->add_message( ip_msgty = mv_message_type
-                               ip_msgid = mv_message_class
-                               ip_msgno = mv_message_number
-                               ip_msgv1 = mv_message_var1
-                               ip_msgv2 = mv_message_var2
-                               ip_msgv3 = mv_message_var3
-                               ip_msgv4 = mv_message_var4 ).
+      mo_sap_log->add_message( ip_msgty = ms_log-msg-msgty
+                               ip_msgid = ms_log-msg-msgid
+                               ip_msgno = ms_log-msg-msgno
+                               ip_msgv1 = ms_log-msg-msgv1
+                               ip_msgv2 = ms_log-msg-msgv2
+                               ip_msgv3 = ms_log-msg-msgv3
+                               ip_msgv4 = ms_log-msg-msgv4 ).
     ENDIF.
 
-    super->add_msg_by_message_object( ).
+    super->add_msg_by_message_object( ms_log ).
 
   ENDMETHOD.
 
@@ -96,16 +81,16 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
   METHOD add_msg_by_message_text.
 
     IF mo_sap_log IS BOUND.
-      mo_sap_log->add_message( ip_msgty = mv_message_type
-                               ip_msg   = mv_message_text ).
+      mo_sap_log->add_message( ip_msgty = ms_log-msg-msgty
+                               ip_msg   = ms_log-msg-msgtx ).
     ENDIF.
 
-    super->add_msg_by_message_text( ).
+    super->add_msg_by_message_text( ms_log ).
 
   ENDMETHOD.
 
 
-  METHOD build_validity.
+  METHOD set_expiry_date.
 
     DATA(ls_log_act) = VALUE /scwm/log_act( ).
 
@@ -117,15 +102,14 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
           " /SCWM/WME in Transaction/SCWM/ACTLOG
           CALL FUNCTION '/SCWM/LOG_ACT_READ_SINGLE'
             EXPORTING  iv_lgnum     = mv_lgnum
-                       iv_subobject = ms_log_header-subobject
+                       iv_subobject = ms_log-hdr-subobject
             IMPORTING  es_log_act   = ls_log_act
             EXCEPTIONS not_found    = 1
                        OTHERS       = 2.
 
         WHEN 2.
           ls_log_act-lgnum     = mv_lgnum.
-          ls_log_act-subobject = ms_log_header-subobject.
-          ls_log_act-validity  = mv_validity_in_days.
+          ls_log_act-subobject = ms_log-hdr-subobject.
 
       ENDCASE.
 
@@ -135,7 +119,7 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
         " Append valid expiration date
         CALL FUNCTION '/SCWM/APP_LOG_EXPIRY_DATE_DET'
           EXPORTING is_log_act = ls_log_act
-          CHANGING  cs_log     = ms_log_header.
+          CHANGING  cs_log     = ms_log-hdr.
 
         EXIT.
 
@@ -143,68 +127,20 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
 
     ENDDO.
 
-  ENDMETHOD.
-
-
-  METHOD handle_error.
-
-    " Ensures that error handling is only executed once for each error to avoid endless loop
-    CHECK mv_has_error  EQ abap_false
-      AND mv_save_error EQ abap_false.
-    mv_has_error = abap_true.
-
-    " Backup input data
-    DATA(ls_log_msg) = VALUE zial_s_log_msg( hdr = VALUE #( object     = ms_log_header-object
-                                                            subobject  = ms_log_header-subobject
-                                                            extnumber  = ms_log_header-extnumber
-                                                            aldate_del = ms_log_header-aldate_del )
-                                             msg = VALUE #( msgid = mv_msg_class
-                                                            msgty = mv_msg_type
-                                                            msgtx = mv_msg_text
-                                                            msgno = mv_msg_number
-                                                            msgv1 = mv_msg_var1
-                                                            msgv2 = mv_msg_var2
-                                                            msgv3 = mv_msg_var3
-                                                            msgv4 = mv_msg_var4 ) ).
-
-    " Try to add error messages regarding failed logging to old log
-    MESSAGE e001(zial_log) INTO DATA(lv_msgtx) ##NEEDED.
-    log_message( ).
-
-    " Close existing log and create a new one for error handling
-    save( ).
-
-    DATA(lo_log_sap) = NEW zial_cl_log_ewm( iv_lgnum     = mv_lgnum
-                                            iv_object    = zial_cl_log=>mc_default-log_object
-                                            iv_subobject = zial_cl_log=>mc_default-log_subobject
-                                            iv_extnumber = TEXT-000 ).
-
-    DATA(lt_bapiret) = error_handling( iv_process   = iv_process
-                                       iv_subrc     = iv_subrc
-                                       io_exception = io_exception
-                                       is_log_msg   = ls_log_msg ).
-    lo_log_sap->log_bapiret( lt_bapiret ).
-
-    " Enable saving of the error log
-    lo_log_sap->mv_save_error = abap_true.
-
-    " Save log for error logging
-    lo_log_sap->save_log( ).
-
-    " Error handling could be executed again
-    mv_has_error  = abap_false.
-    mv_save_error = abap_false.
+    super->set_expiry_date( ).
 
   ENDMETHOD.
 
 
   METHOD constructor.
 
-    super->constructor( iv_object        = iv_object
-                        iv_subobject     = iv_subobject
-                        iv_extnumber     = iv_extnumber
-                        it_extnumber     = it_extnumber
-                        iv_callstack_lvl = iv_callstack_lvl ).
+    super->constructor( iv_object          = iv_object
+                        iv_subobject       = iv_subobject
+                        iv_extnumber       = iv_extnumber
+                        it_extnumber       = it_extnumber
+                        iv_detail_level    = iv_detail_level
+                        iv_validity_period = iv_validity_period
+                        iv_log_part_id     = iv_log_part_id ).
 
     mv_lgnum   = iv_lgnum.
     mo_sap_log = io_sap_log.
@@ -231,7 +167,7 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
   METHOD log_dm_message.
 
     LOOP AT it_dm_message ASSIGNING FIELD-SYMBOL(<ls_dm_message>).
-      log_sy_message( is_symsg = CORRESPONDING #( <ls_dm_message> ) ).
+      log_symsg( is_symsg = CORRESPONDING #( <ls_dm_message> ) ).
     ENDLOOP.
 
   ENDMETHOD.

@@ -1,6 +1,9 @@
 *"* use this source file for the definition and implementation of
 *"* local helper classes, interface definitions and type
 *"* declarations
+CLASS ltc_log DEFINITION DEFERRED.
+CLASS zial_cl_log_sap DEFINITION LOCAL FRIENDS ltc_log.
+
 "! <p class="shorttext synchronized">Current Application Session/Thread</p>
 CLASS lcl_session DEFINITION FINAL
   CREATE PUBLIC.
@@ -29,17 +32,13 @@ CLASS lcl_session DEFINITION FINAL
     "! Get application callstack
     "!
     "! @parameter iv_exclude_internal | Exclude internal functions? (Y/N)
-    "! @parameter ev_method           | Method name
-    "! @parameter ev_class            | CLass name
-    "! @parameter ev_report           | Report name
-    "! @parameter ev_function         | Function name
+    "! @parameter ev_object           | Function, report or class name
+    "! @parameter ev_routine          | Form routine or method name
     "! @parameter et_callstack        | Callstack
     CLASS-METHODS get_callstack
       IMPORTING iv_exclude_internal TYPE abap_bool DEFAULT abap_true
-      EXPORTING ev_method           TYPE dbglevent
-                ev_class            TYPE dbgsrepid
-                ev_report           TYPE dbgsrepid
-                ev_function         TYPE dbglevent
+      EXPORTING ev_object           TYPE dbgsrepid
+                ev_routine          TYPE dbglevent
                 et_callstack        TYPE tt_abap_callstack.
 
 ENDCLASS.
@@ -84,21 +83,19 @@ CLASS lcl_session IMPLEMENTATION.
     ELSE.
       lv_mainprogram = ls_aut_callstack-mainprogram.
     ENDIF.
+
     CASE ls_aut_callstack-eventtype.
       WHEN 'FUNCTION'.
-        " Read function name
-        ev_function = ls_aut_callstack-event.
+        ev_object = ls_aut_callstack-event.
 
       WHEN 'METHOD'.
-        " Read class name
-        ev_class = lv_mainprogram.
+        ev_object  = lv_mainprogram.
+        ev_routine = ls_aut_callstack-event.
 
-        " Read method name
-        ev_method = ls_aut_callstack-event.
-
-      WHEN 'EVENT' OR 'FORM'.
-        " Read program name
-        ev_report = lv_mainprogram.
+      WHEN 'EVENT'
+        OR 'FORM'.
+        ev_object  = lv_mainprogram.
+        ev_routine = ls_aut_callstack-event.
 
       WHEN OTHERS.
         RETURN.
