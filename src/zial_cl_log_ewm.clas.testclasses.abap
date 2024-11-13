@@ -33,10 +33,11 @@ CLASS ltc_log_ewm IMPLEMENTATION.
 
   METHOD class_setup.
 
-    mo_aunit = zial_cl_aunit=>on_class_setup( iv_tdc_cnt  = mc_tdc_cnt
-                                              ir_tdc_data = REF #( ms_tdc_data )
-                                              it_sql_data = VALUE #( ( tbl_name = 'ZIAL_T_DUMMY'
-                                                                       tbl_data = REF #( ms_tdc_data-t_dummy ) ) ) ).
+    mo_aunit = zial_cl_aunit=>on_class_setup( iv_tdc_cnt    = mc_tdc_cnt
+                                              iv_ign_errors = abap_true
+                                              ir_tdc_data   = REF #( ms_tdc_data )
+                                              it_sql_data   = VALUE #( ( tbl_name = 'ZIAL_T_DUMMY'
+                                                                         tbl_data = REF #( ms_tdc_data-t_dummy ) ) ) ).
 
   ENDMETHOD.
 

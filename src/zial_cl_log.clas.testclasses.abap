@@ -38,10 +38,11 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD class_setup.
 
-    mo_aunit = zial_cl_aunit=>on_class_setup( iv_tdc_cnt  = mc_tdc_cnt
-                                              ir_tdc_data = REF #( ms_tdc_data )
-                                              it_sql_data = VALUE #( ( tbl_name = 'ZIAL_T_DUMMY'
-                                                                       tbl_data = REF #( ms_tdc_data-t_dummy ) ) ) ).
+    mo_aunit = zial_cl_aunit=>on_class_setup( iv_tdc_cnt    = mc_tdc_cnt
+                                              iv_ign_errors = abap_true
+                                              ir_tdc_data   = REF #( ms_tdc_data )
+                                              it_sql_data   = VALUE #( ( tbl_name = 'ZIAL_T_DUMMY'
+                                                                         tbl_data = REF #( ms_tdc_data-t_dummy ) ) ) ).
 
   ENDMETHOD.
 
@@ -76,7 +77,7 @@ CLASS ltc_log IMPLEMENTATION.
     cl_abap_unit_assert=>assert_not_initial( zial_cl_log=>get( ) ).
 
     zial_cl_log=>save( ).
-    cl_abap_unit_assert=>assert_initial( zial_cl_log=>get( ) ).
+    cl_abap_unit_assert=>assert_initial( zial_cl_log_stack=>pop( ) ).
 
   ENDMETHOD.
 
