@@ -7,15 +7,13 @@ CLASS zial_cl_log_ewm DEFINITION
 
   PUBLIC SECTION.
     METHODS constructor
-      IMPORTING iv_lgnum           TYPE /scwm/lgnum                 OPTIONAL
-                io_sap_log         TYPE REF TO /scwm/cl_log         OPTIONAL
-                iv_object          TYPE balobj_d                    DEFAULT '/SCWM/WME'
-                iv_subobject       TYPE balsubobj                   DEFAULT 'LOG_GENERAL'
-                iv_extnumber       TYPE balnrext                    OPTIONAL
-                it_extnumber       TYPE stringtab                   OPTIONAL
-                iv_detail_level    TYPE zial_de_log_detail_level    OPTIONAL
-                iv_validity_period TYPE zial_de_log_validity_period OPTIONAL
-                iv_log_part_id     TYPE i                           DEFAULT 0.
+      IMPORTING iv_lgnum       TYPE /scwm/lgnum         OPTIONAL
+                io_sap_log     TYPE REF TO /scwm/cl_log OPTIONAL
+                iv_object      TYPE balobj_d            DEFAULT '/SCWM/WME'
+                iv_subobject   TYPE balsubobj           DEFAULT 'LOG_GENERAL'
+                iv_extnumber   TYPE balnrext            OPTIONAL
+                it_extnumber   TYPE stringtab           OPTIONAL
+                iv_log_part_id TYPE i                   DEFAULT 0.
 
     "! Log SAP log messages
     "!
@@ -134,13 +132,11 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
 
   METHOD constructor.
 
-    super->constructor( iv_object          = iv_object
-                        iv_subobject       = iv_subobject
-                        iv_extnumber       = iv_extnumber
-                        it_extnumber       = it_extnumber
-                        iv_detail_level    = iv_detail_level
-                        iv_validity_period = iv_validity_period
-                        iv_log_part_id     = iv_log_part_id ).
+    super->constructor( iv_object      = iv_object
+                        iv_subobject   = iv_subobject
+                        iv_extnumber   = iv_extnumber
+                        it_extnumber   = it_extnumber
+                        iv_log_part_id = iv_log_part_id ).
 
     mv_lgnum   = iv_lgnum.
     mo_sap_log = io_sap_log.

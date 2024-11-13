@@ -69,18 +69,16 @@ CLASS zial_cl_log DEFINITION
 
     "! Create new log instance
     "!
-    "! @parameter iv_object        | Log object
-    "! @parameter iv_subobject     | Log subobject
-    "! @parameter iv_extnumber     | External number / description for a log
-    "! @parameter it_extnumber     | External number elements
-    "! @parameter iv_callstack_lvl | Level of min. message type for which callstack is to be logged in message details
-    "! @parameter ro_instance      | Log instance
+    "! @parameter iv_object    | Log object
+    "! @parameter iv_subobject | Log subobject
+    "! @parameter iv_extnumber | External number / description for a log
+    "! @parameter it_extnumber | External number elements
+    "! @parameter ro_instance  | Log instance
     CLASS-METHODS create
       IMPORTING iv_object          TYPE balobj_d  DEFAULT mc_default-log_object
                 iv_subobject       TYPE balsubobj DEFAULT mc_default-log_subobject
                 iv_extnumber       TYPE balnrext  OPTIONAL
                 it_extnumber       TYPE stringtab OPTIONAL
-                iv_callstack_lvl   TYPE numc1     DEFAULT mc_detail_level-info
       RETURNING VALUE(ro_instance) TYPE zial_cl_log_const=>r_log_instance.
 
     CLASS-METHODS delete
@@ -245,7 +243,6 @@ ENDCLASS.
 CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD create.
-    " TODO: parameter IV_CALLSTACK_LVL is never used (ABAP cleaner)
 
     backup_sy_msg( ).
 

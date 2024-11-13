@@ -24,21 +24,17 @@ CLASS zial_cl_log_sap DEFINITION
 
     "! Initialize log instance
     "!
-    "! @parameter iv_object          | Log object
-    "! @parameter iv_subobject       | Log subobject
-    "! @parameter iv_extnumber       | External number / description for a log
-    "! @parameter it_extnumber       | External number elements
-    "! @parameter iv_detail_level    | Minimum message type level of messages to log
-    "! @parameter iv_validity_period | Days until expiration of log
-    "! @parameter iv_log_part_id     | ID for the new log as part of another log
+    "! @parameter iv_object      | Log object
+    "! @parameter iv_subobject   | Log subobject
+    "! @parameter iv_extnumber   | External number / description for a log
+    "! @parameter it_extnumber   | External number elements
+    "! @parameter iv_log_part_id | ID for the new log as part of another log
     METHODS constructor
-      IMPORTING iv_object          TYPE balobj_d                    DEFAULT zial_cl_log=>mc_default-log_object
-                iv_subobject       TYPE balsubobj                   DEFAULT zial_cl_log=>mc_default-log_subobject
-                iv_extnumber       TYPE balnrext                    OPTIONAL
-                it_extnumber       TYPE stringtab                   OPTIONAL
-                iv_detail_level    TYPE zial_de_log_detail_level    OPTIONAL
-                iv_validity_period TYPE zial_de_log_validity_period OPTIONAL
-                iv_log_part_id     TYPE i                           DEFAULT 0.
+      IMPORTING iv_object      TYPE balobj_d  DEFAULT zial_cl_log=>mc_default-log_object
+                iv_subobject   TYPE balsubobj DEFAULT zial_cl_log=>mc_default-log_subobject
+                iv_extnumber   TYPE balnrext  OPTIONAL
+                it_extnumber   TYPE stringtab OPTIONAL
+                iv_log_part_id TYPE i         DEFAULT 0.
 
     METHODS get_log_handle
       RETURNING VALUE(rv_log_handle) TYPE balloghndl.
@@ -663,8 +659,6 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
 
   METHOD constructor.
-    " TODO: parameter IV_DETAIL_LEVEL is never used (ABAP cleaner)
-    " TODO: parameter IV_VALIDITY_PERIOD is never used (ABAP cleaner)
 
     GET TIME STAMP FIELD mv_process_bgn.
     ms_log-hdr = VALUE #( object    = iv_object
