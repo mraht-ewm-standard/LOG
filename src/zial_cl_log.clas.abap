@@ -642,6 +642,9 @@ CLASS zial_cl_log IMPLEMENTATION.
 
   METHOD harmonize_msg.
 
+    CLEAR: ev_msgtx,
+           es_symsg.
+
     IF is_bapiret IS NOT INITIAL.
 
       DATA(lv_msgid) = is_bapiret-id.
@@ -694,26 +697,19 @@ CLASS zial_cl_log IMPLEMENTATION.
 
     ENDWHILE.
 
-    DATA(ls_msgvar) = VALUE s_msgvar( ).
-    IF lv_msgtx IS NOT INITIAL.
-      ls_msgvar = lv_msgtx.
-    ELSE.
-      MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
-              WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4 INTO lv_msgtx.
-      ls_msgvar-v1 = iv_msgv1.
-      ls_msgvar-v2 = iv_msgv2.
-      ls_msgvar-v3 = iv_msgv3.
-      ls_msgvar-v4 = iv_msgv4.
+    MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
+            WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4 INTO ev_msgtx.
+    IF ev_msgtx IS INITIAL.
+      ev_msgtx = lv_msgtx.
     ENDIF.
 
-    ev_msgtx = lv_msgtx.
     es_symsg = VALUE #( msgid = lv_msgid
                         msgno = lv_msgno
                         msgty = lv_msgty
-                        msgv1 = ls_msgvar-v1
-                        msgv2 = ls_msgvar-v2
-                        msgv3 = ls_msgvar-v3
-                        msgv4 = ls_msgvar-v4 ).
+                        msgv1 = lv_msgv1
+                        msgv2 = lv_msgv2
+                        msgv3 = lv_msgv3
+                        msgv4 = lv_msgv4 ).
 
   ENDMETHOD.
 

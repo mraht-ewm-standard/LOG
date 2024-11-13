@@ -170,16 +170,16 @@ CLASS zial_cl_log_sap DEFINITION
       IMPORTING iv_log_part_id TYPE i.
 
     METHODS create_message
-      IMPORTING iv_msgty        TYPE symsgty
-                iv_msgtx        TYPE bapi_msg                OPTIONAL
-                iv_msgid        TYPE symsgid                 OPTIONAL
-                iv_msgno        TYPE symsgno                 OPTIONAL
-                iv_msgv1        TYPE symsgv                  OPTIONAL
-                iv_msgv2        TYPE symsgv                  OPTIONAL
-                iv_msgv3        TYPE symsgv                  OPTIONAL
-                iv_msgv4        TYPE symsgv                  OPTIONAL
-                it_msgde        TYPE rsra_t_alert_definition OPTIONAL
-                iv_is_dummy_msg TYPE abap_bool               DEFAULT abap_false.
+      IMPORTING iv_msgty           TYPE symsgty
+                iv_msgtx           TYPE bapi_msg                OPTIONAL
+                iv_msgid           TYPE symsgid                 OPTIONAL
+                iv_msgno           TYPE symsgno                 OPTIONAL
+                iv_msgv1           TYPE symsgv                  OPTIONAL
+                iv_msgv2           TYPE symsgv                  OPTIONAL
+                iv_msgv3           TYPE symsgv                  OPTIONAL
+                iv_msgv4           TYPE symsgv                  OPTIONAL
+                it_msgde           TYPE rsra_t_alert_definition OPTIONAL
+                iv_is_internal_msg TYPE abap_bool               DEFAULT abap_false.
 
     METHODS add_timestamp
       RETURNING VALUE(rv_time) TYPE symsgv.
@@ -463,7 +463,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                  iv_msgv3 = iv_msgv3
                  iv_msgv4 = iv_msgv4 ).
 
-    IF iv_is_dummy_msg EQ abap_false.
+    IF iv_is_internal_msg EQ abap_false.
 
       set_priority( ).
 
@@ -734,9 +734,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     det_caller( ).
 
-    create_message( iv_msgty        = zial_cl_log=>mc_msgty-success
-                    iv_msgtx        = |***** { mv_caller } at { add_timestamp( ) } *****|
-                    iv_is_dummy_msg = abap_true ).
+    create_message( iv_msgty           = zial_cl_log=>mc_msgty-success
+                    iv_msgtx           = |***** { mv_caller } at { add_timestamp( ) } *****|
+                    iv_is_internal_msg = abap_true ).
 
   ENDMETHOD.
 
@@ -754,9 +754,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                                                                      tstmp2 = mv_process_bgn ) * 1000 ).
 
         MESSAGE s018(zial_log) WITH lv_duration INTO DATA(lv_msgtx).
-        create_message( iv_msgty        = zial_cl_log=>mc_msgty-success
-                        iv_msgtx        = CONV #( lv_msgtx )
-                        iv_is_dummy_msg = abap_true ).
+        create_message( iv_msgty           = zial_cl_log=>mc_msgty-success
+                        iv_msgtx           = CONV #( lv_msgtx )
+                        iv_is_internal_msg = abap_true ).
 
       CATCH cx_root.
         " Duration couldn't be calculated
@@ -802,10 +802,10 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_line.
 
-    create_message( iv_msgty        = zial_cl_log=>mc_msgty-success
-                    iv_msgtx        = repeat( val = '-'
-                                              occ = 255 )
-                    iv_is_dummy_msg = abap_true ).
+    create_message( iv_msgty           = zial_cl_log=>mc_msgty-success
+                    iv_msgtx           = repeat( val = '-'
+                                                 occ = 255 )
+                    iv_is_internal_msg = abap_true ).
 
   ENDMETHOD.
 
@@ -937,32 +937,35 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
       ms_log-msg-msgno = zial_cl_log=>mc_default-msgno.
     ENDIF.
 
+    ms_log-msg-msgv1 = iv_msgv1.
+    ms_log-msg-msgv2 = iv_msgv2.
+    ms_log-msg-msgv3 = iv_msgv3.
+    ms_log-msg-msgv4 = iv_msgv4.
+
     IF iv_msgtx IS NOT INITIAL.
 
       ms_log-msg-content_type = zial_cl_log=>mc_msg_content_type-txt.
       ms_log-msg-msgtx        = iv_msgtx.
 
-      DO 4 TIMES.
-        DATA(lv_msg_var) = SWITCH string( sy-index
-                                          WHEN 1 THEN iv_msgv1
-                                          WHEN 2 THEN iv_msgv2
-                                          WHEN 3 THEN iv_msgv3
-                                          WHEN 4 THEN iv_msgv4 ).
-        IF lv_msg_var IS NOT INITIAL.
-          REPLACE FIRST OCCURRENCE OF '&' IN ms_log-msg-msgtx WITH lv_msg_var.
-        ELSE.
-          EXIT.
-        ENDIF.
-      ENDDO.
+      IF ms_log-msg-msgtx CS '&'.
+        DO 4 TIMES.
+          DATA(lv_msg_var) = SWITCH string( sy-index
+                                            WHEN 1 THEN ms_log-msg-msgv1
+                                            WHEN 2 THEN ms_log-msg-msgv2
+                                            WHEN 3 THEN ms_log-msg-msgv3
+                                            WHEN 4 THEN ms_log-msg-msgv4 ).
+          IF lv_msg_var IS NOT INITIAL.
+            REPLACE FIRST OCCURRENCE OF '&' IN ms_log-msg-msgtx WITH lv_msg_var.
+          ELSE.
+            EXIT.
+          ENDIF.
+        ENDDO.
+      ENDIF.
 
     ELSEIF iv_msgid IS NOT INITIAL
        AND iv_msgno IS NOT INITIAL.
 
       ms_log-msg-content_type = zial_cl_log=>mc_msg_content_type-obj.
-      ms_log-msg-msgv1        = iv_msgv1.
-      ms_log-msg-msgv2        = iv_msgv2.
-      ms_log-msg-msgv3        = iv_msgv3.
-      ms_log-msg-msgv4        = iv_msgv4.
 
     ELSE.
 

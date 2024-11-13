@@ -78,6 +78,8 @@ CLASS ltc_log_ewm IMPLEMENTATION.
     zial_cl_log=>get( )->log_api_message( lo_api_message ).
 
     DATA(lt_act_messages) = zial_cl_log=>get( )->get_messages( ).
+    DELETE lt_act_messages TO 1.
+
     DATA(ls_act_message) = VALUE #( lt_act_messages[ id     = 'SY'
                                                      number = '499'
                                                      type   = 'S' ] OPTIONAL ).
@@ -85,7 +87,7 @@ CLASS ltc_log_ewm IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals( exp = ls_exp_message
                                         act = ls_act_message ).
 
-    cl_abap_unit_assert=>assert_equals( exp = 2
+    cl_abap_unit_assert=>assert_equals( exp = 1
                                         act = lines( lt_act_messages ) ).
 
   ENDMETHOD.
