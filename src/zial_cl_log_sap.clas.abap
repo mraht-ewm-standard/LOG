@@ -227,9 +227,12 @@ CLASS zial_cl_log_sap DEFINITION
 
     METHODS add_msg_to_appl_log.
 
-  PRIVATE SECTION.
     METHODS is_log_getting_full
       RETURNING VALUE(rv_result) TYPE abap_bool.
+
+    METHODS det_detail_level
+      IMPORTING iv_msgty               TYPE msgty
+      RETURNING VALUE(rv_detail_level) TYPE zial_de_log_detail_level.
 
 ENDCLASS.
 
@@ -237,6 +240,8 @@ ENDCLASS.
 CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD set_callstack.
+
+    CHECK det_detail_level( ms_log-msg-msgty ) LE zial_cl_log_conf=>mc_default-min_callstack_msgty_level.
 
     lcl_session=>get_callstack( IMPORTING et_callstack = DATA(lt_callstack) ).
     DELETE lt_callstack WHERE mainprogram CS mc_class_name.
@@ -256,13 +261,14 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     CHECK ms_log-hdr-detail_level GT 0.
 
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(lv_detail_level) = SWITCH #( iv_msgty
                                       WHEN zial_cl_log=>mc_msgty-info    THEN zial_cl_log=>mc_detail_level-info
                                       WHEN zial_cl_log=>mc_msgty-success THEN zial_cl_log=>mc_detail_level-success
                                       WHEN zial_cl_log=>mc_msgty-warning THEN zial_cl_log=>mc_detail_level-warning
                                       WHEN zial_cl_log=>mc_msgty-error   THEN zial_cl_log=>mc_detail_level-error ).
 
-    CHECK lv_detail_level LE ms_log-hdr-detail_level.
+    CHECK det_detail_level( iv_msgty ) LE ms_log-hdr-detail_level.
     rv_result = abap_true.
 
   ENDMETHOD.
@@ -1145,6 +1151,17 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     CHECK ms_processing_control-log_part_id IS INITIAL
       AND lines( mt_bapiret2 )              EQ ( zial_cl_log_conf=>mc_default-max_num_of_entries - 3 ).
     rv_result = abap_true.
+
+  ENDMETHOD.
+
+
+  METHOD det_detail_level.
+
+    rv_detail_level = SWITCH #( iv_msgty
+                                WHEN zial_cl_log=>mc_msgty-success THEN zial_cl_log=>mc_detail_level-success
+                                WHEN zial_cl_log=>mc_msgty-warning THEN zial_cl_log=>mc_detail_level-warning
+                                WHEN zial_cl_log=>mc_msgty-error   THEN zial_cl_log=>mc_detail_level-error
+                                ELSE                                    zial_cl_log=>mc_detail_level-info ).
 
   ENDMETHOD.
 
