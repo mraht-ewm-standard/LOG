@@ -101,8 +101,11 @@ CLASS zial_cl_log_sap DEFINITION
     METHODS save
       IMPORTING iv_finalize TYPE abap_bool DEFAULT abap_true.
 
-    METHODS is_log_part
-      RETURNING VALUE(rv_result) TYPE abap_bool.
+    METHODS set_detail_level
+      IMPORTING iv_detail_level TYPE zial_de_log_detail_level OPTIONAL.
+
+    METHODS set_expiry_date
+      IMPORTING iv_validity_period TYPE zial_de_log_validity_period OPTIONAL.
 
   PROTECTED SECTION.
     TYPES: BEGIN OF s_processing_control,
@@ -169,6 +172,9 @@ CLASS zial_cl_log_sap DEFINITION
     METHODS set_log_part_id
       IMPORTING iv_log_part_id TYPE i.
 
+    METHODS is_log_part
+      RETURNING VALUE(rv_result) TYPE abap_bool.
+
     METHODS create_message
       IMPORTING iv_msgty           TYPE symsgty
                 iv_msgtx           TYPE bapi_msg                OPTIONAL
@@ -183,9 +189,6 @@ CLASS zial_cl_log_sap DEFINITION
 
     METHODS add_timestamp
       RETURNING VALUE(rv_time) TYPE symsgv.
-
-    METHODS set_detail_level.
-    METHODS set_expiry_date.
 
     METHODS set_context.
 
@@ -259,16 +262,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD is_valid_detail_level.
 
-    CHECK ms_log-hdr-detail_level GT 0.
+    CHECK ms_log-hdr-detail_level      GT 0
+      AND det_detail_level( iv_msgty ) LE ms_log-hdr-detail_level.
 
-    " TODO: variable is assigned but never used (ABAP cleaner)
-    DATA(lv_detail_level) = SWITCH #( iv_msgty
-                                      WHEN zial_cl_log=>mc_msgty-info    THEN zial_cl_log=>mc_detail_level-info
-                                      WHEN zial_cl_log=>mc_msgty-success THEN zial_cl_log=>mc_detail_level-success
-                                      WHEN zial_cl_log=>mc_msgty-warning THEN zial_cl_log=>mc_detail_level-warning
-                                      WHEN zial_cl_log=>mc_msgty-error   THEN zial_cl_log=>mc_detail_level-error ).
-
-    CHECK det_detail_level( iv_msgty ) LE ms_log-hdr-detail_level.
     rv_result = abap_true.
 
   ENDMETHOD.
@@ -422,32 +418,60 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD set_detail_level.
 
-    DATA(ls_log_conf) = zial_cl_log_conf=>get( iv_object    = ms_log-hdr-object
-                                               iv_subobject = ms_log-hdr-subobject
-                                               iv_uname     = sy-uname ).
-    IF ls_log_conf IS INITIAL.
-      ms_log-hdr-detail_level = zial_cl_log_conf=>mc_default-detail_level.
-    ELSE.
-      ms_log-hdr-detail_level = ls_log_conf-detail_level.
-    ENDIF.
+    ms_log-hdr-detail_level = zial_cl_log=>mc_detail_level-undef.
+    WHILE ms_log-hdr-detail_level NOT BETWEEN zial_cl_log=>mc_detail_level-none
+                                          AND zial_cl_log=>mc_detail_level-info.
+
+      CASE sy-index.
+        WHEN 1.
+          CHECK iv_detail_level IS SUPPLIED.
+          ms_log-hdr-detail_level = iv_detail_level.
+
+        WHEN 2.
+          DATA(ls_log_conf) = zial_cl_log_conf=>get( iv_object    = ms_log-hdr-object
+                                                     iv_subobject = ms_log-hdr-subobject
+                                                     iv_uname     = sy-uname ).
+          CHECK ls_log_conf IS NOT INITIAL.
+          ms_log-hdr-detail_level = ls_log_conf-detail_level.
+
+        WHEN 3.
+          ms_log-hdr-detail_level = zial_cl_log_conf=>mc_default-detail_level.
+          EXIT.
+
+      ENDCASE.
+
+    ENDWHILE.
 
   ENDMETHOD.
 
 
   METHOD set_expiry_date.
 
-    DATA(lv_validity_period) = zial_cl_log_conf=>get( iv_object    = ms_log-hdr-object
-                                                      iv_subobject = ms_log-hdr-subobject
-                                                      iv_uname     = sy-uname )-validity_period.
-    IF lv_validity_period LE 0.
-      lv_validity_period = zial_cl_log_conf=>mc_default-validity_period.
-    ENDIF.
+    ms_log-hdr-validity_period = zial_cl_log=>mc_validity_period-undef.
+    WHILE ms_log-hdr-validity_period LT 0.
+
+      CASE sy-index.
+        WHEN 1.
+          CHECK iv_validity_period IS SUPPLIED.
+          ms_log-hdr-validity_period = iv_validity_period.
+
+        WHEN 2.
+          ms_log-hdr-validity_period = zial_cl_log_conf=>get( iv_object    = ms_log-hdr-object
+                                                              iv_subobject = ms_log-hdr-subobject
+                                                              iv_uname     = sy-uname )-validity_period.
+
+        WHEN 3.
+          ms_log-hdr-validity_period = zial_cl_log_conf=>mc_default-validity_period.
+          EXIT.
+
+      ENDCASE.
+
+    ENDWHILE.
 
     IF ms_log-hdr-aldate IS INITIAL.
       ms_log-hdr-aldate = sy-datum.
     ENDIF.
-    ms_log-hdr-validity_period = lv_validity_period.
-    ms_log-hdr-aldate_del      = ms_log-hdr-aldate + lv_validity_period.
+    ms_log-hdr-aldate_del = ms_log-hdr-aldate + ms_log-hdr-validity_period.
 
   ENDMETHOD.
 

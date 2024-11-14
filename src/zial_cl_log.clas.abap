@@ -27,12 +27,17 @@ CLASS zial_cl_log DEFINITION
                  save    TYPE char4 VALUE 'SAVE' ##NO_TEXT,
                END OF mc_log_process.
 
+    CONSTANTS: BEGIN OF mc_validity_period,
+                 undef TYPE zial_de_log_validity_period VALUE -1,
+               END OF mc_validity_period.
+
     CONSTANTS: BEGIN OF mc_detail_level,
-                 none    TYPE numc1 VALUE 0,
-                 error   TYPE numc1 VALUE 1,
-                 warning TYPE numc1 VALUE 2,
-                 success TYPE numc1 VALUE 3,
-                 info    TYPE numc1 VALUE 4,
+                 none    TYPE zial_de_log_detail_level VALUE 0,
+                 error   TYPE zial_de_log_detail_level VALUE 1,
+                 warning TYPE zial_de_log_detail_level VALUE 2,
+                 success TYPE zial_de_log_detail_level VALUE 3,
+                 info    TYPE zial_de_log_detail_level VALUE 4,
+                 undef   TYPE zial_de_log_detail_level VALUE 9,
                END OF mc_detail_level.
 
     CONSTANTS: BEGIN OF mc_default,

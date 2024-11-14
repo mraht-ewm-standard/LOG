@@ -44,13 +44,14 @@ CLASS zial_cl_log_ewm DEFINITION
                 it_wm_messages       TYPE /scwm/t_messages     OPTIONAL
       RETURNING VALUE(rt_bapirettab) TYPE bapirettab.
 
+    METHODS set_expiry_date REDEFINITION.
+
   PROTECTED SECTION.
     CLASS-DATA mo_instance TYPE REF TO zial_cl_log_ewm.
 
     DATA mv_lgnum   TYPE /scwm/lgnum.
     DATA mo_sap_log TYPE REF TO /scwm/cl_log.
 
-    METHODS set_expiry_date           REDEFINITION.
     METHODS add_msg_by_message_object REDEFINITION.
     METHODS add_msg_by_message_text   REDEFINITION.
 
@@ -90,42 +91,24 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
 
   METHOD set_expiry_date.
 
+    " Note: Configure Z-Subobject of Object
+    " /SCWM/WME in Transaction/SCWM/ACTLOG
     DATA(ls_log_act) = VALUE /scwm/log_act( ).
+    CALL FUNCTION '/SCWM/LOG_ACT_READ_SINGLE'
+      EXPORTING  iv_lgnum     = mv_lgnum
+                 iv_subobject = ms_log-hdr-subobject
+      IMPORTING  es_log_act   = ls_log_act
+      EXCEPTIONS not_found    = 1
+                 OTHERS       = 2.
 
-    DO 2 TIMES.
+    CASE sy-subrc.
+      WHEN 0.
+        super->set_expiry_date( ls_log_act-validity ).
 
-      CASE sy-index.
-        WHEN 1.
-          " Note: Configure Z-Subobject of Object
-          " /SCWM/WME in Transaction/SCWM/ACTLOG
-          CALL FUNCTION '/SCWM/LOG_ACT_READ_SINGLE'
-            EXPORTING  iv_lgnum     = mv_lgnum
-                       iv_subobject = ms_log-hdr-subobject
-            IMPORTING  es_log_act   = ls_log_act
-            EXCEPTIONS not_found    = 1
-                       OTHERS       = 2.
+      WHEN OTHERS.
+        super->set_expiry_date( ).
 
-        WHEN 2.
-          ls_log_act-lgnum     = mv_lgnum.
-          ls_log_act-subobject = ms_log-hdr-subobject.
-
-      ENDCASE.
-
-      IF     sy-subrc            EQ 0
-         AND ls_log_act-validity GT 0.
-
-        " Append valid expiration date
-        CALL FUNCTION '/SCWM/APP_LOG_EXPIRY_DATE_DET'
-          EXPORTING is_log_act = ls_log_act
-          CHANGING  cs_log     = ms_log-hdr.
-
-        EXIT.
-
-      ENDIF.
-
-    ENDDO.
-
-    super->set_expiry_date( ).
+    ENDCASE.
 
   ENDMETHOD.
 
