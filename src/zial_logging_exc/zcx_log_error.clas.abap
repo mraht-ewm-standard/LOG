@@ -1,5 +1,5 @@
 "! <p class="shorttext synchronized">Log instance is missing</p>
-CLASS zcx_log_instance_missing DEFINITION
+CLASS zcx_log_error DEFINITION
   PUBLIC
   INHERITING FROM zcx_log FINAL
   CREATE PUBLIC.
@@ -11,11 +11,11 @@ CLASS zcx_log_instance_missing DEFINITION
 ENDCLASS.
 
 
-CLASS zcx_log_instance_missing IMPLEMENTATION.
+CLASS zcx_log_error IMPLEMENTATION.
 
   METHOD zcx_if_check_class~log.
 
-    super->log( ).
+    super->log( iv_with_info ).
 
     MESSAGE e016(zial_log) INTO DATA(lv_msg) ##NEEDED.
     zcx_if_check_class~messages = zial_cl_log=>to_bapirets( iv_msgid = sy-msgid
