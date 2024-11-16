@@ -193,6 +193,8 @@
           <ACTGLOB>3</ACTGLOB>
           <VALIDITY>180</VALIDITY>
          </item>
+         
+         
          <item>
           <MANDT>502</MANDT>
           <OBJECT>ZIAL_LOG</OBJECT>
@@ -201,6 +203,8 @@
           <ACTGLOB>3</ACTGLOB>
           <VALIDITY>90</VALIDITY>
          </item>
+         
+         
          <item>
           <MANDT>502</MANDT>
           <OBJECT>ZIAL_LOG</OBJECT>
@@ -209,6 +213,8 @@
           <ACTGLOB>4</ACTGLOB>
           <VALIDITY>30</VALIDITY>
          </item>
+         
+         
          <item>
           <MANDT>502</MANDT>
           <OBJECT>ZIAL_LOG</OBJECT>
@@ -217,6 +223,8 @@
           <ACTGLOB>4</ACTGLOB>
           <VALIDITY>60</VALIDITY>
          </item>
+         
+        
         </ddic:ZIAL_TT_LOG_CONF>
        </DEEP_DATA>
       </item>

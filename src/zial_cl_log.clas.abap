@@ -1,4 +1,4 @@
-"! <p class="shorttext synchronized">Logging</p>
+"! <p class="shorttext synchronized">Logging: Factory</p>
 CLASS zial_cl_log DEFINITION
   PUBLIC
   CREATE PRIVATE
@@ -247,6 +247,19 @@ ENDCLASS.
 
 CLASS zial_cl_log IMPLEMENTATION.
 
+  METHOD backup_sy_msg.
+
+    ms_symsg = VALUE #( msgid = sy-msgid
+                        msgno = sy-msgno
+                        msgty = sy-msgty
+                        msgv1 = sy-msgv1
+                        msgv2 = sy-msgv2
+                        msgv3 = sy-msgv3
+                        msgv4 = sy-msgv4 ).
+
+  ENDMETHOD.
+
+
   METHOD create.
 
     backup_sy_msg( ).
@@ -282,6 +295,15 @@ CLASS zial_cl_log IMPLEMENTATION.
     DATA(lt_bapiret) = it_bapiret.
     CALL FUNCTION 'RSCRMBW_DISPLAY_BAPIRET2'
       TABLES it_return = lt_bapiret.
+
+  ENDMETHOD.
+
+
+  METHOD free.
+
+    FREE mo_instance.
+
+    zial_cl_log_stack=>free( ).
 
   ENDMETHOD.
 
@@ -325,12 +347,149 @@ CLASS zial_cl_log IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD get_next_log_part_id.
+
+    rv_log_part_id = mv_log_part_id + 1.
+
+  ENDMETHOD.
+
+
+  METHOD harmonize_msg.
+
+    CLEAR: ev_msgtx,
+           es_symsg.
+
+    IF is_bapiret IS NOT INITIAL.
+
+      DATA(lv_msgid) = is_bapiret-id.
+      DATA(lv_msgno) = is_bapiret-number.
+      DATA(lv_msgty) = is_bapiret-type.
+      DATA(lv_msgtx) = is_bapiret-message.
+      DATA(lv_msgv1) = is_bapiret-message_v1.
+      DATA(lv_msgv2) = is_bapiret-message_v2.
+      DATA(lv_msgv3) = is_bapiret-message_v3.
+      DATA(lv_msgv4) = is_bapiret-message_v4.
+
+    ELSE.
+
+      lv_msgid = iv_msgid.
+      lv_msgno = iv_msgno.
+      lv_msgty = iv_msgty.
+      lv_msgtx = iv_msgtx.
+      lv_msgv1 = iv_msgv1.
+      lv_msgv2 = iv_msgv2.
+      lv_msgv3 = iv_msgv3.
+      lv_msgv4 = iv_msgv4.
+
+    ENDIF.
+
+    IF    lv_msgid IS INITIAL
+       OR lv_msgno IS INITIAL.
+      lv_msgid = mc_default-msgid.
+      lv_msgno = mc_default-msgno.
+    ENDIF.
+
+    IF lv_msgty IS INITIAL.
+      lv_msgty = mc_msgty-success.
+    ENDIF.
+
+    WHILE lv_msgtx CS '&'.
+
+      DATA(lv_index) = sy-index.
+      IF lv_index GT 8.
+        EXIT.
+      ENDIF.
+
+      DATA(lv_search_str) = COND #( WHEN lv_index LT 5 THEN |&{ lv_index }|
+                                    WHEN lv_index GT 4 THEN |&| ).
+      DATA(lv_msgvar) = SWITCH #( lv_index
+                                  WHEN 1 OR 5 THEN lv_msgv1
+                                  WHEN 2 OR 6 THEN lv_msgv2
+                                  WHEN 3 OR 7 THEN lv_msgv3
+                                  WHEN 4 OR 8 THEN lv_msgv4 ).
+      REPLACE FIRST OCCURRENCE OF lv_search_str IN lv_msgtx WITH lv_msgvar.
+
+    ENDWHILE.
+
+    MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
+            WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4 INTO ev_msgtx.
+    IF ev_msgtx IS INITIAL.
+      ev_msgtx = lv_msgtx.
+    ENDIF.
+
+    es_symsg = VALUE #( msgid = lv_msgid
+                        msgno = lv_msgno
+                        msgty = lv_msgty
+                        msgv1 = lv_msgv1
+                        msgv2 = lv_msgv2
+                        msgv3 = lv_msgv3
+                        msgv4 = lv_msgv4 ).
+
+  ENDMETHOD.
+
+
+  METHOD has_error.
+
+    IF iv_severity CA 'AEX'.
+      rv_result = abap_true.
+      RETURN.
+    ENDIF.
+
+    LOOP AT it_bapiret TRANSPORTING NO FIELDS WHERE type CA 'AEX'.
+      rv_result = abap_true.
+      EXIT.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD recover_sy_msg.
+
+    CHECK mo_instance->has_error( ) EQ abap_false.
+
+    sy-msgid = ms_symsg-msgid.
+    sy-msgno = ms_symsg-msgno.
+    sy-msgty = ms_symsg-msgty.
+    sy-msgv1 = ms_symsg-msgv1.
+    sy-msgv2 = ms_symsg-msgv2.
+    sy-msgv3 = ms_symsg-msgv3.
+    sy-msgv4 = ms_symsg-msgv4.
+
+  ENDMETHOD.
+
+
   METHOD save.
 
     CHECK zial_cl_log_stack=>is_empty( ) EQ abap_false.
 
     mo_instance = get( ).
     mo_instance->save( iv_finalize ).
+
+  ENDMETHOD.
+
+
+  METHOD show_msgtx.
+
+    DATA(lv_msgdl) = iv_msgdl.
+    IF lv_msgdl IS INITIAL.
+      lv_msgdl = iv_msgty.
+    ENDIF.
+
+    DATA(lv_msgtx) = iv_msgtx.
+    IF iv_msgv1 IS NOT INITIAL.
+      REPLACE '&1' IN lv_msgtx WITH iv_msgv1.
+    ENDIF.
+    IF iv_msgv2 IS NOT INITIAL.
+      REPLACE '&2' IN lv_msgtx WITH iv_msgv2.
+    ENDIF.
+    IF iv_msgv3 IS NOT INITIAL.
+      REPLACE '&3' IN lv_msgtx WITH iv_msgv3.
+    ENDIF.
+    IF iv_msgv4 IS NOT INITIAL.
+      REPLACE '&4' IN lv_msgtx WITH iv_msgv4.
+    ENDIF.
+
+    MESSAGE lv_msgtx TYPE iv_msgty DISPLAY LIKE lv_msgdl.
 
   ENDMETHOD.
 
@@ -566,43 +725,6 @@ CLASS zial_cl_log IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD backup_sy_msg.
-
-    ms_symsg = VALUE #( msgid = sy-msgid
-                        msgno = sy-msgno
-                        msgty = sy-msgty
-                        msgv1 = sy-msgv1
-                        msgv2 = sy-msgv2
-                        msgv3 = sy-msgv3
-                        msgv4 = sy-msgv4 ).
-
-  ENDMETHOD.
-
-
-  METHOD recover_sy_msg.
-
-    CHECK mo_instance->has_error( ) EQ abap_false.
-
-    sy-msgid = ms_symsg-msgid.
-    sy-msgno = ms_symsg-msgno.
-    sy-msgty = ms_symsg-msgty.
-    sy-msgv1 = ms_symsg-msgv1.
-    sy-msgv2 = ms_symsg-msgv2.
-    sy-msgv3 = ms_symsg-msgv3.
-    sy-msgv4 = ms_symsg-msgv4.
-
-  ENDMETHOD.
-
-
-  METHOD free.
-
-    FREE mo_instance.
-
-    zial_cl_log_stack=>free( ).
-
-  ENDMETHOD.
-
-
   METHOD to_symsg.
 
     harmonize_msg( EXPORTING iv_msgid   = iv_msgid
@@ -615,128 +737,6 @@ CLASS zial_cl_log IMPLEMENTATION.
                              iv_msgv4   = iv_msgv4
                              is_bapiret = is_bapiret
                    IMPORTING es_symsg   = rs_symsg ).
-
-  ENDMETHOD.
-
-
-  METHOD show_msgtx.
-
-    DATA(lv_msgdl) = iv_msgdl.
-    IF lv_msgdl IS INITIAL.
-      lv_msgdl = iv_msgty.
-    ENDIF.
-
-    DATA(lv_msgtx) = iv_msgtx.
-    IF iv_msgv1 IS NOT INITIAL.
-      REPLACE '&1' IN lv_msgtx WITH iv_msgv1.
-    ENDIF.
-    IF iv_msgv2 IS NOT INITIAL.
-      REPLACE '&2' IN lv_msgtx WITH iv_msgv2.
-    ENDIF.
-    IF iv_msgv3 IS NOT INITIAL.
-      REPLACE '&3' IN lv_msgtx WITH iv_msgv3.
-    ENDIF.
-    IF iv_msgv4 IS NOT INITIAL.
-      REPLACE '&4' IN lv_msgtx WITH iv_msgv4.
-    ENDIF.
-
-    MESSAGE lv_msgtx TYPE iv_msgty DISPLAY LIKE lv_msgdl.
-
-  ENDMETHOD.
-
-
-  METHOD harmonize_msg.
-
-    CLEAR: ev_msgtx,
-           es_symsg.
-
-    IF is_bapiret IS NOT INITIAL.
-
-      DATA(lv_msgid) = is_bapiret-id.
-      DATA(lv_msgno) = is_bapiret-number.
-      DATA(lv_msgty) = is_bapiret-type.
-      DATA(lv_msgtx) = is_bapiret-message.
-      DATA(lv_msgv1) = is_bapiret-message_v1.
-      DATA(lv_msgv2) = is_bapiret-message_v2.
-      DATA(lv_msgv3) = is_bapiret-message_v3.
-      DATA(lv_msgv4) = is_bapiret-message_v4.
-
-    ELSE.
-
-      lv_msgid = iv_msgid.
-      lv_msgno = iv_msgno.
-      lv_msgty = iv_msgty.
-      lv_msgtx = iv_msgtx.
-      lv_msgv1 = iv_msgv1.
-      lv_msgv2 = iv_msgv2.
-      lv_msgv3 = iv_msgv3.
-      lv_msgv4 = iv_msgv4.
-
-    ENDIF.
-
-    IF    lv_msgid IS INITIAL
-       OR lv_msgno IS INITIAL.
-      lv_msgid = mc_default-msgid.
-      lv_msgno = mc_default-msgno.
-    ENDIF.
-
-    IF lv_msgty IS INITIAL.
-      lv_msgty = mc_msgty-success.
-    ENDIF.
-
-    WHILE lv_msgtx CS '&'.
-
-      DATA(lv_index) = sy-index.
-      IF lv_index GT 8.
-        EXIT.
-      ENDIF.
-
-      DATA(lv_search_str) = COND #( WHEN lv_index LT 5 THEN |&{ lv_index }|
-                                    WHEN lv_index GT 4 THEN |&| ).
-      DATA(lv_msgvar) = SWITCH #( lv_index
-                                  WHEN 1 OR 5 THEN lv_msgv1
-                                  WHEN 2 OR 6 THEN lv_msgv2
-                                  WHEN 3 OR 7 THEN lv_msgv3
-                                  WHEN 4 OR 8 THEN lv_msgv4 ).
-      REPLACE FIRST OCCURRENCE OF lv_search_str IN lv_msgtx WITH lv_msgvar.
-
-    ENDWHILE.
-
-    MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
-            WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4 INTO ev_msgtx.
-    IF ev_msgtx IS INITIAL.
-      ev_msgtx = lv_msgtx.
-    ENDIF.
-
-    es_symsg = VALUE #( msgid = lv_msgid
-                        msgno = lv_msgno
-                        msgty = lv_msgty
-                        msgv1 = lv_msgv1
-                        msgv2 = lv_msgv2
-                        msgv3 = lv_msgv3
-                        msgv4 = lv_msgv4 ).
-
-  ENDMETHOD.
-
-
-  METHOD has_error.
-
-    IF iv_severity CA 'AEX'.
-      rv_result = abap_true.
-      RETURN.
-    ENDIF.
-
-    LOOP AT it_bapiret TRANSPORTING NO FIELDS WHERE type CA 'AEX'.
-      rv_result = abap_true.
-      EXIT.
-    ENDLOOP.
-
-  ENDMETHOD.
-
-
-  METHOD get_next_log_part_id.
-
-    rv_log_part_id = mv_log_part_id + 1.
 
   ENDMETHOD.
 

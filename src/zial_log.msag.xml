@@ -5,6 +5,7 @@
    <T100A>
     <ARBGB>ZIAL_LOG</ARBGB>
     <MASTERLANG>E</MASTERLANG>
+    <STEXT>Logging: Messages</STEXT>
    </T100A>
    <T100>
     <T100>
@@ -23,13 +24,13 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>002</MSGNR>
-     <TEXT>An empty message was tried to be written into the log.</TEXT>
+     <TEXT>An empty message was tried to be written into the log!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>003</MSGNR>
-     <TEXT>Message with No. &amp;1 (&amp;2) couldn&apos;t be written into the log.</TEXT>
+     <TEXT>Message with No. &amp;1 (&amp;2) couldn&apos;t be written into the log!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -41,61 +42,61 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>005</MSGNR>
-     <TEXT>Exception &apos;&amp;1&apos; couldn&apos;t be written into the log.</TEXT>
+     <TEXT>Exception &apos;&amp;1&apos; couldn&apos;t be written into the log!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>006</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Inconsistent log header data.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Inconsistent log header data!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>007</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Log object couldn&apos;t be created.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log object couldn&apos;t be created!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>008</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Log object couldn&apos;t be found.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log object couldn&apos;t be found!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>009</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Saving of the logs was rejected.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Saving of the logs not allowed!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>010</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Number assignment error while saving the log.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Number assignment error while saving the log!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>011</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Log couldn&apos;t be saved.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log couldn&apos;t be saved!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>012</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Log message data is inconsistent.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log message data is inconsistent!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>013</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Log object is full and error couldn&apos;t be resolved internally.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Log object is full and error couldn&apos;t be resolved internally!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>014</MSGNR>
-     <TEXT>SUBRC: &amp;1 - Message couldn&apos;t be added to the log.</TEXT>
+     <TEXT>SUBRC: &amp;1 - Message couldn&apos;t be added to the log!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -107,13 +108,13 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>016</MSGNR>
-     <TEXT>No log instance initialized: Please call static method INIT first.</TEXT>
+     <TEXT>No log instance initialized: Please call static method INIT first!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>017</MSGNR>
-     <TEXT>Log process &apos;&amp;1&apos; couldn&apos;t be executed successfully.</TEXT>
+     <TEXT>Log process &apos;&amp;1&apos; couldn&apos;t be executed successfully!</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -140,6 +141,128 @@
      <TEXT>Max. logging entries of &amp;1 reached: End of log part &amp;2</TEXT>
     </T100>
    </T100>
+   <I18N_LANGS>
+    <LANGU>D</LANGU>
+   </I18N_LANGS>
+   <T100T>
+    <T100T>
+     <SPRSL>D</SPRSL>
+     <ARBGB>ZIAL_LOG</ARBGB>
+     <STEXT>Logging: Nachrichten</STEXT>
+    </T100T>
+   </T100T>
+   <T100_TEXTS>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>000</MSGNR>
+     <TEXT>&amp;1 &amp;2 &amp;3 &amp;4</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>001</MSGNR>
+     <TEXT>Logging fehlgeschlagen: Objekt LOG in SLG1 für weitere Details prüfen!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>002</MSGNR>
+     <TEXT>Es wurde versucht eine leere Nachricht ins Log zu schreiben!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>003</MSGNR>
+     <TEXT>Nachricht mit Nr. &amp;1 (&amp;2) konnte nicht ins Log geschrieben werden!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>004</MSGNR>
+     <TEXT>Variablen: &apos;&amp;1&apos;, &apos;&amp;2&apos;, &apos;&amp;3&apos; und &apos;&amp;4&apos;.</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>005</MSGNR>
+     <TEXT>Ausnahme &apos;&amp;1&apos; konnte nicht ins Log geschrieben werden!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>006</MSGNR>
+     <TEXT>SUBRC: &amp;1 - Inkonsistente Log-Kopfdaten!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>007</MSGNR>
+     <TEXT>SUBRC: &amp;1 - Logobjekt konnte nicht erzeugt werden!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>008</MSGNR>
+     <TEXT>SUBRC: &amp;1 - Logobjekt konnte nicht gefunden werden!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>009</MSGNR>
+     <TEXT>SUBRC: &amp;1 - Speichern der Logs nicht erlaubt!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>010</MSGNR>
+     <TEXT>SUBRC: &amp;1 - Nummernzuordnung während des Speicherns fehlgeschlagen!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>011</MSGNR>
+     <TEXT>SUBRC: &amp;1 - Log konnte nicht gespeichert werden!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>012</MSGNR>
+     <TEXT>SUBRC: &amp;1 - Nachrichtendaten sind inkonsistent!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>013</MSGNR>
+     <TEXT>SUBRC: &amp;1 - Logobjekt ist voll und konnte nicht intern behandelt werden!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>014</MSGNR>
+     <TEXT>SUBRC: &amp;1 - Nachricht konnte nicht zum Log hinzugefügt werden!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>015</MSGNR>
+     <TEXT>Nachricht (Typ: &amp;1) mit folg. Text konnte nicht ins Log geschr. werden:</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>016</MSGNR>
+     <TEXT>Keine Loginstanz init.: Bitte zuerst Klassenmethode INIT aufrufen!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>017</MSGNR>
+     <TEXT>Logprozess &apos;&amp;1&apos; konnte nicht erfolgreich ausgeführt werden!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>018</MSGNR>
+     <TEXT>Prozesslaufzeit: &amp;1 ms</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>019</MSGNR>
+     <TEXT>Der Daten-Cluster für Lognachrichtendetails konnte nicht gefunden werden!</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>020</MSGNR>
+     <TEXT>Max. Anzahl Einträge von &amp;1 erreicht: Beginn von Log-Teil &amp;2</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>021</MSGNR>
+     <TEXT>Max. Anzahl Logeinträge von &amp;1 erreicht: Ende von Log-Teil &amp;2</TEXT>
+    </item>
+   </T100_TEXTS>
   </asx:values>
  </asx:abap>
 </abapGit>

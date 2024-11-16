@@ -18,6 +18,19 @@
     <DTELMASTER>E</DTELMASTER>
     <REFKIND>D</REFKIND>
    </DD04V>
+   <I18N_LANGS>
+    <LANGU>D</LANGU>
+   </I18N_LANGS>
+   <DD04_TEXTS>
+    <item>
+     <DDLANGUAGE>D</DDLANGUAGE>
+     <DDTEXT>Logging: Tage bis Log abläuft</DDTEXT>
+     <REPTEXT>Gültigskeitszeitraum</REPTEXT>
+     <SCRTEXT_S>Gültigkeit</SCRTEXT_S>
+     <SCRTEXT_M>Gültigskeitszeitraum</SCRTEXT_M>
+     <SCRTEXT_L>Gültigskeitszeitraum</SCRTEXT_L>
+    </item>
+   </DD04_TEXTS>
   </asx:values>
  </asx:abap>
 </abapGit>

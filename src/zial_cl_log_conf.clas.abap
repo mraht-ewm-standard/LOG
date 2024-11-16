@@ -6,11 +6,11 @@ CLASS zial_cl_log_conf DEFINITION
     CONSTANTS: BEGIN OF mc_default,
                  "! Not configurable as SAP standard defines the maximum number of
                  "! entries hardcoded in include SBAL_CONSTANTS, CONST_BAL_MSGNUMBER_MAX
-                 max_num_of_entries        TYPE i                           VALUE 999999,
-                 detail_level              TYPE zial_de_log_detail_level    VALUE zial_cl_log=>mc_detail_level-info,
-                 validity_period           TYPE zial_de_log_validity_period VALUE 180,
-                 "! Min. level for which callstack is to be logged in message details
-                 min_callstack_msgty_level TYPE zial_de_log_detail_level    VALUE zial_cl_log=>mc_detail_level-warning,
+                 max_num_of_entries  TYPE i                              VALUE 999999,
+                 detail_level        TYPE zial_de_log_detail_level       VALUE zial_cl_log=>mc_detail_level-info,
+                 validity_period     TYPE zial_de_log_validity_period    VALUE 180,
+                 "! Minimum detail level for which callstack is to be logged in message details
+                 level_log_callstack TYPE zial_de_log_level_log_callstck VALUE zial_cl_log=>mc_detail_level-warning,
                END OF mc_default.
 
     CLASS-METHODS class_constructor.

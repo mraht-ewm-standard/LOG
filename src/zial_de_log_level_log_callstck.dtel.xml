@@ -3,18 +3,18 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <DD04V>
-    <ROLLNAME>ZIAL_DE_LOG_DETAIL_LEVEL</ROLLNAME>
+    <ROLLNAME>ZIAL_DE_LOG_LEVEL_LOG_CALLSTCK</ROLLNAME>
     <DDLANGUAGE>E</DDLANGUAGE>
     <DOMNAME>ZIAL_DO_LOG_DETAIL_LEVEL</DOMNAME>
     <HEADLEN>55</HEADLEN>
     <SCRLEN1>10</SCRLEN1>
     <SCRLEN2>20</SCRLEN2>
     <SCRLEN3>40</SCRLEN3>
-    <DDTEXT>Logging: Detail level</DDTEXT>
-    <REPTEXT>Detail level</REPTEXT>
-    <SCRTEXT_S>Detail lvl</SCRTEXT_S>
-    <SCRTEXT_M>Detail level</SCRTEXT_M>
-    <SCRTEXT_L>Detail level</SCRTEXT_L>
+    <DDTEXT>Logging: Min. level for which callstack is to be logged</DDTEXT>
+    <REPTEXT>Level to log callstack</REPTEXT>
+    <SCRTEXT_S>Log Stack</SCRTEXT_S>
+    <SCRTEXT_M>Level log callstack</SCRTEXT_M>
+    <SCRTEXT_L>Level to log callstack</SCRTEXT_L>
     <DTELMASTER>E</DTELMASTER>
     <REFKIND>D</REFKIND>
    </DD04V>
@@ -24,11 +24,11 @@
    <DD04_TEXTS>
     <item>
      <DDLANGUAGE>D</DDLANGUAGE>
-     <DDTEXT>Logging: Detail-Level</DDTEXT>
-     <REPTEXT>Detail-Level</REPTEXT>
-     <SCRTEXT_S>Detail-Lvl</SCRTEXT_S>
-     <SCRTEXT_M>Detail-Level</SCRTEXT_M>
-     <SCRTEXT_L>Detail-Level</SCRTEXT_L>
+     <DDTEXT>Logging: Min. Level für das die Aufrufhier. geloggt wird</DDTEXT>
+     <REPTEXT>Level Logging Callstack</REPTEXT>
+     <SCRTEXT_S>Stack log.</SCRTEXT_S>
+     <SCRTEXT_M>Level Log. Callstack</SCRTEXT_M>
+     <SCRTEXT_L>Level Logging Callstack</SCRTEXT_L>
     </item>
    </DD04_TEXTS>
   </asx:values>
