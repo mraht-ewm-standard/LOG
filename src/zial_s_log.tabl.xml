@@ -3,11 +3,11 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <DD02V>
-    <TABNAME>ZIAL_S_LOG_MSG</TABNAME>
+    <TABNAME>ZIAL_S_LOG</TABNAME>
     <DDLANGUAGE>E</DDLANGUAGE>
     <TABCLASS>INTTAB</TABCLASS>
     <LANGDEP>X</LANGDEP>
-    <DDTEXT>Logging: Single message data</DDTEXT>
+    <DDTEXT>Logging: Log</DDTEXT>
     <MASTERLANG>E</MASTERLANG>
     <EXCLASS>1</EXCLASS>
    </DD02V>
@@ -35,7 +35,7 @@
    <DD02_TEXTS>
     <item>
      <DDLANGUAGE>D</DDLANGUAGE>
-     <DDTEXT>Log und Einzelnachricht</DDTEXT>
+     <DDTEXT>Logging: Log</DDTEXT>
     </item>
    </DD02_TEXTS>
   </asx:values>

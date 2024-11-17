@@ -11,7 +11,7 @@
     <ACCESSMODE>T</ACCESSMODE>
     <KEYDEF>D</KEYDEF>
     <KEYKIND>N</KEYKIND>
-    <DDTEXT>Application Log: Log message table</DDTEXT>
+    <DDTEXT>Application log: Log message table</DDTEXT>
    </DD40V>
   </asx:values>
  </asx:abap>

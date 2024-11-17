@@ -40,7 +40,24 @@
      <SHLPORIGIN>F</SHLPORIGIN>
      <COMPTYPE>E</COMPTYPE>
     </DD03P>
+    <DD03P>
+     <FIELDNAME>LEVEL_LOG_CALLSTACK</FIELDNAME>
+     <ROLLNAME>ZIAL_DE_LOG_DETAIL_LEVEL</ROLLNAME>
+     <ADMINFIELD>0</ADMINFIELD>
+     <VALEXI>X</VALEXI>
+     <SHLPORIGIN>F</SHLPORIGIN>
+     <COMPTYPE>E</COMPTYPE>
+    </DD03P>
    </DD03P_TABLE>
+   <I18N_LANGS>
+    <LANGU>D</LANGU>
+   </I18N_LANGS>
+   <DD02_TEXTS>
+    <item>
+     <DDLANGUAGE>D</DDLANGUAGE>
+     <DDTEXT>Logging: Kopf</DDTEXT>
+    </item>
+   </DD02_TEXTS>
   </asx:values>
  </asx:abap>
 </abapGit>
