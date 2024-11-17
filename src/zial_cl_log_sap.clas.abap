@@ -664,6 +664,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                    it_extnumber = it_extnumber ).
 
     set_detail_level( ).
+    set_level_log_callstack( ).
     set_expiry_date( ).
 
     create_log( ).
