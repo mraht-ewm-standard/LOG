@@ -3,10 +3,18 @@
  <asx:values>
   <DATA>
    <GROUP_ID>c-a-s.de</GROUP_ID>
-   <ARTIFACT_ID>ewm-logging</ARTIFACT_ID>
+   <ARTIFACT_ID>logging</ARTIFACT_ID>
    <VERSION>20.11.2024.001-rc</VERSION>
    <REPOSITORY_TYPE>abapGit</REPOSITORY_TYPE>
    <GIT_URL>https://github.com/mraht-ewm-standard/LOGGING.git</GIT_URL>
+   <DEPENDENCIES>
+    <item>
+     <GROUP_ID>c-a-s.de</GROUP_ID>
+     <ARTIFACT_ID>aunit</ARTIFACT_ID>
+     <VERSION>17.02.2024.001-rc</VERSION>
+     <GIT_URL>https://github.com/mraht-ewm-standard/AUNIT.git</GIT_URL>
+    </item>
+   </DEPENDENCIES>
   </DATA>
  </asx:values>
 </asx:abap>
