@@ -1,6 +1,15 @@
 *&---------------------------------------------------------------------*
 *& Include zial_r_application_log_cls
 *&---------------------------------------------------------------------*
+CLASS lcx_error DEFINITION INHERITING FROM cx_static_check.
+
+  PUBLIC SECTION.
+    INTERFACES if_t100_message.
+    INTERFACES if_t100_dyn_msg.
+
+ENDCLASS.
+
+
 CLASS lcl_application DEFINITION FINAL.
 
   PUBLIC SECTION.
@@ -27,7 +36,7 @@ CLASS lcl_application DEFINITION FINAL.
       RETURNING VALUE(rs_display_profile) TYPE bal_s_prof.
 
     CLASS-METHODS show_appl_log
-      RAISING zcx_error.
+      RAISING lcx_error.
 
     CLASS-METHODS exp_excel.
 
@@ -35,11 +44,11 @@ CLASS lcl_application DEFINITION FINAL.
       IMPORTING iv_sel_to_show TYPE abap_bool DEFAULT abap_true
       EXPORTING et_header_data TYPE zial_tt_balhdr
                 et_messages    TYPE zial_tt_balm
-      RAISING   zcx_error.
+      RAISING   lcx_error.
 
     CLASS-METHODS export_to_excel
       IMPORTING it_messages TYPE zial_tt_balm
-      RAISING   zcx_error.
+      RAISING   lcx_error.
 
     CLASS-METHODS filter_messages
       CHANGING ct_messages TYPE zial_tt_balm.
@@ -83,7 +92,7 @@ CLASS lcl_application IMPLEMENTATION.
 
         ENDCASE.
 
-      CATCH zcx_static_check INTO DATA(lx_error).
+      CATCH lcx_error INTO DATA(lx_error).
         MESSAGE lx_error->get_text( ) TYPE 'E'.
 
     ENDTRY.
@@ -249,9 +258,8 @@ CLASS lcl_application IMPLEMENTATION.
 
         export_to_excel( lt_messages ).
 
-      CATCH zcx_error INTO DATA(lo_error).
-        DATA(lv_msgty) = lo_error->get_message( )-type.
-        MESSAGE lo_error->get_text( ) TYPE 'S' DISPLAY LIKE lv_msgty.
+      CATCH lcx_error INTO DATA(lo_error).
+        MESSAGE lo_error->get_text( ) TYPE 'S' DISPLAY LIKE 'E'.
 
     ENDTRY.
 
@@ -296,8 +304,8 @@ CLASS lcl_application IMPLEMENTATION.
                 messages         = et_messages.
 
     IF et_messages IS INITIAL.
-      RAISE EXCEPTION TYPE zcx_error
-        MESSAGE w000(zial_log) WITH TEXT-901 ##FM_SUBRC_OK.
+      RAISE EXCEPTION TYPE lcx_error
+            MESSAGE w000(zial_log) WITH TEXT-901 ##FM_SUBRC_OK.
     ENDIF.
 
   ENDMETHOD.
@@ -358,12 +366,12 @@ CLASS lcl_application IMPLEMENTATION.
                                                            OTHERS                    = 5 ).
 
     IF sy-subrc NE 0.
-      RAISE EXCEPTION TYPE zcx_error
-        MESSAGE ID sy-msgid NUMBER sy-msgno
-        WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+      RAISE EXCEPTION TYPE lcx_error
+            MESSAGE ID sy-msgid NUMBER sy-msgno
+            WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ELSEIF lv_user_action EQ cl_gui_frontend_services=>action_cancel.
-      RAISE EXCEPTION TYPE zcx_error
-        MESSAGE w001(00) WITH TEXT-900.
+      RAISE EXCEPTION TYPE lcx_error
+            MESSAGE w001(00) WITH TEXT-900.
     ENDIF.
 
     DATA(lt_data_tab) = VALUE t_data_tab( ).
@@ -371,8 +379,8 @@ CLASS lcl_application IMPLEMENTATION.
       APPEND INITIAL LINE TO lt_data_tab ASSIGNING FIELD-SYMBOL(<ls_data_tab>).
       <ls_data_tab> = CORRESPONDING #( <ls_message> MAPPING msgtm = time_stmp ).
       MESSAGE ID <ls_message>-msgid TYPE <ls_message>-msgty NUMBER <ls_message>-msgno
-        WITH <ls_message>-msgv1 <ls_message>-msgv2 <ls_message>-msgv3 <ls_message>-msgv4
-        INTO <ls_data_tab>-msgtx.
+              WITH <ls_message>-msgv1 <ls_message>-msgv2 <ls_message>-msgv3 <ls_message>-msgv4
+              INTO <ls_data_tab>-msgtx.
     ENDLOOP.
 
     TRY.
@@ -380,9 +388,9 @@ CLASS lcl_application IMPLEMENTATION.
                                 CHANGING  t_table      = lt_data_tab ).
 
       CATCH cx_salv_msg INTO DATA(lo_error).
-        RAISE EXCEPTION TYPE zcx_error
-          MESSAGE ID lo_error->msgid NUMBER lo_error->msgno
-          WITH lo_error->msgv1 lo_error->msgv2 lo_error->msgv3 lo_error->msgv4.
+        RAISE EXCEPTION TYPE lcx_error
+              MESSAGE ID lo_error->msgid NUMBER lo_error->msgno
+              WITH lo_error->msgv1 lo_error->msgv2 lo_error->msgv3 lo_error->msgv4.
 
     ENDTRY.
 
@@ -424,9 +432,9 @@ CLASS lcl_application IMPLEMENTATION.
                                                        OTHERS                  = 24 ).
 
     IF sy-subrc NE 0.
-      RAISE EXCEPTION TYPE zcx_error
-        MESSAGE ID sy-msgid NUMBER sy-msgno
-        WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+      RAISE EXCEPTION TYPE lcx_error
+            MESSAGE ID sy-msgid NUMBER sy-msgno
+            WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ENDIF.
 
     MESSAGE s000(zial_log) WITH TEXT-100.
