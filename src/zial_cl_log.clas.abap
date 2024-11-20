@@ -522,11 +522,8 @@ CLASS zial_cl_log IMPLEMENTATION.
     ELSEIF io_exception IS BOUND.
 
       CASE TYPE OF io_exception.
-        WHEN TYPE zcx_static_check.
-          rs_bapiret = CAST zcx_static_check( io_exception )->get_message( ).
-
-        WHEN TYPE zcx_no_check.
-          rs_bapiret = CAST zcx_no_check( io_exception )->get_message( ).
+        WHEN TYPE zcx_if_check_class.
+          rs_bapiret = CAST zcx_if_check_class( io_exception )->get_message( ).
 
         WHEN TYPE cx_root.
           rs_bapiret = to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ).
