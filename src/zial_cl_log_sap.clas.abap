@@ -767,13 +767,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     DATA(lt_messages) = VALUE bapirettab( ).
     CASE TYPE OF io_exception.
-      WHEN TYPE zcx_static_check INTO DATA(lx_static_check).
-        lx_static_check->log_info( ).
-        INSERT LINES OF lx_static_check->get_messages( ) INTO TABLE lt_messages.
-
-      WHEN TYPE zcx_no_check INTO DATA(lx_no_check).
-        lx_static_check->log_info( ).
-        INSERT LINES OF lx_no_check->get_messages( ) INTO TABLE lt_messages.
+      WHEN TYPE zcx_if_check_class INTO DATA(lx_check_class).
+        lx_check_class->log_info( ).
+        INSERT LINES OF lx_check_class->get_messages( ) INTO TABLE lt_messages.
 
       WHEN OTHERS.
         INSERT zial_cl_log=>to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ) INTO TABLE lt_messages.
