@@ -120,7 +120,7 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>018</MSGNR>
-     <TEXT>Process runtime: &amp;1 ms</TEXT>
+     <TEXT>Process runtime of &amp;1 ms at &amp;2</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -139,6 +139,12 @@
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>021</MSGNR>
      <TEXT>Max. logging entries of &amp;1 reached: End of log part &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZIAL_LOG</ARBGB>
+     <MSGNR>022</MSGNR>
+     <TEXT>***** &amp;1 at &amp;2 *****</TEXT>
     </T100>
    </T100>
    <I18N_LANGS>
@@ -245,7 +251,7 @@
     <item>
      <SPRSL>D</SPRSL>
      <MSGNR>018</MSGNR>
-     <TEXT>Prozesslaufzeit: &amp;1 ms</TEXT>
+     <TEXT>Prozesslaufzeit von &amp;1 ms um &amp;2</TEXT>
     </item>
     <item>
      <SPRSL>D</SPRSL>
@@ -261,6 +267,11 @@
      <SPRSL>D</SPRSL>
      <MSGNR>021</MSGNR>
      <TEXT>Max. Anzahl Logeinträge von &amp;1 erreicht: Ende von Log-Teil &amp;2</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>022</MSGNR>
+     <TEXT>***** &amp;1 um &amp;2 *****</TEXT>
     </item>
    </T100_TEXTS>
   </asx:values>

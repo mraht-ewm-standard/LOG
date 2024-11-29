@@ -729,8 +729,9 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
     det_caller( ).
 
+    MESSAGE s022(zial_log) WITH mv_caller add_timestamp( ) INTO DATA(lv_msgtx).
     create_message( iv_msgty           = zial_cl_log=>mc_msgty-success
-                    iv_msgtx           = |***** { mv_caller } at { add_timestamp( ) } *****|
+                    iv_msgtx           = CONV #( lv_msgtx )
                     iv_is_internal_msg = abap_true ).
 
   ENDMETHOD.
@@ -747,8 +748,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     TRY.
         DATA(lv_duration) = CONV tzntstmpl( cl_abap_tstmp=>subtract( tstmp1 = mv_process_end
                                                                      tstmp2 = mv_process_bgn ) * 1000 ).
-
-        MESSAGE s018(zial_log) WITH lv_duration INTO DATA(lv_msgtx).
+        MESSAGE s018(zial_log) WITH lv_duration add_timestamp( ) INTO DATA(lv_msgtx).
         create_message( iv_msgty           = zial_cl_log=>mc_msgty-success
                         iv_msgtx           = CONV #( lv_msgtx )
                         iv_is_internal_msg = abap_true ).
