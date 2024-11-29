@@ -196,6 +196,7 @@ CLASS zial_cl_log_sap DEFINITION
                 iv_is_internal_msg TYPE abap_bool               DEFAULT abap_false.
 
     METHODS add_timestamp
+      IMPORTING iv_timestamp   TYPE timestampl OPTIONAL
       RETURNING VALUE(rv_time) TYPE symsgv.
 
     METHODS set_context.
@@ -211,7 +212,7 @@ CLASS zial_cl_log_sap DEFINITION
       IMPORTING is_log_msg           TYPE zial_s_log
       RETURNING VALUE(rs_msg_handle) TYPE balmsghndl.
 
-    METHODS log_duration.
+    METHODS log_runtime.
     METHODS det_caller.
 
     METHODS save_log
@@ -333,12 +334,13 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD add_timestamp.
 
-    DATA lv_timestamp TYPE timestampl.
-
-    GET TIME STAMP FIELD lv_timestamp.
-    rv_time = |{ lv_timestamp }|.
+    DATA(lv_timestamp) = iv_timestamp.
+    IF lv_timestamp IS INITIAL.
+      GET TIME STAMP FIELD lv_timestamp.
+    ENDIF.
 
     " DD.MM.YYYY, hh:mm:ss.ms
+    rv_time = |{ lv_timestamp }|.
     rv_time = |{ rv_time+6(2) }.{ rv_time+4(2) }.{ rv_time(4) }, | &
               |{ rv_time+8(2) }:{ rv_time+10(2) }:{ rv_time+12(2) }{ rv_time+14 }|.
 
@@ -737,7 +739,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD log_duration.
+  METHOD log_runtime.
 
     CHECK mv_process_bgn IS NOT INITIAL.
 
@@ -746,15 +748,15 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     ENDIF.
 
     TRY.
-        DATA(lv_duration) = CONV tzntstmpl( cl_abap_tstmp=>subtract( tstmp1 = mv_process_end
-                                                                     tstmp2 = mv_process_bgn ) * 1000 ).
-        MESSAGE s018(zial_log) WITH lv_duration add_timestamp( ) INTO DATA(lv_msgtx).
+        DATA(lv_runtime) = CONV tzntstmpl( cl_abap_tstmp=>subtract( tstmp1 = mv_process_end
+                                                                    tstmp2 = mv_process_bgn ) * 1000 ).
+        MESSAGE s018(zial_log) WITH lv_runtime add_timestamp( mv_process_end ) INTO DATA(lv_msgtx).
         create_message( iv_msgty           = zial_cl_log=>mc_msgty-success
                         iv_msgtx           = CONV #( lv_msgtx )
                         iv_is_internal_msg = abap_true ).
 
       CATCH cx_root.
-        " Duration couldn't be calculated
+        " Runtime couldn't be calculated
 
     ENDTRY.
 
@@ -921,7 +923,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
              OR ms_processing_control-save_error EQ abap_true ).
 
       IF iv_finalize EQ abap_true.
-        log_duration( ).
+        log_runtime( ).
         log_line( ).
       ENDIF.
 
