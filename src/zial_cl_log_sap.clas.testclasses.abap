@@ -24,6 +24,10 @@ CLASS ltc_log DEFINITION FINAL
     METHODS teardown.
 
     METHODS t0001 FOR TESTING RAISING cx_static_check.
+    METHODS t0002 FOR TESTING RAISING cx_static_check.
+    METHODS t0003 FOR TESTING RAISING cx_static_check.
+    METHODS t0004 FOR TESTING RAISING cx_static_check.
+    METHODS t0005 FOR TESTING RAISING cx_static_check.
 
 ENDCLASS.
 
@@ -66,6 +70,8 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0001.
 
+    CHECK mo_aunit->active( abap_false ).
+
     CLEAR: sy-msgty,
            sy-msgid,
            sy-msgno.
@@ -79,6 +85,43 @@ CLASS ltc_log IMPLEMENTATION.
                                       iv_msgtx = |LOG_INFO| ).
 
     zial_cl_log=>get( )->save( ).
+
+  ENDMETHOD.
+
+
+  METHOD t0002.
+
+    CHECK mo_aunit->active( abap_true ).
+
+    DATA(lr_o_cl_log) = VALUE zial_de_log_ewm_cl_log( ).
+    zial_cl_log=>get( )->log_saplog( lr_o_cl_log ).
+
+  ENDMETHOD.
+
+
+  METHOD t0003.
+
+    CHECK mo_aunit->active( abap_true ).
+
+    DATA(lo_api_message) = NEW /scwm/cl_api_message( ).
+    zial_cl_log=>get( )->log_api_message( lo_api_message ).
+
+  ENDMETHOD.
+
+
+  METHOD t0004.
+
+    CHECK mo_aunit->active( abap_true ).
+
+    DATA(lr_t_dm_messages) = VALUE zial_de_log_ewm_dm_message_tab( ).
+    zial_cl_log=>get( )->log_dm_messages( lr_t_dm_messages ).
+
+  ENDMETHOD.
+
+
+  METHOD t0005.
+
+    CHECK mo_aunit->active( abap_true ).
 
   ENDMETHOD.
 

@@ -56,6 +56,10 @@ CLASS lcl_session IMPLEMENTATION.
 
     FIELD-SYMBOLS <ls_aut_callstack> TYPE s_abap_callstack_entry.
 
+    CLEAR: ev_object,
+           ev_routine,
+           et_callstack.
+
     CALL 'ABAP_CALLSTACK' ID 'DEPTH' FIELD -10 ID 'CALLSTACK' FIELD lt_aut_callstack. "#EC CI_CCALL
 
     DATA(lt_r_excl_includes) = VALUE rseloption( sign   = 'I'

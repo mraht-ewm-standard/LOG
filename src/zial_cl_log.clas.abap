@@ -5,8 +5,9 @@ CLASS zial_cl_log DEFINITION
   GLOBAL FRIENDS zial_cl_log_sap.
 
   PUBLIC SECTION.
-    TYPES v_message_param_id TYPE n LENGTH 10.
-    TYPES v_input_component  TYPE c LENGTH 150.
+    TYPES de_module           TYPE c LENGTH 3.
+    TYPES de_message_param_id TYPE n LENGTH 10.
+    TYPES de_input_component  TYPE c LENGTH 150.
 
     TYPES: BEGIN OF s_msgvar,
              v1 TYPE symsgv,
@@ -41,11 +42,9 @@ CLASS zial_cl_log DEFINITION
                END OF mc_detail_level.
 
     CONSTANTS: BEGIN OF mc_default,
-                 log_object    TYPE balobj_d  VALUE 'SYSLOG' ##NO_TEXT,  " Adjust to your needs
-                 log_subobject TYPE balsubobj VALUE 'GENERAL' ##NO_TEXT,
-                 msgid         TYPE symsgid   VALUE 'SY',      " 0Q
-                 msgno         TYPE symsgno   VALUE '499',     " 000
-                 msgty         TYPE symsgty   VALUE 'I',
+                 msgid TYPE symsgid VALUE 'SY',  " 0Q
+                 msgno TYPE symsgno VALUE '499', " 000
+                 msgty TYPE symsgty VALUE 'I',
                END OF mc_default.
 
     CONSTANTS mc_msg_ident          TYPE c LENGTH 9 VALUE 'MSG_IDENT' ##NO_TEXT.
@@ -66,25 +65,40 @@ CLASS zial_cl_log DEFINITION
                  info    TYPE balprobcl VALUE 4,
                END OF mc_msgty_prio.
 
+    CLASS-DATA: BEGIN OF ms_default_log READ-ONLY,
+                  object    TYPE balobj_d,
+                  subobject TYPE balsubobj,
+                END OF ms_default_log.
+
+    CLASS-METHODS set_default_log
+      IMPORTING iv_object    TYPE balobj_d
+                iv_subobject TYPE balobj_d.
+
+    "! Create new log instance
+    "!
+    "! @parameter iv_class_name        | Name of log class
+    "! @parameter iv_object            | Log object
+    "! @parameter iv_subobject         | Log subobject
+    "! @parameter iv_extnumber         | External number / description for a log
+    "! @parameter it_extnumber         | External number elements
+    "! @parameter it_additional_params | Parameters in addition to the default import parameters
+    "! such as {@link zial_cl_log.METH:CREATE.DATA:IV_OBJECT}, {@link zial_cl_log.METH:CREATE.DATA:IV_SUBOBJECT}
+    "! and {@link zial_cl_log.METH:CREATE.DATA:IV_EXTNUMBER} / {@link zial_cl_log.METH:CREATE.DATA:IT_EXTNUMBER}
+    "! @parameter ro_instance          | Log instance of defined log class in {@link zial_cl_log_const}
+    CLASS-METHODS create
+      IMPORTING iv_class_name        TYPE seoclsname        OPTIONAL
+                iv_object            TYPE balobj_d          DEFAULT zial_cl_log=>ms_default_log-object
+                iv_subobject         TYPE balsubobj         DEFAULT zial_cl_log=>ms_default_log-subobject
+                iv_extnumber         TYPE balnrext          OPTIONAL
+                it_extnumber         TYPE stringtab         OPTIONAL
+                it_additional_params TYPE abap_parmbind_tab OPTIONAL
+      RETURNING VALUE(ro_instance)   TYPE REF TO zial_if_log_sap.
+
     "! Get existing or create and return new log instance
     "!
     "! @parameter ro_instance | Instance
     CLASS-METHODS get
-      RETURNING VALUE(ro_instance) TYPE zial_cl_log_const=>r_log_instance.
-
-    "! Create new log instance
-    "!
-    "! @parameter iv_object    | Log object
-    "! @parameter iv_subobject | Log subobject
-    "! @parameter iv_extnumber | External number / description for a log
-    "! @parameter it_extnumber | External number elements
-    "! @parameter ro_instance  | Log instance
-    CLASS-METHODS create
-      IMPORTING iv_object          TYPE balobj_d  DEFAULT mc_default-log_object
-                iv_subobject       TYPE balsubobj DEFAULT mc_default-log_subobject
-                iv_extnumber       TYPE balnrext  OPTIONAL
-                it_extnumber       TYPE stringtab OPTIONAL
-      RETURNING VALUE(ro_instance) TYPE zial_cl_log_const=>r_log_instance.
+      RETURNING VALUE(ro_instance) TYPE REF TO zial_if_log_sap.
 
     CLASS-METHODS delete
       IMPORTING iv_log_handle TYPE balloghndl.
@@ -187,7 +201,7 @@ CLASS zial_cl_log DEFINITION
     "! @parameter rv_components | Component names from input data
     CLASS-METHODS get_components_from_msgde
       IMPORTING it_input_data        TYPE rsra_t_alert_definition
-      RETURNING VALUE(rv_components) TYPE v_input_component.
+      RETURNING VALUE(rv_components) TYPE de_input_component.
 
     "! Display messages in popup
     "!
@@ -211,11 +225,11 @@ CLASS zial_cl_log DEFINITION
   PROTECTED SECTION.
     CLASS-DATA mo_gui_docking_container TYPE REF TO cl_gui_docking_container.
     CLASS-DATA mo_gui_alv_grid          TYPE REF TO cl_gui_alv_grid.
-    CLASS-DATA mv_sel_msg_param_id      TYPE v_message_param_id.
+    CLASS-DATA mv_sel_msg_param_id      TYPE de_message_param_id.
     CLASS-DATA mv_log_part_id           TYPE i.
     CLASS-DATA ms_symsg                 TYPE symsg.
 
-    CLASS-DATA mo_instance              TYPE zial_cl_log_const=>r_log_instance.
+    CLASS-DATA mo_instance              TYPE REF TO zial_if_log_sap.
 
     CLASS-METHODS harmonize_msg
       IMPORTING iv_msgid   TYPE symsgid
@@ -242,357 +256,97 @@ CLASS zial_cl_log DEFINITION
     CLASS-METHODS get_next_log_part_id
       RETURNING VALUE(rv_log_part_id) TYPE i.
 
+    CLASS-METHODS create_by_class_name
+      IMPORTING iv_class_name        TYPE seoclsname
+                iv_object            TYPE balobj_d
+                iv_subobject         TYPE balsubobj
+                iv_extnumber         TYPE balnrext
+                it_extnumber         TYPE stringtab
+                it_additional_params TYPE abap_parmbind_tab OPTIONAL
+      RETURNING VALUE(ro_instance)   TYPE REF TO zial_if_log_sap.
+
+    CLASS-METHODS create_by_const_class
+      IMPORTING iv_object            TYPE balobj_d
+                iv_subobject         TYPE balsubobj
+                iv_extnumber         TYPE balnrext
+                it_extnumber         TYPE stringtab
+                it_additional_params TYPE abap_parmbind_tab OPTIONAL
+      RETURNING VALUE(ro_instance)   TYPE REF TO zial_if_log_sap.
+
+    CLASS-METHODS create_parameter_table
+      IMPORTING iv_object                 TYPE balobj_d
+                iv_subobject              TYPE balsubobj
+                iv_extnumber              TYPE balnrext
+                it_extnumber              TYPE stringtab
+                it_additional_params      TYPE abap_parmbind_tab
+      RETURNING VALUE(rt_parameter_table) TYPE abap_parmbind_tab.
+
+    CLASS-METHODS create_by_base_class
+      IMPORTING iv_object          TYPE balobj_d
+                iv_subobject       TYPE balsubobj
+                iv_extnumber       TYPE balnrext
+                it_extnumber       TYPE stringtab
+      RETURNING VALUE(ro_instance) TYPE REF TO zial_if_log_sap.
+
 ENDCLASS.
 
 
 CLASS zial_cl_log IMPLEMENTATION.
 
-  METHOD backup_sy_msg.
+  METHOD to_symsg.
 
-    ms_symsg = VALUE #( msgid = sy-msgid
-                        msgno = sy-msgno
-                        msgty = sy-msgty
-                        msgv1 = sy-msgv1
-                        msgv2 = sy-msgv2
-                        msgv3 = sy-msgv3
-                        msgv4 = sy-msgv4 ).
-
-  ENDMETHOD.
-
-
-  METHOD create.
-
-    backup_sy_msg( ).
-
-    mo_instance = NEW #( iv_object    = iv_object
-                         iv_subobject = iv_subobject
-                         iv_extnumber = iv_extnumber
-                         it_extnumber = it_extnumber ).
-    zial_cl_log_stack=>push( mo_instance ).
-
-    recover_sy_msg( ).
-
-    ro_instance = mo_instance.
+    harmonize_msg( EXPORTING iv_msgid   = iv_msgid
+                             iv_msgno   = iv_msgno
+                             iv_msgty   = iv_msgty
+                             iv_msgtx   = iv_msgtx
+                             iv_msgv1   = iv_msgv1
+                             iv_msgv2   = iv_msgv2
+                             iv_msgv3   = iv_msgv3
+                             iv_msgv4   = iv_msgv4
+                             is_bapiret = is_bapiret
+                   IMPORTING es_symsg   = rs_symsg ).
 
   ENDMETHOD.
 
 
-  METHOD delete.
+  METHOD to_string.
 
-    CHECK iv_log_handle IS NOT INITIAL.
+    harmonize_msg( EXPORTING iv_msgid   = iv_msgid
+                             iv_msgno   = iv_msgno
+                             iv_msgty   = iv_msgty
+                             iv_msgv1   = iv_msgv1
+                             iv_msgv2   = iv_msgv2
+                             iv_msgv3   = iv_msgv3
+                             iv_msgv4   = iv_msgv4
+                             is_bapiret = is_bapiret
+                   IMPORTING es_symsg   = DATA(ls_symsg) ).
 
-    CALL FUNCTION 'BAL_LOG_DELETE'
-      EXPORTING  i_log_handle = iv_log_handle
-      EXCEPTIONS OTHERS       = 0.
-
-    zial_cl_log_stack=>remove( iv_log_handle ).
-
-  ENDMETHOD.
-
-
-  METHOD display_as_popup.
-
-    DATA(lt_bapiret) = it_bapiret.
-    CALL FUNCTION 'RSCRMBW_DISPLAY_BAPIRET2'
-      TABLES it_return = lt_bapiret.
-
-  ENDMETHOD.
-
-
-  METHOD free.
-
-    FREE mo_instance.
-
-    zial_cl_log_stack=>free( ).
-
-  ENDMETHOD.
-
-
-  METHOD get.
-
-    mo_instance = zial_cl_log_stack=>pop( )-instance.
-    IF mo_instance IS INITIAL.
-      mo_instance = create( iv_object    = mc_default-log_object
-                            iv_subobject = mc_default-log_subobject
-                            iv_extnumber = CONV #( TEXT-001 ) ).
-    ENDIF.
-
-    ro_instance = mo_instance.
-
-  ENDMETHOD.
-
-
-  METHOD get_components_from_msgde.
-
-    DATA(lt_input_data) = it_input_data.
-    DELETE ADJACENT DUPLICATES FROM lt_input_data COMPARING fnam.
-
-    LOOP AT lt_input_data ASSIGNING FIELD-SYMBOL(<ls_input_data>).
-
-      CASE sy-tabix.
-        WHEN 1.
-          rv_components = <ls_input_data>-fnam.
-
-        WHEN OTHERS.
-          rv_components = |{ rv_components }, { <ls_input_data>-fnam }|.
-
-      ENDCASE.
-
-    ENDLOOP.
-
-    IF rv_components IS INITIAL.
-      rv_components = 'N/A'.
+    IF ls_symsg IS NOT INITIAL.
+      MESSAGE ID ls_symsg-msgid TYPE ls_symsg-msgty NUMBER ls_symsg-msgno
+              WITH ls_symsg-msgv1 ls_symsg-msgv2 ls_symsg-msgv3 ls_symsg-msgv4
+              INTO rv_result.
     ENDIF.
 
   ENDMETHOD.
 
 
-  METHOD get_next_log_part_id.
+  METHOD to_msgde_add_by_components.
 
-    rv_log_part_id = mv_log_part_id + 1.
+    LOOP AT io_struct_descr->components ASSIGNING FIELD-SYMBOL(<ls_component>).
 
-  ENDMETHOD.
-
-
-  METHOD harmonize_msg.
-
-    CLEAR: ev_msgtx,
-           es_symsg.
-
-    IF is_bapiret IS NOT INITIAL.
-
-      DATA(lv_msgid) = is_bapiret-id.
-      DATA(lv_msgno) = is_bapiret-number.
-      DATA(lv_msgty) = is_bapiret-type.
-      DATA(lv_msgtx) = is_bapiret-message.
-      DATA(lv_msgv1) = is_bapiret-message_v1.
-      DATA(lv_msgv2) = is_bapiret-message_v2.
-      DATA(lv_msgv3) = is_bapiret-message_v3.
-      DATA(lv_msgv4) = is_bapiret-message_v4.
-
-    ELSE.
-
-      lv_msgid = iv_msgid.
-      lv_msgno = iv_msgno.
-      lv_msgty = iv_msgty.
-      lv_msgtx = iv_msgtx.
-      lv_msgv1 = iv_msgv1.
-      lv_msgv2 = iv_msgv2.
-      lv_msgv3 = iv_msgv3.
-      lv_msgv4 = iv_msgv4.
-
-    ENDIF.
-
-    IF    lv_msgid IS INITIAL
-       OR lv_msgno IS INITIAL.
-      lv_msgid = mc_default-msgid.
-      lv_msgno = mc_default-msgno.
-    ENDIF.
-
-    IF lv_msgty IS INITIAL.
-      lv_msgty = mc_msgty-success.
-    ENDIF.
-
-    WHILE lv_msgtx CS '&'.
-
-      DATA(lv_index) = sy-index.
-      IF lv_index GT 8.
-        EXIT.
+      IF         it_fnam IS NOT INITIAL
+         AND NOT line_exists( it_fnam[ table_line = <ls_component>-name ] ).
+        CONTINUE.
       ENDIF.
 
-      DATA(lv_search_str) = COND #( WHEN lv_index LT 5 THEN |&{ lv_index }|
-                                    WHEN lv_index GT 4 THEN |&| ).
-      DATA(lv_msgvar) = SWITCH #( lv_index
-                                  WHEN 1 OR 5 THEN lv_msgv1
-                                  WHEN 2 OR 6 THEN lv_msgv2
-                                  WHEN 3 OR 7 THEN lv_msgv3
-                                  WHEN 4 OR 8 THEN lv_msgv4 ).
-      REPLACE FIRST OCCURRENCE OF lv_search_str IN lv_msgtx WITH lv_msgvar.
+      ASSIGN COMPONENT <ls_component>-name OF STRUCTURE is_data TO FIELD-SYMBOL(<lv_value>).
+      IF <lv_value> IS NOT ASSIGNED.
+        CONTINUE.
+      ENDIF.
 
-    ENDWHILE.
+      APPEND VALUE #( fnam = <ls_component>-name
+                      low  = <lv_value> ) TO rt_msgde.
 
-    MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
-            WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4 INTO ev_msgtx.
-    IF ev_msgtx IS INITIAL.
-      ev_msgtx = lv_msgtx.
-    ENDIF.
-
-    es_symsg = VALUE #( msgid = lv_msgid
-                        msgno = lv_msgno
-                        msgty = lv_msgty
-                        msgv1 = lv_msgv1
-                        msgv2 = lv_msgv2
-                        msgv3 = lv_msgv3
-                        msgv4 = lv_msgv4 ).
-
-  ENDMETHOD.
-
-
-  METHOD has_error.
-
-    IF iv_severity CA 'AEX'.
-      rv_result = abap_true.
-      RETURN.
-    ENDIF.
-
-    LOOP AT it_bapiret TRANSPORTING NO FIELDS WHERE type CA 'AEX'.
-      rv_result = abap_true.
-      EXIT.
-    ENDLOOP.
-
-  ENDMETHOD.
-
-
-  METHOD recover_sy_msg.
-
-    CHECK mo_instance->has_error( ) EQ abap_false.
-
-    sy-msgid = ms_symsg-msgid.
-    sy-msgno = ms_symsg-msgno.
-    sy-msgty = ms_symsg-msgty.
-    sy-msgv1 = ms_symsg-msgv1.
-    sy-msgv2 = ms_symsg-msgv2.
-    sy-msgv3 = ms_symsg-msgv3.
-    sy-msgv4 = ms_symsg-msgv4.
-
-  ENDMETHOD.
-
-
-  METHOD save.
-
-    CHECK zial_cl_log_stack=>is_empty( ) EQ abap_false.
-
-    mo_instance = get( ).
-    mo_instance->save( iv_finalize ).
-
-  ENDMETHOD.
-
-
-  METHOD show_msgtx.
-
-    DATA(lv_msgdl) = iv_msgdl.
-    IF lv_msgdl IS INITIAL.
-      lv_msgdl = iv_msgty.
-    ENDIF.
-
-    DATA(lv_msgtx) = iv_msgtx.
-    IF iv_msgv1 IS NOT INITIAL.
-      REPLACE '&1' IN lv_msgtx WITH iv_msgv1.
-    ENDIF.
-    IF iv_msgv2 IS NOT INITIAL.
-      REPLACE '&2' IN lv_msgtx WITH iv_msgv2.
-    ENDIF.
-    IF iv_msgv3 IS NOT INITIAL.
-      REPLACE '&3' IN lv_msgtx WITH iv_msgv3.
-    ENDIF.
-    IF iv_msgv4 IS NOT INITIAL.
-      REPLACE '&4' IN lv_msgtx WITH iv_msgv4.
-    ENDIF.
-
-    MESSAGE lv_msgtx TYPE iv_msgty DISPLAY LIKE lv_msgdl.
-
-  ENDMETHOD.
-
-
-  METHOD to_bapiret.
-
-    IF     iv_msgtx IS SUPPLIED
-       AND iv_msgtx IS NOT INITIAL.
-
-      harmonize_msg( EXPORTING iv_msgid = mc_default-msgid
-                               iv_msgno = mc_default-msgno
-                               iv_msgty = iv_msgty
-                               iv_msgtx = CONV #( iv_msgtx )
-                               iv_msgv1 = CONV #( iv_msgv1 )
-                               iv_msgv2 = CONV #( iv_msgv2 )
-                               iv_msgv3 = CONV #( iv_msgv3 )
-                               iv_msgv4 = CONV #( iv_msgv4 )
-                     IMPORTING ev_msgtx = DATA(lv_msgtx)
-                               es_symsg = DATA(ls_symsg) ).
-
-      rs_bapiret = VALUE #( id         = ls_symsg-msgid
-                            number     = ls_symsg-msgno
-                            type       = ls_symsg-msgty
-                            message    = lv_msgtx
-                            message_v1 = ls_symsg-msgv1
-                            message_v2 = ls_symsg-msgv2
-                            message_v3 = ls_symsg-msgv3
-                            message_v4 = ls_symsg-msgv4 ).
-
-    ELSEIF io_exception IS BOUND.
-
-      CASE TYPE OF io_exception.
-        WHEN TYPE zcx_if_check_class.
-          rs_bapiret = CAST zcx_if_check_class( io_exception )->get_message( ).
-
-        WHEN TYPE cx_root.
-          rs_bapiret = to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ).
-
-        WHEN OTHERS.
-          RETURN.
-
-      ENDCASE.
-
-    ELSEIF iv_msgty IS NOT INITIAL
-       AND iv_msgid IS NOT INITIAL
-       AND iv_msgno CN ' _'.
-
-      rs_bapiret = VALUE #( type       = iv_msgty
-                            id         = iv_msgid
-                            number     = iv_msgno
-                            message_v1 = CONV #( iv_msgv1 )
-                            message_v2 = CONV #( iv_msgv2 )
-                            message_v3 = CONV #( iv_msgv3 )
-                            message_v4 = CONV #( iv_msgv4 ) ).
-      MESSAGE ID iv_msgid TYPE iv_msgty NUMBER iv_msgno
-              WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 INTO rs_bapiret-message.
-
-    ELSE.
-
-      RETURN.
-
-    ENDIF.
-
-    CALL FUNCTION 'OWN_LOGICAL_SYSTEM_GET_STABLE'
-      IMPORTING  own_logical_system = rs_bapiret-system
-      EXCEPTIONS OTHERS             = 0.
-
-  ENDMETHOD.
-
-
-  METHOD to_bapirets.
-
-    IF io_exception IS BOUND.
-
-      CASE TYPE OF io_exception.
-        WHEN TYPE zcx_if_check_class.
-          rt_bapiret = CAST zcx_if_check_class( io_exception )->get_messages( ).
-
-        WHEN TYPE cx_root.
-          rt_bapiret = VALUE #( ( to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ) ) ).
-
-        WHEN OTHERS.
-          RETURN.
-
-      ENDCASE.
-
-    ELSE.
-
-      rt_bapiret = VALUE #( ( to_bapiret( iv_msgid = iv_msgid
-                                          iv_msgty = iv_msgty
-                                          iv_msgno = iv_msgno
-                                          iv_msgtx = iv_msgtx
-                                          iv_msgv1 = iv_msgv1
-                                          iv_msgv2 = iv_msgv2
-                                          iv_msgv3 = iv_msgv3
-                                          iv_msgv4 = iv_msgv4 ) ) ).
-
-    ENDIF.
-
-    LOOP AT rt_bapiret ASSIGNING FIELD-SYMBOL(<ls_bapiret>) WHERE system IS INITIAL.
-      CALL FUNCTION 'OWN_LOGICAL_SYSTEM_GET_STABLE'
-        IMPORTING  own_logical_system = <ls_bapiret>-system
-        EXCEPTIONS OTHERS             = 0.
     ENDLOOP.
 
   ENDMETHOD.
@@ -679,61 +433,453 @@ CLASS zial_cl_log IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD to_msgde_add_by_components.
+  METHOD to_bapirets.
 
-    LOOP AT io_struct_descr->components ASSIGNING FIELD-SYMBOL(<ls_component>).
+    IF io_exception IS BOUND.
 
-      IF         it_fnam IS NOT INITIAL
-         AND NOT line_exists( it_fnam[ table_line = <ls_component>-name ] ).
-        CONTINUE.
-      ENDIF.
+      CASE TYPE OF io_exception.
+        WHEN TYPE zcx_if_check_class.
+          rt_bapiret = CAST zcx_if_check_class( io_exception )->get_messages( ).
 
-      ASSIGN COMPONENT <ls_component>-name OF STRUCTURE is_data TO FIELD-SYMBOL(<lv_value>).
-      IF <lv_value> IS NOT ASSIGNED.
-        CONTINUE.
-      ENDIF.
+        WHEN TYPE cx_root.
+          rt_bapiret = VALUE #( ( to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ) ) ).
 
-      APPEND VALUE #( fnam = <ls_component>-name
-                      low  = <lv_value> ) TO rt_msgde.
+        WHEN OTHERS.
+          RETURN.
 
+      ENDCASE.
+
+    ELSE.
+
+      rt_bapiret = VALUE #( ( to_bapiret( iv_msgid = iv_msgid
+                                          iv_msgty = iv_msgty
+                                          iv_msgno = iv_msgno
+                                          iv_msgtx = iv_msgtx
+                                          iv_msgv1 = iv_msgv1
+                                          iv_msgv2 = iv_msgv2
+                                          iv_msgv3 = iv_msgv3
+                                          iv_msgv4 = iv_msgv4 ) ) ).
+
+    ENDIF.
+
+    LOOP AT rt_bapiret ASSIGNING FIELD-SYMBOL(<ls_bapiret>) WHERE system IS INITIAL.
+      CALL FUNCTION 'OWN_LOGICAL_SYSTEM_GET_STABLE'
+        IMPORTING  own_logical_system = <ls_bapiret>-system
+        EXCEPTIONS OTHERS             = 0.
     ENDLOOP.
 
   ENDMETHOD.
 
 
-  METHOD to_string.
+  METHOD to_bapiret.
 
-    harmonize_msg( EXPORTING iv_msgid   = iv_msgid
-                             iv_msgno   = iv_msgno
-                             iv_msgty   = iv_msgty
-                             iv_msgv1   = iv_msgv1
-                             iv_msgv2   = iv_msgv2
-                             iv_msgv3   = iv_msgv3
-                             iv_msgv4   = iv_msgv4
-                             is_bapiret = is_bapiret
-                   IMPORTING es_symsg   = DATA(ls_symsg) ).
+    IF     iv_msgtx IS SUPPLIED
+       AND iv_msgtx IS NOT INITIAL.
 
-    IF ls_symsg IS NOT INITIAL.
-      MESSAGE ID ls_symsg-msgid TYPE ls_symsg-msgty NUMBER ls_symsg-msgno
-              WITH ls_symsg-msgv1 ls_symsg-msgv2 ls_symsg-msgv3 ls_symsg-msgv4
-              INTO rv_result.
+      harmonize_msg( EXPORTING iv_msgid = mc_default-msgid
+                               iv_msgno = mc_default-msgno
+                               iv_msgty = iv_msgty
+                               iv_msgtx = CONV #( iv_msgtx )
+                               iv_msgv1 = CONV #( iv_msgv1 )
+                               iv_msgv2 = CONV #( iv_msgv2 )
+                               iv_msgv3 = CONV #( iv_msgv3 )
+                               iv_msgv4 = CONV #( iv_msgv4 )
+                     IMPORTING ev_msgtx = DATA(lv_msgtx)
+                               es_symsg = DATA(ls_symsg) ).
+
+      rs_bapiret = VALUE #( id         = ls_symsg-msgid
+                            number     = ls_symsg-msgno
+                            type       = ls_symsg-msgty
+                            message    = lv_msgtx
+                            message_v1 = ls_symsg-msgv1
+                            message_v2 = ls_symsg-msgv2
+                            message_v3 = ls_symsg-msgv3
+                            message_v4 = ls_symsg-msgv4 ).
+
+    ELSEIF io_exception IS BOUND.
+
+      CASE TYPE OF io_exception.
+        WHEN TYPE zcx_if_check_class.
+          rs_bapiret = CAST zcx_if_check_class( io_exception )->get_message( ).
+
+        WHEN TYPE cx_root.
+          rs_bapiret = to_bapiret( iv_msgtx = CONV #( io_exception->get_text( ) ) ).
+
+        WHEN OTHERS.
+          RETURN.
+
+      ENDCASE.
+
+    ELSEIF iv_msgty IS NOT INITIAL
+       AND iv_msgid IS NOT INITIAL
+       AND iv_msgno CN ' _'.
+
+      rs_bapiret = VALUE #( type       = iv_msgty
+                            id         = iv_msgid
+                            number     = iv_msgno
+                            message_v1 = CONV #( iv_msgv1 )
+                            message_v2 = CONV #( iv_msgv2 )
+                            message_v3 = CONV #( iv_msgv3 )
+                            message_v4 = CONV #( iv_msgv4 ) ).
+      MESSAGE ID iv_msgid TYPE iv_msgty NUMBER iv_msgno
+              WITH iv_msgv1 iv_msgv2 iv_msgv3 iv_msgv4 INTO rs_bapiret-message.
+
+    ELSE.
+
+      RETURN.
+
+    ENDIF.
+
+    CALL FUNCTION 'OWN_LOGICAL_SYSTEM_GET_STABLE'
+      IMPORTING  own_logical_system = rs_bapiret-system
+      EXCEPTIONS OTHERS             = 0.
+
+  ENDMETHOD.
+
+
+  METHOD show_msgtx.
+
+    DATA(lv_msgdl) = iv_msgdl.
+    IF lv_msgdl IS INITIAL.
+      lv_msgdl = iv_msgty.
+    ENDIF.
+
+    DATA(lv_msgtx) = iv_msgtx.
+    IF iv_msgv1 IS NOT INITIAL.
+      REPLACE '&1' IN lv_msgtx WITH iv_msgv1.
+    ENDIF.
+    IF iv_msgv2 IS NOT INITIAL.
+      REPLACE '&2' IN lv_msgtx WITH iv_msgv2.
+    ENDIF.
+    IF iv_msgv3 IS NOT INITIAL.
+      REPLACE '&3' IN lv_msgtx WITH iv_msgv3.
+    ENDIF.
+    IF iv_msgv4 IS NOT INITIAL.
+      REPLACE '&4' IN lv_msgtx WITH iv_msgv4.
+    ENDIF.
+
+    MESSAGE lv_msgtx TYPE iv_msgty DISPLAY LIKE lv_msgdl.
+
+  ENDMETHOD.
+
+
+  METHOD set_default_log.
+
+    ms_default_log-object    = iv_object.
+    ms_default_log-subobject = iv_subobject.
+
+  ENDMETHOD.
+
+
+  METHOD save.
+
+    CHECK zial_cl_log_stack=>is_empty( ) EQ abap_false.
+
+    mo_instance = get( ).
+    mo_instance->save( iv_finalize ).
+
+  ENDMETHOD.
+
+
+  METHOD recover_sy_msg.
+
+    CHECK mo_instance->has_error( ) EQ abap_false.
+
+    sy-msgid = ms_symsg-msgid.
+    sy-msgno = ms_symsg-msgno.
+    sy-msgty = ms_symsg-msgty.
+    sy-msgv1 = ms_symsg-msgv1.
+    sy-msgv2 = ms_symsg-msgv2.
+    sy-msgv3 = ms_symsg-msgv3.
+    sy-msgv4 = ms_symsg-msgv4.
+
+  ENDMETHOD.
+
+
+  METHOD has_error.
+
+    IF iv_severity CA 'AEX'.
+      rv_result = abap_true.
+      RETURN.
+    ENDIF.
+
+    LOOP AT it_bapiret TRANSPORTING NO FIELDS WHERE type CA 'AEX'.
+      rv_result = abap_true.
+      EXIT.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD harmonize_msg.
+
+    CLEAR: ev_msgtx,
+           es_symsg.
+
+    IF is_bapiret IS NOT INITIAL.
+
+      DATA(lv_msgid) = is_bapiret-id.
+      DATA(lv_msgno) = is_bapiret-number.
+      DATA(lv_msgty) = is_bapiret-type.
+      DATA(lv_msgtx) = is_bapiret-message.
+      DATA(lv_msgv1) = is_bapiret-message_v1.
+      DATA(lv_msgv2) = is_bapiret-message_v2.
+      DATA(lv_msgv3) = is_bapiret-message_v3.
+      DATA(lv_msgv4) = is_bapiret-message_v4.
+
+    ELSE.
+
+      lv_msgid = iv_msgid.
+      lv_msgno = iv_msgno.
+      lv_msgty = iv_msgty.
+      lv_msgtx = iv_msgtx.
+      lv_msgv1 = iv_msgv1.
+      lv_msgv2 = iv_msgv2.
+      lv_msgv3 = iv_msgv3.
+      lv_msgv4 = iv_msgv4.
+
+    ENDIF.
+
+    IF    lv_msgid IS INITIAL
+       OR lv_msgno IS INITIAL.
+      lv_msgid = mc_default-msgid.
+      lv_msgno = mc_default-msgno.
+    ENDIF.
+
+    IF lv_msgty IS INITIAL.
+      lv_msgty = mc_msgty-success.
+    ENDIF.
+
+    WHILE lv_msgtx CS '&'.
+
+      DATA(lv_index) = sy-index.
+      IF lv_index GT 8.
+        EXIT.
+      ENDIF.
+
+      DATA(lv_search_str) = COND #( WHEN lv_index LT 5 THEN |&{ lv_index }|
+                                    WHEN lv_index GT 4 THEN |&| ).
+      DATA(lv_msgvar) = SWITCH #( lv_index
+                                  WHEN 1 OR 5 THEN lv_msgv1
+                                  WHEN 2 OR 6 THEN lv_msgv2
+                                  WHEN 3 OR 7 THEN lv_msgv3
+                                  WHEN 4 OR 8 THEN lv_msgv4 ).
+      REPLACE FIRST OCCURRENCE OF lv_search_str IN lv_msgtx WITH lv_msgvar.
+
+    ENDWHILE.
+
+    MESSAGE ID lv_msgid TYPE lv_msgty NUMBER lv_msgno
+            WITH lv_msgv1 lv_msgv2 lv_msgv3 lv_msgv4 INTO ev_msgtx.
+    IF ev_msgtx IS INITIAL.
+      ev_msgtx = lv_msgtx.
+    ENDIF.
+
+    es_symsg = VALUE #( msgid = lv_msgid
+                        msgno = lv_msgno
+                        msgty = lv_msgty
+                        msgv1 = lv_msgv1
+                        msgv2 = lv_msgv2
+                        msgv3 = lv_msgv3
+                        msgv4 = lv_msgv4 ).
+
+  ENDMETHOD.
+
+
+  METHOD get_next_log_part_id.
+
+    rv_log_part_id = mv_log_part_id + 1.
+
+  ENDMETHOD.
+
+
+  METHOD get_components_from_msgde.
+
+    DATA(lt_input_data) = it_input_data.
+    DELETE ADJACENT DUPLICATES FROM lt_input_data COMPARING fnam.
+
+    LOOP AT lt_input_data ASSIGNING FIELD-SYMBOL(<ls_input_data>).
+
+      CASE sy-tabix.
+        WHEN 1.
+          rv_components = <ls_input_data>-fnam.
+
+        WHEN OTHERS.
+          rv_components = |{ rv_components }, { <ls_input_data>-fnam }|.
+
+      ENDCASE.
+
+    ENDLOOP.
+
+    IF rv_components IS INITIAL.
+      rv_components = 'N/A'.
     ENDIF.
 
   ENDMETHOD.
 
 
-  METHOD to_symsg.
+  METHOD free.
 
-    harmonize_msg( EXPORTING iv_msgid   = iv_msgid
-                             iv_msgno   = iv_msgno
-                             iv_msgty   = iv_msgty
-                             iv_msgtx   = iv_msgtx
-                             iv_msgv1   = iv_msgv1
-                             iv_msgv2   = iv_msgv2
-                             iv_msgv3   = iv_msgv3
-                             iv_msgv4   = iv_msgv4
-                             is_bapiret = is_bapiret
-                   IMPORTING es_symsg   = rs_symsg ).
+    FREE mo_instance.
+
+    zial_cl_log_stack=>free( ).
+
+  ENDMETHOD.
+
+
+  METHOD display_as_popup.
+
+    DATA(lt_bapiret) = it_bapiret.
+    CALL FUNCTION 'RSCRMBW_DISPLAY_BAPIRET2'
+      TABLES it_return = lt_bapiret.
+
+  ENDMETHOD.
+
+
+  METHOD delete.
+
+    CHECK iv_log_handle IS NOT INITIAL.
+
+    CALL FUNCTION 'BAL_LOG_DELETE'
+      EXPORTING  i_log_handle = iv_log_handle
+      EXCEPTIONS OTHERS       = 0.
+
+    zial_cl_log_stack=>remove( iv_log_handle ).
+
+  ENDMETHOD.
+
+
+  METHOD create_parameter_table.
+
+    rt_parameter_table = VALUE abap_parmbind_tab( ( name  = 'IV_OBJECT'
+                                                    kind  = cl_abap_objectdescr=>exporting
+                                                    value = REF #( iv_object ) )
+                                                  ( name  = 'IV_SUBOBJECT'
+                                                    kind  = cl_abap_objectdescr=>exporting
+                                                    value = REF #( iv_subobject ) )
+                                                  ( name  = 'IV_EXTNUMBER'
+                                                    kind  = cl_abap_objectdescr=>exporting
+                                                    value = REF #( iv_extnumber ) )
+                                                  ( name  = 'IT_EXTNUMBER'
+                                                    kind  = cl_abap_objectdescr=>exporting
+                                                    value = REF #( it_extnumber ) ) ).
+    INSERT LINES OF it_additional_params INTO TABLE rt_parameter_table.
+    SORT rt_parameter_table BY name ASCENDING.
+    DELETE ADJACENT DUPLICATES FROM rt_parameter_table.
+
+  ENDMETHOD.
+
+
+  METHOD create.
+
+    backup_sy_msg( ).
+
+    IF     iv_class_name IS NOT INITIAL
+       AND iv_class_name NE zial_cl_log_sap=>mc_default_sap-class_name.
+      mo_instance = create_by_class_name( iv_class_name        = iv_class_name
+                                          iv_object            = iv_object
+                                          iv_subobject         = iv_subobject
+                                          iv_extnumber         = iv_extnumber
+                                          it_extnumber         = it_extnumber
+                                          it_additional_params = it_additional_params ).
+    ENDIF.
+
+    IF mo_instance IS NOT BOUND.
+      mo_instance = create_by_const_class( iv_object            = iv_object
+                                           iv_subobject         = iv_subobject
+                                           iv_extnumber         = iv_extnumber
+                                           it_extnumber         = it_extnumber
+                                           it_additional_params = it_additional_params ).
+    ENDIF.
+
+    zial_cl_log_stack=>push( mo_instance ).
+
+    recover_sy_msg( ).
+
+    ro_instance = mo_instance.
+
+  ENDMETHOD.
+
+
+  METHOD get.
+
+    mo_instance = zial_cl_log_stack=>pop( )-instance.
+    IF mo_instance IS INITIAL.
+      mo_instance = create( iv_object    = ms_default_log-object
+                            iv_subobject = ms_default_log-subobject
+                            iv_extnumber = CONV #( TEXT-001 ) ).
+    ENDIF.
+
+    ro_instance = mo_instance.
+
+  ENDMETHOD.
+
+
+  METHOD create_by_const_class.
+
+    TRY.
+        DATA(lt_parameters) = create_parameter_table( iv_object            = iv_object
+                                                      iv_subobject         = iv_subobject
+                                                      iv_extnumber         = iv_extnumber
+                                                      it_extnumber         = it_extnumber
+                                                      it_additional_params = it_additional_params ).
+        CREATE OBJECT ro_instance TYPE (zial_cl_log_const=>mc_default-class_name) PARAMETER-TABLE lt_parameters.
+
+      CATCH cx_sy_create_object_error.
+        mo_instance = create_by_base_class( iv_object    = iv_object
+                                            iv_subobject = iv_subobject
+                                            iv_extnumber = iv_extnumber
+                                            it_extnumber = it_extnumber ).
+
+    ENDTRY.
+
+  ENDMETHOD.
+
+
+  METHOD create_by_class_name.
+
+    TRY.
+        DATA(lo_class_descr) = CAST cl_abap_classdescr( cl_abap_classdescr=>describe_by_name( iv_class_name ) ).
+        IF lo_class_descr IS NOT BOUND.
+          RETURN.
+        ENDIF.
+
+        DATA(lt_parameters) = create_parameter_table( iv_object            = iv_object
+                                                      iv_subobject         = iv_subobject
+                                                      iv_extnumber         = iv_extnumber
+                                                      it_extnumber         = it_extnumber
+                                                      it_additional_params = it_additional_params ).
+        CREATE OBJECT ro_instance TYPE (iv_class_name) PARAMETER-TABLE lt_parameters.
+
+      CATCH cx_sy_create_object_error.
+        mo_instance = create_by_base_class( iv_object    = iv_object
+                                            iv_subobject = iv_subobject
+                                            iv_extnumber = iv_extnumber
+                                            it_extnumber = it_extnumber ).
+
+    ENDTRY.
+
+  ENDMETHOD.
+
+
+  METHOD create_by_base_class.
+
+    ro_instance = NEW zial_cl_log_sap( iv_object    = iv_object
+                                       iv_subobject = iv_subobject
+                                       iv_extnumber = iv_extnumber
+                                       it_extnumber = it_extnumber ).
+
+  ENDMETHOD.
+
+
+  METHOD backup_sy_msg.
+
+    ms_symsg = VALUE #( msgid = sy-msgid
+                        msgno = sy-msgno
+                        msgty = sy-msgty
+                        msgv1 = sy-msgv1
+                        msgv2 = sy-msgv2
+                        msgv3 = sy-msgv3
+                        msgv4 = sy-msgv4 ).
 
   ENDMETHOD.
 

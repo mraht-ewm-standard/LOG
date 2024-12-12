@@ -146,6 +146,12 @@
      <MSGNR>022</MSGNR>
      <TEXT>***** &amp;1 at &amp;2 *****</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZIAL_LOG</ARBGB>
+     <MSGNR>023</MSGNR>
+     <TEXT>Method &amp;1~&amp;2 is not supported (yet) in this system!</TEXT>
+    </T100>
    </T100>
    <I18N_LANGS>
     <LANGU>D</LANGU>
