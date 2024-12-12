@@ -25,6 +25,7 @@ CLASS ltc_log_ewm DEFINITION FINAL
 
     METHODS t0001 FOR TESTING RAISING cx_static_check.
     METHODS t0002 FOR TESTING RAISING cx_static_check.
+    METHODS t0003 FOR TESTING RAISING cx_static_check.
 
 ENDCLASS.
 
@@ -67,7 +68,7 @@ CLASS ltc_log_ewm IMPLEMENTATION.
 
   METHOD t0001.
 
-    " CHECK 1 = 2. ##DEACTIVATED.
+    CHECK mo_aunit->active( abap_false ).
 
     MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
     DATA(ls_exp_message) = zial_cl_log=>to_bapiret( ).
@@ -94,6 +95,8 @@ CLASS ltc_log_ewm IMPLEMENTATION.
 
 
   METHOD t0002.
+
+    CHECK mo_aunit->active( abap_false ).
 
     " IT_DATA as element with FNAM
     DATA(lt_lgpla) = VALUE /scwm/tt_lgpla( ( 'TEST1' )
@@ -152,6 +155,31 @@ CLASS ltc_log_ewm IMPLEMENTATION.
                                                                       ( low = '5678' ) ) ).
     cl_abap_unit_assert=>assert_equals( exp = 2
                                         act = lines( lt_msgde ) ).
+
+  ENDMETHOD.
+
+
+  METHOD t0003.
+
+    CHECK mo_aunit->active( abap_false ).
+
+    DATA(lo_log) = zial_cl_log=>create( iv_class_name = zial_cl_log_ewm=>mc_default_ewm-class_name
+                                        iv_object     = zial_cl_log_ewm=>mc_default_ewm-log_object
+                                        iv_subobject  = zial_cl_log_ewm=>mc_default_ewm-log_subobject
+                                        iv_extnumber  = 'TEST' ).
+
+    cl_abap_unit_assert=>assert_bound( act = lo_log ).
+
+    IF lo_log IS NOT INSTANCE OF zial_cl_log_ewm.
+      cl_abap_unit_assert=>fail( ).
+    ENDIF.
+
+    DATA(lo_log2) = zial_cl_log=>get( ).
+    cl_abap_unit_assert=>assert_bound( act = lo_log2 ).
+
+    IF lo_log2 IS NOT INSTANCE OF zial_cl_log_ewm.
+      cl_abap_unit_assert=>fail( ).
+    ENDIF.
 
   ENDMETHOD.
 

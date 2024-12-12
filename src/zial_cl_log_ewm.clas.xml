@@ -10,6 +10,7 @@
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
+    <MSG_ID>ZIAL_LOG</MSG_ID>
     <WITH_UNIT_TESTS>X</WITH_UNIT_TESTS>
    </VSEOCLASS>
    <TPOOL>
@@ -33,21 +34,6 @@
      </TEXTPOOL>
     </item>
    </I18N_TPOOL>
-   <DESCRIPTIONS>
-    <SEOCOMPOTX>
-     <CMPNAME>SET_LGNUM</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Set warehouse number</DESCRIPT>
-    </SEOCOMPOTX>
-   </DESCRIPTIONS>
-   <DESCRIPTIONS_SUB>
-    <SEOSUBCOTX>
-     <CMPNAME>SET_LGNUM</CMPNAME>
-     <SCONAME>IV_LGNUM</SCONAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Warehouse number</DESCRIPT>
-    </SEOSUBCOTX>
-   </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
 </abapGit>

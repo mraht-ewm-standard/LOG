@@ -5,7 +5,7 @@ CLASS zial_cl_log_stack DEFINITION
   PUBLIC SECTION.
     TYPES: BEGIN OF s_log_stack,
              log_handle TYPE balloghndl,
-             instance   TYPE zial_cl_log_const=>r_log_instance,
+             instance   TYPE REF TO zial_if_log_sap,
            END OF s_log_stack.
     TYPES t_log_stack TYPE SORTED TABLE OF s_log_stack WITH UNIQUE KEY log_handle.
 
@@ -15,7 +15,7 @@ CLASS zial_cl_log_stack DEFINITION
       IMPORTING iv_log_handle TYPE balloghndl.
 
     CLASS-METHODS push
-      IMPORTING io_instance TYPE zial_cl_log_const=>r_log_instance.
+      IMPORTING io_instance TYPE REF TO zial_if_log_sap.
 
     CLASS-METHODS pop
       RETURNING VALUE(rs_log_stack) TYPE s_log_stack.

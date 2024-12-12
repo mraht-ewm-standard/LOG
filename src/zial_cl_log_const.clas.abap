@@ -2,7 +2,9 @@ CLASS zial_cl_log_const DEFINITION
   PUBLIC ABSTRACT FINAL.
 
   PUBLIC SECTION.
-    TYPES r_log_instance TYPE REF TO zial_cl_log_ewm.
+    CONSTANTS: BEGIN OF mc_default,
+                 class_name TYPE seoclsname VALUE zial_cl_log_ewm=>mc_default_ewm-class_name,
+               END OF mc_default.
 
 ENDCLASS.
 
