@@ -66,7 +66,7 @@ CLASS ltc_log_conf IMPLEMENTATION.
 
   METHOD t0001.
 
-    " CHECK 1 = 2. ##DEACTIVATED.
+    CHECK mo_aunit->active( abap_true ).
 
     LOOP AT ms_tdc_data-t_log_conf ASSIGNING FIELD-SYMBOL(<ls_log_conf_exp>).
 
@@ -83,6 +83,8 @@ CLASS ltc_log_conf IMPLEMENTATION.
 
 
   METHOD t0002.
+
+    CHECK mo_aunit->active( abap_true ).
 
     DATA(ls_log_conf_act) = zial_cl_log_conf=>get( iv_object    = space
                                                    iv_subobject = space
