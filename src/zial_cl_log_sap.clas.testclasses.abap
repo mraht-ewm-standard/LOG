@@ -103,8 +103,8 @@ CLASS ltc_log IMPLEMENTATION.
 
     CHECK mo_aunit->active( abap_true ).
 
-    DATA(lo_api_message) = NEW /scwm/cl_api_message( ).
-    zial_cl_log=>get( )->log_api_message( lo_api_message ).
+    DATA(lr_o_api_message) = NEW zial_de_log_ewm_if_api_message( ).
+    zial_cl_log=>get( )->log_api_message( lr_o_api_message ).
 
   ENDMETHOD.
 

@@ -1203,7 +1203,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_api_message.
 
-    MESSAGE e023 WITH 'ZIAL_IF_LOG_EWM' 'LOG_API_MESSAGE'.
+    MESSAGE e023 WITH 'LOG_API_MESSAGE' INTO DATA(lv_msgtx) ##NEEDED.
     log_message( ).
 
   ENDMETHOD.
@@ -1211,7 +1211,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_dm_messages.
 
-    MESSAGE e023 WITH 'ZIAL_IF_LOG_EWM' 'LOG_DM_MESSAGES'.
+    MESSAGE e023 WITH 'LOG_DM_MESSAGES' INTO DATA(lv_msgtx) ##NEEDED.
     log_message( ).
 
   ENDMETHOD.
@@ -1219,9 +1219,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD log_saplog.
 
-    lcl_session=>get_callstack( ).
-
-    MESSAGE e023 WITH 'ZIAL_IF_LOG_EWM' 'LOG_SAPLOG'.
+    MESSAGE e023 WITH 'LOG_SAPLOG' INTO DATA(lv_msgtx) ##NEEDED.
     log_message( ).
 
   ENDMETHOD.
@@ -1229,7 +1227,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD set_lgnum.
 
-    MESSAGE e023 WITH 'ZIAL_IF_LOG_EWM' 'SET_LGNUM'.
+    MESSAGE e023 WITH 'SET_LGNUM' INTO DATA(lv_msgtx) ##NEEDED.
     log_message( ).
 
   ENDMETHOD.

@@ -150,7 +150,7 @@
      <SPRSL>E</SPRSL>
      <ARBGB>ZIAL_LOG</ARBGB>
      <MSGNR>023</MSGNR>
-     <TEXT>Method &amp;1~&amp;2 is not supported (yet) in this system!</TEXT>
+     <TEXT>Log method &amp;1 is not (yet) supported in this system!</TEXT>
     </T100>
    </T100>
    <I18N_LANGS>
@@ -278,6 +278,11 @@
      <SPRSL>D</SPRSL>
      <MSGNR>022</MSGNR>
      <TEXT>***** &amp;1 um &amp;2 *****</TEXT>
+    </item>
+    <item>
+     <SPRSL>D</SPRSL>
+     <MSGNR>023</MSGNR>
+     <TEXT>Log-Methode &amp;1 wird derzeit noch nicht in diesem System unterstützt!</TEXT>
     </item>
    </T100_TEXTS>
   </asx:values>
