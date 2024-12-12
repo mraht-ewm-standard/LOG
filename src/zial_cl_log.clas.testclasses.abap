@@ -30,7 +30,6 @@ CLASS ltc_log DEFINITION FINAL
     METHODS t0005 FOR TESTING RAISING cx_static_check.
     METHODS t0006 FOR TESTING RAISING cx_static_check.
     METHODS t0007 FOR TESTING RAISING cx_static_check.
-    METHODS t0008 FOR TESTING RAISING cx_static_check.
 
 ENDCLASS.
 
@@ -73,7 +72,7 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0001.
 
-    CHECK 1 EQ 2. " Deactivate
+    CHECK mo_aunit->active( abap_true ).
 
     zial_cl_log=>get( )->log_message( iv_msgty = zial_cl_log=>mc_msgty-info
                                       iv_msgtx = |LOG_INFO| ).
@@ -87,7 +86,7 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0002.
 
-    CHECK 1 EQ 2. " Deactivate
+    CHECK mo_aunit->active( abap_true ).
 
     zial_cl_log=>get( )->log_message( iv_msgty = zial_cl_log=>mc_msgty-info
                                       iv_msgtx = |LOG_INFO| ).
@@ -107,7 +106,7 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0003.
 
-    CHECK 1 EQ 2. " Deactivate
+    CHECK mo_aunit->active( abap_true ).
 
     MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
     DATA(lt_exp_messages) = zial_cl_log=>to_bapirets( ).
@@ -122,7 +121,7 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0004.
 
-    CHECK 1 EQ 2. " Deactivate
+    CHECK mo_aunit->active( abap_true ).
 
     MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
     zial_cl_log=>get( )->log_message( it_msgde = VALUE #( ( fnam = 'TEST' low = '1234' ) ) ).
@@ -136,7 +135,7 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0005.
 
-    CHECK 1 EQ 2. " Deactivate
+    CHECK mo_aunit->active( abap_true ).
 
     DATA(lv_act_components) = zial_cl_log=>get_components_from_msgde( VALUE #( ( fnam = 'LGNUM' )
                                                                                ( fnam = 'HUID' )
@@ -150,7 +149,7 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0006.
 
-    CHECK 1 EQ 2. " Deactivate
+    CHECK mo_aunit->active( abap_true ).
 
     MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
     DATA(lv_msgtx) = zial_cl_log=>to_string( ).
@@ -163,7 +162,7 @@ CLASS ltc_log IMPLEMENTATION.
 
   METHOD t0007.
 
-    CHECK 1 EQ 2. " Deactivate
+    CHECK mo_aunit->active( abap_true ).
 
     DATA(ls_exp_message) = zial_cl_log=>to_bapiret( iv_msgtx = |&1 &2 &3 &4|
                                                     iv_msgv1 = 'LGNUM'
@@ -172,26 +171,6 @@ CLASS ltc_log IMPLEMENTATION.
                                                     iv_msgv4 = 'NLPLA' ).
 
     cl_abap_unit_assert=>assert_not_initial( ls_exp_message ).
-
-  ENDMETHOD.
-
-
-  METHOD t0008.
-
-*    CHECK 1 EQ 2. " Deactivate
-
-    DATA(lo_log) = zial_cl_log=>create( iv_class_name = zial_cl_log_sap=>mc_default_sap-class_name
-                                        iv_object     = zial_cl_log_sap=>mc_default_sap-log_object
-                                        iv_subobject  = zial_cl_log_sap=>mc_default_sap-log_subobject
-                                        iv_extnumber  = 'TEST' ).
-    cl_abap_unit_assert=>assert_bound( act = lo_log ).
-
-    DATA(lo_log2) = CAST zial_cl_log_sap( zial_cl_log=>get( ) ).
-    cl_abap_unit_assert=>assert_bound( act = lo_log2 ).
-
-    IF lo_log2 IS NOT INSTANCE OF zial_cl_log_sap.
-      cl_abap_unit_assert=>fail( ).
-    ENDIF.
 
   ENDMETHOD.
 

@@ -3,26 +3,26 @@ INTERFACE zial_if_log_ewm
 
   "! <strong>[EWM]</strong> Log SAP log messages
   "!
-  "! @parameter ir_o_log | TYPE REF TO /SCWM/CL_LOG (SAP log object)
+  "! @parameter io_log | SAP log object
   METHODS log_saplog
-    IMPORTING ir_o_log TYPE zial_de_log_ewm_cl_log.
+    IMPORTING io_log TYPE REF TO /scwm/cl_log.
 
   "! <strong>[EWM]</strong> Log API messages
   "!
-  "! @parameter ir_o_api_message | TYPE REF TO /SCWM/IF_API_MESSAGE (API log object)
+  "! @parameter io_api_message | API log object
   METHODS log_api_message
-    IMPORTING ir_o_api_message TYPE zial_de_log_ewm_if_api_message.
+    IMPORTING io_api_message TYPE REF TO /scwm/if_api_message.
 
   "! <strong>[EWM]</strong> Log delivery management messages
   "!
-  "! @parameter ir_t_dm_messages | TYPE /SCDL/DM_MESSAGE_TAB (Delivery management log messages)
+  "! @parameter it_dm_messages | Delivery management log messages
   METHODS log_dm_messages
-    IMPORTING ir_t_dm_messages TYPE zial_de_log_ewm_dm_message_tab.
+    IMPORTING it_dm_messages TYPE /scdl/dm_message_tab.
 
   "! <strong>[EWM]</strong> Set warehouse number
   "!
-  "! @parameter ir_v_lgnum | TYPE /SCWM/LGNUM (Warehouse number)
+  "! @parameter iv_lgnum | Warehouse number
   METHODS set_lgnum
-    IMPORTING ir_v_lgnum TYPE zial_de_log_ewm_lgnum.
+    IMPORTING iv_lgnum TYPE /scwm/lgnum.
 
 ENDINTERFACE.

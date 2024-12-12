@@ -5,7 +5,7 @@
    <VSEOINTERF>
     <CLSNAME>ZIAL_IF_LOG_SAP</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Logging: Interface</DESCRIPT>
+    <DESCRIPT>Logging: General SAP log interface</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
     <UNICODE>X</UNICODE>

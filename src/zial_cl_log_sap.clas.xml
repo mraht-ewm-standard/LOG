@@ -5,7 +5,7 @@
    <VSEOCLASS>
     <CLSNAME>ZIAL_CL_LOG_SAP</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Logging: Base and general log class</DESCRIPT>
+    <DESCRIPT>Logging: General Log</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

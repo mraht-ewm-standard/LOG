@@ -6,13 +6,21 @@ CLASS zial_cl_log_ewm DEFINITION
   GLOBAL FRIENDS zial_cl_log.
 
   PUBLIC SECTION.
-    CONSTANTS: BEGIN OF mc_default_ewm,
-                 class_name    TYPE seoclsname VALUE 'ZIAL_CL_LOG_EWM',
-                 log_object    TYPE balobj_d   VALUE '/SCWM/WME',
-                 log_subobject TYPE balsubobj  VALUE 'LOG_GENERAL',
-               END OF mc_default_ewm.
+    INTERFACES zial_if_log_ewm.
 
-    CLASS-METHODS class_constructor.
+    ALIASES log_saplog      FOR zial_if_log_ewm~log_saplog.
+    ALIASES log_api_message FOR zial_if_log_ewm~log_api_message.
+    ALIASES log_dm_messages FOR zial_if_log_ewm~log_dm_messages.
+    ALIASES set_lgnum       FOR zial_if_log_ewm~set_lgnum.
+
+    METHODS constructor
+      IMPORTING iv_lgnum       TYPE /scwm/lgnum         OPTIONAL
+                io_sap_log     TYPE REF TO /scwm/cl_log OPTIONAL
+                iv_object      TYPE balobj_d            DEFAULT '/SCWM/WME'
+                iv_subobject   TYPE balsubobj           DEFAULT 'LOG_GENERAL'
+                iv_extnumber   TYPE balnrext            OPTIONAL
+                it_extnumber   TYPE stringtab           OPTIONAL
+                iv_log_part_id TYPE i                   DEFAULT 0.
 
     CLASS-METHODS to_bapiret
       IMPORTING it_dm_messages       TYPE /scdl/dm_message_tab OPTIONAL
@@ -20,11 +28,6 @@ CLASS zial_cl_log_ewm DEFINITION
       RETURNING VALUE(rt_bapirettab) TYPE bapirettab.
 
     METHODS set_expiry_date REDEFINITION.
-    METHODS set_lgnum       REDEFINITION.
-    METHODS log_api_message REDEFINITION.
-
-    METHODS log_dm_messages REDEFINITION.
-    METHODS log_saplog      REDEFINITION.
 
   PROTECTED SECTION.
     CLASS-DATA mo_instance TYPE REF TO zial_cl_log_ewm.
@@ -32,32 +35,13 @@ CLASS zial_cl_log_ewm DEFINITION
     DATA mv_lgnum   TYPE /scwm/lgnum.
     DATA mo_sap_log TYPE REF TO /scwm/cl_log.
 
-    METHODS constructor
-      IMPORTING iv_lgnum       TYPE /scwm/lgnum         OPTIONAL
-                io_sap_log     TYPE REF TO /scwm/cl_log OPTIONAL
-                iv_object      TYPE balobj_d            DEFAULT mc_default_ewm-log_object
-                iv_subobject   TYPE balsubobj           DEFAULT mc_default_ewm-log_subobject
-                iv_extnumber   TYPE balnrext            OPTIONAL
-                it_extnumber   TYPE stringtab           OPTIONAL
-                iv_log_part_id TYPE i                   DEFAULT 0.
-
     METHODS add_msg_by_message_object REDEFINITION.
     METHODS add_msg_by_message_text   REDEFINITION.
-
-  PRIVATE SECTION.
 
 ENDCLASS.
 
 
 CLASS zial_cl_log_ewm IMPLEMENTATION.
-
-  METHOD class_constructor.
-
-    zial_cl_log=>set_default_log( iv_object    = mc_default_ewm-log_object
-                                  iv_subobject = mc_default_ewm-log_subobject ).
-
-  ENDMETHOD.
-
 
   METHOD add_msg_by_message_object.
 
@@ -120,11 +104,44 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
                         it_extnumber   = it_extnumber
                         iv_log_part_id = iv_log_part_id ).
 
-    zial_cl_log=>set_default_log( iv_object    = mc_default_ewm-log_object
-                                  iv_subobject = mc_default_ewm-log_subobject ).
-
     mv_lgnum   = iv_lgnum.
     mo_sap_log = io_sap_log.
+
+  ENDMETHOD.
+
+
+  METHOD set_lgnum.
+
+    mv_lgnum = iv_lgnum.
+
+  ENDMETHOD.
+
+
+  METHOD log_api_message.
+
+    CHECK io_api_message IS BOUND.
+
+    io_api_message->get_messages( IMPORTING et_bapiret = DATA(lt_bapiret) ).
+
+    log_bapiret( lt_bapiret ).
+
+  ENDMETHOD.
+
+
+  METHOD log_dm_messages.
+
+    LOOP AT it_dm_messages ASSIGNING FIELD-SYMBOL(<ls_dm_message>).
+      log_symsg( is_symsg = CORRESPONDING #( <ls_dm_message> ) ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD log_saplog.
+
+    CHECK io_log IS BOUND.
+
+    log_bapiret( io_log->get_prot( ) ).
 
   ENDMETHOD.
 
@@ -148,45 +165,6 @@ CLASS zial_cl_log_ewm IMPLEMENTATION.
                                                               message_v3 = msgv3
                                                               message_v4 = msgv4 ).
     ENDIF.
-
-  ENDMETHOD.
-
-
-  METHOD set_lgnum.
-
-    CHECK ir_v_lgnum IS BOUND.
-
-    mv_lgnum = ir_v_lgnum->*.
-
-  ENDMETHOD.
-
-
-  METHOD log_api_message.
-
-    CHECK ir_o_api_message IS BOUND.
-
-    ir_o_api_message->get_messages( IMPORTING et_bapiret = DATA(lt_bapiret) ).
-    log_bapiret( lt_bapiret ).
-
-  ENDMETHOD.
-
-
-  METHOD log_saplog.
-
-    CHECK ir_o_log IS BOUND.
-
-    log_bapiret( ir_o_log->get_prot( ) ).
-
-  ENDMETHOD.
-
-
-  METHOD log_dm_messages.
-
-    CHECK ir_t_dm_messages IS BOUND.
-
-    LOOP AT ir_t_dm_messages->* ASSIGNING FIELD-SYMBOL(<ls_dm_message>).
-      log_symsg( is_symsg = CORRESPONDING #( <ls_dm_message> ) ).
-    ENDLOOP.
 
   ENDMETHOD.
 

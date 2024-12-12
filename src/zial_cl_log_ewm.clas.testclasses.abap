@@ -26,6 +26,8 @@ CLASS ltc_log_ewm DEFINITION FINAL
     METHODS t0001 FOR TESTING RAISING cx_static_check.
     METHODS t0002 FOR TESTING RAISING cx_static_check.
     METHODS t0003 FOR TESTING RAISING cx_static_check.
+    METHODS t0004 FOR TESTING RAISING cx_static_check.
+    METHODS t0005 FOR TESTING RAISING cx_static_check.
 
 ENDCLASS.
 
@@ -68,7 +70,7 @@ CLASS ltc_log_ewm IMPLEMENTATION.
 
   METHOD t0001.
 
-    CHECK mo_aunit->active( abap_false ).
+    CHECK mo_aunit->active( abap_true ).
 
     MESSAGE s499(sy) WITH 'LGNUM' 'HUID' 'RSRC' 'NLPLA' INTO DATA(lv_exp_msgtx) ##NEEDED.
     DATA(ls_exp_message) = zial_cl_log=>to_bapiret( ).
@@ -96,7 +98,7 @@ CLASS ltc_log_ewm IMPLEMENTATION.
 
   METHOD t0002.
 
-    CHECK mo_aunit->active( abap_false ).
+    CHECK mo_aunit->active( abap_true ).
 
     " IT_DATA as element with FNAM
     DATA(lt_lgpla) = VALUE /scwm/tt_lgpla( ( 'TEST1' )
@@ -161,25 +163,30 @@ CLASS ltc_log_ewm IMPLEMENTATION.
 
   METHOD t0003.
 
-    CHECK mo_aunit->active( abap_false ).
+    CHECK mo_aunit->active( abap_true ).
 
-    DATA(lo_log) = zial_cl_log=>create( iv_class_name = zial_cl_log_ewm=>mc_default_ewm-class_name
-                                        iv_object     = zial_cl_log_ewm=>mc_default_ewm-log_object
-                                        iv_subobject  = zial_cl_log_ewm=>mc_default_ewm-log_subobject
-                                        iv_extnumber  = 'TEST' ).
+    DATA(lo_cl_log) = NEW /scwm/cl_log( ).
+    zial_cl_log=>get( )->log_saplog( lo_cl_log ).
 
-    cl_abap_unit_assert=>assert_bound( act = lo_log ).
+  ENDMETHOD.
 
-    IF lo_log IS NOT INSTANCE OF zial_cl_log_ewm.
-      cl_abap_unit_assert=>fail( ).
-    ENDIF.
 
-    DATA(lo_log2) = zial_cl_log=>get( ).
-    cl_abap_unit_assert=>assert_bound( act = lo_log2 ).
+  METHOD t0004.
 
-    IF lo_log2 IS NOT INSTANCE OF zial_cl_log_ewm.
-      cl_abap_unit_assert=>fail( ).
-    ENDIF.
+    CHECK mo_aunit->active( abap_true ).
+
+    DATA(lo_api_message) = NEW /scwm/cl_api_message( ).
+    zial_cl_log=>get( )->log_api_message( lo_api_message ).
+
+  ENDMETHOD.
+
+
+  METHOD t0005.
+
+    CHECK mo_aunit->active( abap_true ).
+
+    DATA(lt_dm_messages) = VALUE /scdl/dm_message_tab( ).
+    zial_cl_log=>get( )->log_dm_messages( lt_dm_messages ).
 
   ENDMETHOD.
 
