@@ -1,4 +1,4 @@
-"! <p class="shorttext synchronized">Logging: Base and general log class</p>
+"! <p class="shorttext synchronized">Logging: General Log</p>
 CLASS zial_cl_log_sap DEFINITION
   PUBLIC
   CREATE PROTECTED
@@ -7,9 +7,9 @@ CLASS zial_cl_log_sap DEFINITION
   PUBLIC SECTION.
     INTERFACES zial_if_log_sap.
 
-    ALIASES log_message             FOR zial_if_log_sap~log_message.
-    ALIASES get_messages            FOR zial_if_log_sap~get_messages.
     ALIASES get_log_handle          FOR zial_if_log_sap~get_log_handle.
+    ALIASES get_messages            FOR zial_if_log_sap~get_messages.
+    ALIASES log_message             FOR zial_if_log_sap~log_message.
     ALIASES log_exception           FOR zial_if_log_sap~log_exception.
     ALIASES log_symsg               FOR zial_if_log_sap~log_symsg.
     ALIASES log_bapiret             FOR zial_if_log_sap~log_bapiret.
@@ -21,23 +21,27 @@ CLASS zial_cl_log_sap DEFINITION
     ALIASES set_detail_level        FOR zial_if_log_sap~set_detail_level.
     ALIASES set_expiry_date         FOR zial_if_log_sap~set_expiry_date.
     ALIASES set_level_log_callstack FOR zial_if_log_sap~set_level_log_callstack.
-    ALIASES log_saplog              FOR zial_if_log_sap~log_saplog.
-    ALIASES log_api_message         FOR zial_if_log_sap~log_api_message.
-    ALIASES log_dm_messages         FOR zial_if_log_sap~log_dm_messages.
-    ALIASES set_lgnum               FOR zial_if_log_sap~set_lgnum.
 
     TYPES t_spar TYPE STANDARD TABLE OF spar WITH DEFAULT KEY.
 
-    CONSTANTS: BEGIN OF mc_default_sap,
-                 class_name    TYPE classname VALUE 'ZIAL_CL_LOG_SAP',
-                 log_object    TYPE balobj_d  VALUE 'SYSLOG',
-                 log_subobject TYPE balsubobj VALUE 'GENERAL',
-               END OF mc_default_sap.
-
-    CLASS-METHODS class_constructor.
+    CONSTANTS mc_class_name TYPE classname VALUE 'ZIAL_CL_LOG_SAP' ##NO_TEXT.
 
     CLASS-METHODS on_log_callback
       IMPORTING it_params TYPE t_spar.
+
+    "! Initialize log instance
+    "!
+    "! @parameter iv_object      | Log object
+    "! @parameter iv_subobject   | Log subobject
+    "! @parameter iv_extnumber   | External number / description for a log
+    "! @parameter it_extnumber   | External number elements
+    "! @parameter iv_log_part_id | ID for the new log as part of another log
+    METHODS constructor
+      IMPORTING iv_object      TYPE balobj_d  DEFAULT zial_cl_log=>mc_default-log_object
+                iv_subobject   TYPE balsubobj DEFAULT zial_cl_log=>mc_default-log_subobject
+                iv_extnumber   TYPE balnrext  OPTIONAL
+                it_extnumber   TYPE stringtab OPTIONAL
+                iv_log_part_id TYPE i         DEFAULT 0.
 
   PROTECTED SECTION.
     TYPES: BEGIN OF s_processing_control,
@@ -75,20 +79,6 @@ CLASS zial_cl_log_sap DEFINITION
                 iv_subrc          TYPE sysubrc
                 is_log_msg        TYPE zial_s_log
       RETURNING VALUE(rt_bapiret) TYPE bapirettab.
-
-    "! Initialize log instance
-    "!
-    "! @parameter iv_object      | Log object
-    "! @parameter iv_subobject   | Log subobject
-    "! @parameter iv_extnumber   | External number / description for a log
-    "! @parameter it_extnumber   | External number elements
-    "! @parameter iv_log_part_id | ID for the new log as part of another log
-    METHODS constructor
-      IMPORTING iv_object      TYPE balobj_d  DEFAULT mc_default_sap-log_object
-                iv_subobject   TYPE balsubobj DEFAULT mc_default_sap-log_subobject
-                iv_extnumber   TYPE balnrext  OPTIONAL
-                it_extnumber   TYPE stringtab OPTIONAL
-                iv_log_part_id TYPE i         DEFAULT 0.
 
     "! Initialize log
     "!
@@ -191,19 +181,10 @@ CLASS zial_cl_log_sap DEFINITION
       RETURNING VALUE(rv_detail_level) TYPE zial_de_log_detail_level.
 
   PRIVATE SECTION.
-
 ENDCLASS.
 
 
 CLASS zial_cl_log_sap IMPLEMENTATION.
-
-  METHOD class_constructor.
-
-    zial_cl_log=>set_default_log( iv_object    = mc_default_sap-log_object
-                                  iv_subobject = mc_default_sap-log_subobject ).
-
-  ENDMETHOD.
-
 
   METHOD add_msg_by_message_object.
 
@@ -324,9 +305,6 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD constructor.
 
-    zial_cl_log=>set_default_log( iv_object    = mc_default_sap-log_object
-                                  iv_subobject = mc_default_sap-log_subobject ).
-
     GET TIME STAMP FIELD mv_process_bgn.
     ms_log-hdr = VALUE #( object    = iv_object
                           subobject = iv_subobject
@@ -347,8 +325,8 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
 
   METHOD create_and_save_error_log.
 
-    DATA(lo_log_sap) = NEW zial_cl_log_sap( iv_object    = mc_default_sap-log_object
-                                            iv_subobject = mc_default_sap-log_subobject
+    DATA(lo_log_sap) = NEW zial_cl_log_sap( iv_object    = zial_cl_log=>mc_default-log_object
+                                            iv_subobject = zial_cl_log=>mc_default-log_subobject
                                             iv_extnumber = TEXT-000 ).
 
     DATA(lt_bapiret) = error_handling( iv_process = iv_process
@@ -952,7 +930,7 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
     CHECK det_detail_level( ms_log-msg-msgty ) LE ms_log-hdr-level_log_callstack.
 
     lcl_session=>get_callstack( IMPORTING et_callstack = DATA(lt_callstack) ).
-    DELETE lt_callstack WHERE mainprogram CS mc_default_sap-class_name.
+    DELETE lt_callstack WHERE mainprogram CS mc_class_name.
 
     DATA(lv_line) = repeat( val = '-'
                             occ = 80 ).
@@ -1197,38 +1175,6 @@ CLASS zial_cl_log_sap IMPLEMENTATION.
                                      WHEN zial_cl_log=>mc_msgty-success THEN zial_cl_log=>mc_msgty_prio-success  " Medium important
                                      WHEN zial_cl_log=>mc_msgty-warning THEN zial_cl_log=>mc_msgty_prio-warning  " Important
                                      WHEN zial_cl_log=>mc_msgty-error   THEN zial_cl_log=>mc_msgty_prio-error ). " Very important
-
-  ENDMETHOD.
-
-
-  METHOD log_api_message.
-
-    MESSAGE e023 WITH 'LOG_API_MESSAGE' INTO DATA(lv_msgtx) ##NEEDED.
-    log_message( ).
-
-  ENDMETHOD.
-
-
-  METHOD log_dm_messages.
-
-    MESSAGE e023 WITH 'LOG_DM_MESSAGES' INTO DATA(lv_msgtx) ##NEEDED.
-    log_message( ).
-
-  ENDMETHOD.
-
-
-  METHOD log_saplog.
-
-    MESSAGE e023 WITH 'LOG_SAPLOG' INTO DATA(lv_msgtx) ##NEEDED.
-    log_message( ).
-
-  ENDMETHOD.
-
-
-  METHOD set_lgnum.
-
-    MESSAGE e023 WITH 'SET_LGNUM' INTO DATA(lv_msgtx) ##NEEDED.
-    log_message( ).
 
   ENDMETHOD.
 

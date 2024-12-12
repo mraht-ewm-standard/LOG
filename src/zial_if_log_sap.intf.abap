@@ -1,17 +1,18 @@
+"! <p class="shorttext synchronized">Logging: General SAP log interface</p>
 INTERFACE zial_if_log_sap
   PUBLIC.
 
+  "! <strong>[SAP]</strong> Get handle of log
+  "!
+  "! @parameter rv_log_handle | Log handle
+  METHODS get_log_handle
+    RETURNING VALUE(rv_log_handle) TYPE balloghndl.
 
-  " ---------------------------------------------------------------------
-  " SAP Extended Warehouse Management (SAP EWM)
-  " ---------------------------------------------------------------------
-  INTERFACES zial_if_log_ewm.
-
-  ALIASES log_api_message FOR zial_if_log_ewm~log_api_message.
-  ALIASES log_dm_messages FOR zial_if_log_ewm~log_dm_messages.
-  ALIASES log_saplog      FOR zial_if_log_ewm~log_saplog.
-  ALIASES set_lgnum       FOR zial_if_log_ewm~set_lgnum.
-  " ---------------------------------------------------------------------
+  "! <strong>[SAP]</strong> Get all logged messages
+  "!
+  "! @parameter rt_messages | BAPI messages
+  METHODS get_messages
+    RETURNING VALUE(rt_messages) TYPE bapirettab.
 
   "! <strong>[SAP]</strong> Log a message with optionally message details
   "!
@@ -35,15 +36,6 @@ INTERFACE zial_if_log_sap
               iv_msgv4 TYPE symsgv                  DEFAULT sy-msgv4
               it_msgde TYPE rsra_t_alert_definition OPTIONAL.
 
-  "! <strong>[SAP]</strong> Get all logged messages
-  "!
-  "! @parameter rt_messages | BAPI messages
-  METHODS get_messages
-    RETURNING VALUE(rt_messages) TYPE bapirettab.
-
-  METHODS get_log_handle
-    RETURNING VALUE(rv_log_handle) TYPE balloghndl.
-
   "! <strong>[SAP]</strong> Log exception
   "!
   "! @parameter io_exception | Exception object
@@ -64,11 +56,11 @@ INTERFACE zial_if_log_sap
 
   "! <strong>[SAP]</strong> Log a horizontal line
   METHODS log_line.
-  "! <strong>[SAP]</strong> Log name of development object
-  "! which called the function to be logged
+
+  "! <strong>[SAP]</strong> Log name of development object which called the function to be logged
   METHODS log_caller.
 
-  "! <strong>[SAP]</strong> Log has an error
+  "! <strong>[SAP]</strong> Check if log has an error
   "!
   "! @parameter rv_result | Result
   METHODS has_error
@@ -81,9 +73,8 @@ INTERFACE zial_if_log_sap
     IMPORTING iv_finalize TYPE abap_bool DEFAULT abap_true.
 
   "! <strong>[SAP]</strong> Set log external number (description)
-  "!
   "! @parameter iv_extnumber | External number as line
-  "! @parameter it_extnumber | External numbers as string
+  "! @parameter it_extnumber | External numbers as table of strings
   METHODS set_extnumber
     IMPORTING iv_extnumber TYPE balnrext  OPTIONAL
               it_extnumber TYPE stringtab OPTIONAL.
@@ -93,13 +84,13 @@ INTERFACE zial_if_log_sap
   METHODS set_detail_level
     IMPORTING iv_detail_level TYPE zial_de_log_detail_level OPTIONAL.
 
-  "! <strong>[SAP]</strong> Set an expiry date for the log
+  "! <strong>[SAP]</strong> Set expiry date of log
   "!
   "! @parameter iv_validity_period | Validity period in days
   METHODS set_expiry_date
     IMPORTING iv_validity_period TYPE zial_de_log_validity_period OPTIONAL.
 
-  "! <strong>[SAP]</strong> Set level of message type for which a callstack is being logged automatically
+  "! <strong>[SAP]</strong> Set level of message type for which callstack is being logged
   "!
   "! @parameter iv_level | Level of message type
   METHODS set_level_log_callstack
