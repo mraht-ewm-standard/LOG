@@ -208,6 +208,10 @@ CLASS zial_cl_log DEFINITION
       PREFERRED PARAMETER it_bapiret
       RETURNING VALUE(rv_result) TYPE abap_bool.
 
+    CLASS-METHODS get_last_error
+      IMPORTING it_bapiret         TYPE bapiret2_t
+      RETURNING VALUE(rs_bapiret2) TYPE bapiret2.
+
   PROTECTED SECTION.
     CLASS-DATA mo_gui_docking_container TYPE REF TO cl_gui_docking_container.
     CLASS-DATA mo_gui_alv_grid          TYPE REF TO cl_gui_alv_grid.
@@ -734,6 +738,15 @@ CLASS zial_cl_log IMPLEMENTATION.
                              iv_msgv4   = iv_msgv4
                              is_bapiret = is_bapiret
                    IMPORTING es_symsg   = rs_symsg ).
+
+  ENDMETHOD.
+
+
+  METHOD get_last_error.
+
+    LOOP AT it_bapiret INTO rs_bapiret2 WHERE type CA mc_msgty-any_error.
+      EXIT.
+    ENDLOOP.
 
   ENDMETHOD.
 
