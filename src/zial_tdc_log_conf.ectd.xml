@@ -197,6 +197,10 @@
          
          
          
+         
+         
+         
+         
          <item>
           <MANDT>502</MANDT>
           <OBJECT>ZIAL_LOG</OBJECT>
@@ -205,6 +209,10 @@
           <ACTGLOB>3</ACTGLOB>
           <VALIDITY>90</VALIDITY>
          </item>
+         
+         
+         
+         
          
          
          
@@ -221,6 +229,10 @@
          
          
          
+         
+         
+         
+         
          <item>
           <MANDT>502</MANDT>
           <OBJECT>ZIAL_LOG</OBJECT>
@@ -231,6 +243,10 @@
          </item>
          
          
+         
+         
+        
+        
         
         
         </ddic:ZIAL_TT_LOG_CONF>
