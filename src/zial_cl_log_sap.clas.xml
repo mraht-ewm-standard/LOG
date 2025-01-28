@@ -58,6 +58,12 @@
      </TEXTPOOL>
     </item>
    </I18N_TPOOL>
+   <DESCRIPTIONS_CLASS>
+    <SEOCLASSTX>
+     <LANGU>D</LANGU>
+     <DESCRIPT>Logging: General Log</DESCRIPT>
+    </SEOCLASSTX>
+   </DESCRIPTIONS_CLASS>
   </asx:values>
  </asx:abap>
 </abapGit>
