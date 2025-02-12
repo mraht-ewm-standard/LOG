@@ -213,6 +213,12 @@
      <CONSTANTS>&apos;IMPL_TOOL&apos;</CONSTANTS>
     </DD28V>
    </DD28V_TABLE>
+   <TABL_EXTRAS>
+    <TDDAT>
+     <TABNAME>ZIAL_V_LOG_CONF</TABNAME>
+     <CCLASS>&amp;NC&amp;</CCLASS>
+    </TDDAT>
+   </TABL_EXTRAS>
    <I18N_LANGS>
     <LANGU>D</LANGU>
    </I18N_LANGS>

@@ -4,8 +4,14 @@
   <asx:values>
    <PROGDIR>
     <NAME>LZIAL_FG_LOG_CONFT00</NAME>
+    <DBAPL>S</DBAPL>
+    <DBNA>D$</DBNA>
     <SUBC>I</SUBC>
-    <RLOAD>D</RLOAD>
+    <APPL>S</APPL>
+    <RLOAD>E</RLOAD>
+    <FIXPT>X</FIXPT>
+    <LDBNAME>D$S</LDBNAME>
+    <UCCHECK>X</UCCHECK>
    </PROGDIR>
   </asx:values>
  </asx:abap>

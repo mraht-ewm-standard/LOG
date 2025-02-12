@@ -25,6 +25,10 @@
     </OBJS>
    </OBJS>
    <TOBJ>
+    <TDDAT>
+     <TABNAME>ZIAL_V_LOG_CONF</TABNAME>
+     <CCLASS>&amp;NC&amp;</CCLASS>
+    </TDDAT>
     <TVDIR>
      <TABNAME>ZIAL_V_LOG_CONF</TABNAME>
      <AREA>ZIAL_FG_LOG_CONF</AREA>
